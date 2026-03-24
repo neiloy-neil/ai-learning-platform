@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
-import { AppShell } from "@/components/layout/app-shell";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  return <AppShell className="min-h-screen">{children}</AppShell>;
+import DashboardLayout from "@/components/layout/dashboard-layout";
+import ProtectedRoute from "@/features/auth/components/protected-route";
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+        <DashboardLayout>{children}</DashboardLayout>
+    </ProtectedRoute>
+  );
 }

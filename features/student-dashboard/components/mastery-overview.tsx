@@ -1,40 +1,68 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import type { Concept, ConceptMastery } from "@/lib/pcdc-types";
 
-// Mock Data
-const masteryData = [
-  { subject: "Algebra", mastery: 75 },
-  { subject: "Geometry", mastery: 50 },
-  { subject: "Calculus", mastery: 90 },
-  { subject: "Trigonometry", mastery: 60 },
-];
+export default function MasteryOverview({ mastery, concepts }: { mastery: ConceptMastery[], concepts: Concept[] }) {
+  const getConceptName = (conceptId: string) => {
+    return concepts.find(c => c.id === conceptId)?.name || "Unknown Concept";
+  };
 
-const ProgressBar = ({ value }: { value: number }) => (
-  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-    <div
-      className="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-      style={{ width: `${value}%` }}
-    ></div>
-  </div>
-);
+  // Find strongest and weakest concepts
+  let strongestConcept: ConceptMastery | null = null;
+  let weakestConcept: ConceptMastery | null = null;
 
-export default function MasteryOverview() {
+  if (mastery.length > 0) {
+    strongestConcept = mastery.reduce((prev, current) => (prev.masteryScore > current.masteryScore ? prev : current));
+    weakestConcept = mastery.reduce((prev, current) => (prev.masteryScore < current.masteryScore ? prev : current));
+  }
+
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Mastery Overview</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        {masteryData.map((item) => (
-          <Card key={item.subject}>
+      <h2 className="mb-4 text-2xl font-semibold">Mastery Overview</h2>
+
+      {mastery.length === 0 ? (
+        <p className="text-muted-foreground">No mastery data available yet. Start practicing!</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {strongestConcept && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Strongest Concept</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-bold text-primary">{getConceptName(strongestConcept.conceptId)}</p>
+                <p className="text-sm text-muted-foreground">Score: {strongestConcept.masteryScore}%</p>
+              </CardContent>
+            </Card>
+          )}
+          {weakestConcept && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Weakest Concept</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-bold text-danger">{getConceptName(weakestConcept.conceptId)}</p>
+                <p className="text-sm text-muted-foreground">Score: {weakestConcept.masteryScore}%</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        {mastery.map((item) => (
+          <Card key={item.conceptId}>
             <CardHeader>
-              <CardTitle className="text-lg">{item.subject}</CardTitle>
+              <CardTitle className="text-lg">{getConceptName(item.conceptId)}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Progress</span>
-                <span className="text-sm font-bold">{item.mastery}%</span>
+                <span className="text-sm text-muted-foreground">Progress</span>
+                <span className="text-sm font-bold text-primary">{item.masteryScore}%</span>
               </div>
               <div className="mt-2">
-                <ProgressBar value={item.mastery} />
+                <ProgressBar value={item.masteryScore} />
               </div>
             </CardContent>
           </Card>
@@ -43,3 +71,4 @@ export default function MasteryOverview() {
     </div>
   );
 }
+

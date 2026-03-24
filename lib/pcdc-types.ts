@@ -54,6 +54,9 @@ export interface Question {
   text: string; // The content of the question itself
   difficulty: QuestionDifficulty; // Difficulty rating
   conceptIds: string[]; // An array of Concept IDs this question assesses
+  options: { id: string; text: string }[];
+  correctOptionId: string;
+  explanation: string;
 }
 
 /**
@@ -66,6 +69,7 @@ export interface StudentResponse {
   questionId: string;
   isCorrect: boolean; // Was the answer correct?
   attemptTimestamp: Date; // When the attempt was made
+  confidenceRating?: number; // Optional: student's self-reported confidence (e.g., 1-5)
 }
 
 // =================================================================
@@ -84,31 +88,60 @@ export interface ConceptMastery {
   lastUpdated: Date;
 }
 
-// =================================================================
 // 4. USER & DASHBOARD MODELS
 // =================================================================
 
-/**
- * Represents a student in the system.
- */
-export interface Student {
-  id: string;
-  name: string;
+export enum UserRole {
+    STUDENT = 'student',
+    TEACHER = 'teacher',
+    PARENT = 'parent',
 }
 
 /**
- * Represents a teacher or administrator.
+ * Represents a generic user in the system.
+ * Role-specific properties are included.
  */
-export interface Teacher {
+export interface User {
   id: string;
   name: string;
+  email: string;
+  role: UserRole;
+  
+  // Parent-specific
+  studentIds?: string[];
 }
 
-/**
- * Represents a parent or guardian.
- */
-export interface Parent {
-  id: string;
-  name: string;
-  studentIds: string[]; // IDs of children associated with this parent
+// Re-exporting User as Student for compatibility with existing code,
+// but new code should prefer the User type.
+export type Student = User;
+
+// =================================================================
+// 5. NOTIFICATIONS & OTHER FEATURES
+// =================================================================
+
+export interface Notification {
+    id: string;
+    userId: string;
+    text: string;
+    read: boolean;
+    createdAt: Date;
+}
+
+export interface Assignment {
+    id: string;
+    title: string;
+    description: string;
+    assignedDate: Date;
+    dueDate: Date;
+    status: 'Assigned' | 'Graded' | 'Submitted';
+    assignedToStudentId: string;
+    score?: number;
+}
+
+export interface ParentAlert {
+    id: string;
+    studentId: string;
+    message: string;
+    type: 'low_activity' | 'missed_assessment' | 'grade_drop';
+    createdAt: Date;
 }

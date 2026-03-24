@@ -1,13 +1,11 @@
-// Mock Data
-const student = { name: "Alex" };
-
-export default function WelcomeHeader() {
+export default function WelcomeHeader({ user }: { user: { name: string } | null }) {
+  const studentName = user?.name || "Student";
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
         Welcome back,{" "}
         <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-          {student.name}
+          {studentName}
         </span>
         !
       </h1>

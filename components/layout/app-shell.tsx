@@ -1,3 +1,10 @@
+
+/*
+ * DEPRECATED: This AppShell component is no longer in use.
+ * The main application layout is now managed by `app/layout.tsx` and `components/layout/dashboard-layout.tsx`.
+ * This file can be safely removed once confirmed it has no active imports.
+ */
+
 import type { HTMLAttributes, ReactNode } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SiteHeader } from "@/components/layout/site-header";
