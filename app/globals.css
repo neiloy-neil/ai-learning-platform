@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 222 43% 97%;
+  --foreground: 227 29% 14%;
+  --surface: 0 0% 100%;
+  --surface-foreground: 227 29% 14%;
+  --border: 228 26% 88%;
+  --ring: 242 88% 66%;
+  --muted: 228 38% 95%;
+  --muted-foreground: 224 16% 40%;
+  --primary: 224 89% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 260 83% 68%;
+  --secondary-foreground: 0 0% 100%;
+  --success: 152 62% 44%;
+  --success-foreground: 0 0% 100%;
+  --danger: 0 78% 60%;
+  --danger-foreground: 0 0% 100%;
+  --accent: 224 89% 60%;
+  --accent-foreground: 0 0% 100%;
+  --glass: 0 0% 100% / 0.58;
+  --glass-strong: 0 0% 100% / 0.78;
+  --glass-stroke: 255 255 255 / 0.42;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  --shadow-panel:
+    0 18px 50px -30px rgb(15 23 42 / 0.34),
+    0 10px 24px -18px rgb(59 130 246 / 0.3);
+  --shadow-floating:
+    0 28px 80px -34px rgb(15 23 42 / 0.42),
+    0 18px 36px -28px rgb(139 92 246 / 0.3);
+  --shadow-glow:
+    0 0 0 1px rgb(255 255 255 / 0.16),
+    0 24px 70px -30px rgb(79 70 229 / 0.42);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.35);
+
+  --gradient-brand: linear-gradient(135deg, rgb(37 99 235) 0%, rgb(124 58 237) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgb(37 99 235 / 0.18) 0%, rgb(124 58 237 / 0.18) 100%);
+}
+
+.dark {
+  --background: 228 35% 7%;
+  --foreground: 220 33% 96%;
+  --surface: 228 28% 11%;
+  --surface-foreground: 220 33% 96%;
+  --border: 228 20% 21%;
+  --ring: 246 100% 74%;
+  --muted: 228 24% 14%;
+  --muted-foreground: 224 19% 73%;
+  --primary: 221 100% 68%;
+  --primary-foreground: 228 35% 7%;
+  --secondary: 264 94% 73%;
+  --secondary-foreground: 228 35% 7%;
+  --success: 152 65% 50%;
+  --success-foreground: 228 35% 7%;
+  --danger: 0 89% 69%;
+  --danger-foreground: 228 35% 7%;
+  --accent: 264 94% 73%;
+  --accent-foreground: 228 35% 7%;
+  --glass: 228 28% 14% / 0.62;
+  --glass-strong: 228 28% 16% / 0.82;
+  --glass-stroke: 255 255 255 / 0.10;
+
+  --shadow-panel:
+    0 20px 60px -28px rgb(2 6 23 / 0.75),
+    0 12px 32px -24px rgb(79 70 229 / 0.34);
+  --shadow-floating:
+    0 36px 96px -40px rgb(2 6 23 / 0.88),
+    0 16px 36px -28px rgb(37 99 235 / 0.36);
+  --shadow-glow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 28px 82px -36px rgb(99 102 241 / 0.48);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.08);
+
+  --gradient-brand: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(168 85 247) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgb(59 130 246 / 0.22) 0%, rgb(168 85 247 / 0.22) 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgb(59 130 246 / 0.14), transparent 30%),
+    radial-gradient(circle at 80% 20%, rgb(139 92 246 / 0.12), transparent 24%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .surface-panel {
+    @apply rounded-3xl border border-glass-stroke bg-glass shadow-panel backdrop-blur-xl;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-pill border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary;
+  }
+
+  .glass-panel {
+    @apply rounded-3xl border border-glass-stroke bg-glass shadow-panel backdrop-blur-xl;
+    box-shadow: var(--shadow-panel), var(--shadow-inset);
+  }
+
+  .glass-panel-strong {
+    @apply rounded-3xl border border-glass-stroke bg-glass-strong shadow-floating backdrop-blur-2xl;
+    box-shadow: var(--shadow-floating), var(--shadow-inset);
+  }
+
+  .gradient-text {
+    @apply bg-dashboard-gradient bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-brand);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.6;
+  }
+}
