@@ -1,6 +1,7 @@
+import { redirect } from 'next/navigation';
 
-import TeacherDashboardView from '@/features/teacher-dashboard/components/teacher-dashboard-view';
+import { appRoutes } from '@/lib/app-routes';
 
 export default function TeacherPage() {
-  return <TeacherDashboardView />;
+  redirect(appRoutes.teacher.dashboard);
 }

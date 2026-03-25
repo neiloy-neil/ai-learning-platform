@@ -1,9 +1,11 @@
 'use client';
 
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { SmartReminder } from "@/lib/mocks";
+import { useRouter } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { appRoutes } from '@/lib/app-routes';
+import type { SmartReminder } from '@/lib/mocks';
 
 type SmartRemindersProps = {
   reminders: SmartReminder[];
@@ -31,7 +33,7 @@ export default function SmartReminders({ reminders }: SmartRemindersProps) {
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => router.push(`/student/practice?conceptId=${reminder.concept.id}`)}
+              onClick={() => router.push(`${appRoutes.student.practice}?conceptId=${reminder.concept.id}&mode=revision`)}
             >
               Review
             </Button>

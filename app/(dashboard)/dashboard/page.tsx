@@ -1,55 +1,32 @@
-
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTheme } from 'next-themes';
-import { UserRole } from '@/lib/pcdc-types';
-import { Skeleton } from '@/components/ui/skeleton';
 
-// This page acts as a router, redirecting users to their specific dashboard based on their role.
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/features/auth/components/auth-provider';
+import { getDefaultRouteForRole } from '@/lib/app-routes';
+
 export default function DashboardRouterPage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    async function fetchUserAndRedirect() {
-      try {
-        // In a real app, this would be a protected route and the user would be from a session.
-        // We call our mock API to get the current "logged in" user.
-        const res = await fetch('/api/auth/me');
-        if (!res.ok) throw new Error('Not authenticated');
-        
-        const user = await res.json();
-
-        // Redirect based on role
-        switch (user.role) {
-          case UserRole.STUDENT:
-            router.replace('/student/dashboard');
-            break;
-          case UserRole.TEACHER:
-            router.replace('/teacher/dashboard');
-            break;
-          case UserRole.PARENT:
-            router.replace('/parent/dashboard');
-            break;
-          default:
-            // Redirect to a generic page or login if role is unknown
-            router.replace('/login');
-            break;
-        }
-      } catch (error) {
-        console.error(error);
-        router.replace('/login');
-      }
+    if (isLoading) {
+      return;
     }
 
-    fetchUserAndRedirect();
-  }, [router]);
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
 
-  // Render a full-page skeleton while redirecting
+    router.replace(getDefaultRouteForRole(user.role));
+  }, [isLoading, router, user]);
+
   return (
-    <div className="w-full h-full flex items-center justify-center">
-        <Skeleton className="w-1/2 h-32" />
+    <div className="flex h-full w-full items-center justify-center">
+      <Skeleton className="h-32 w-1/2" />
     </div>
   );
 }

@@ -1,25 +1,29 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAssessments } from '@/lib/mocks';
+import { useDemoData } from '@/features/demo/components/demo-data-provider';
+import { appRoutes } from '@/lib/app-routes';
 
 const statusColors: Record<string, string> = {
-  Completed: 'bg-success/20 text-success',
-  'In Progress': 'bg-primary/15 text-primary',
-  Available: 'bg-muted-foreground/20 text-muted-foreground',
+  Reviewed: 'bg-success/20 text-success',
+  Completed: 'bg-primary/15 text-primary',
+  'In Progress': 'bg-amber-500/15 text-amber-600',
+  Assigned: 'bg-muted-foreground/20 text-muted-foreground',
+  Overdue: 'bg-danger/20 text-danger',
 };
 
 export default function AssessmentListView() {
   const router = useRouter();
-  const assessments = getAssessments();
+  const { assessments } = useDemoData();
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Assessments</h1>
-        <p className="text-md text-muted-foreground">Test your knowledge and track your progress.</p>
+        <p className="text-md text-muted-foreground">Test your knowledge, revisit graded work, and track concept-level performance.</p>
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {assessments.map((assessment) => (
@@ -32,14 +36,16 @@ export default function AssessmentListView() {
                 </span>
               </div>
             </CardHeader>
-            <CardContent className="flex h-full flex-col">
+            <CardContent className="flex h-full flex-col gap-4">
               <p className="flex-grow text-muted-foreground">{assessment.description}</p>
-              <div className="mt-6 flex items-center justify-between gap-4">
-                <span className="text-sm font-semibold">{assessment.questionCount} Questions</span>
-                <Button onClick={() => router.push(`/student/practice?assessmentId=${assessment.id}`)}>
-                  {assessment.status === 'In Progress' ? 'Continue' : assessment.status === 'Completed' ? 'Review' : 'Start'}
-                </Button>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p>{assessment.questionCount} questions</p>
+                <p>Due {new Date(assessment.dueDate).toLocaleDateString()}</p>
+                {assessment.lastScore !== undefined ? <p>Latest score: {assessment.lastScore}%</p> : null}
               </div>
+              <Button onClick={() => router.push(`${appRoutes.student.practice}?assessmentId=${assessment.id}`)}>
+                {assessment.status === 'In Progress' ? 'Resume' : assessment.status === 'Reviewed' ? 'Review' : 'Start'}
+              </Button>
             </CardContent>
           </Card>
         ))}

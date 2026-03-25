@@ -1,339 +1,447 @@
-# Project Plan
+# AI Learning Platform Roadmap
 
-This document tracks the next buildable features for the current codebase and the intended workflow for each task group. The goal is to keep implementation ordered, typed, and easy to swap from mock data to real services later.
+This document is the working product and engineering plan for turning the current prototype into a complete AI learning platform. It covers the missing features, the build order, and the expected outcomes for each area.
 
-## Working Principles
+## Product Goal
 
-- Start with typed mock data before wiring real APIs.
-- Keep route files thin and push logic into `features/*` and `lib/*`.
-- Prefer reusable UI primitives over page-local markup.
-- Use one shared dashboard shell and remove duplicate layout paths over time.
-- Treat every task as a vertical slice: data shape, UI state, integration, then verification.
+Build a role-based learning platform that:
+- helps students learn through adaptive practice, assessments, revision, and guided study;
+- gives teachers actionable class intelligence and intervention tools;
+- gives parents clear visibility into progress and risk;
+- uses AI to personalize learning, explain mistakes, and recommend next actions;
+- runs on a persistent, secure, testable, production-ready backend.
 
-## Phase 1: Highest ROI
+## Current State Summary
 
-### 1. Centralize all mock data into typed modules
-Workflow:
-- Audit every component still using inline arrays, placeholder objects, or fake fetches.
-- Create shared typed mock modules in `lib/mocks` or feature `model` folders.
-- Replace hardcoded values inside components with imported typed data.
-- Keep mock shapes compatible with future API responses.
-- Verify all affected routes with lint and build.
+The current codebase already includes:
+- Next.js App Router frontend and dashboard shell;
+- student, teacher, and parent dashboard routes;
+- reusable UI primitives;
+- mock authentication;
+- mock/in-memory API routes;
+- rule-based mastery, recommendation, and revision logic;
+- demo practice, assessments, notifications, and progress views.
 
-### 2. Refactor student, teacher, parent, practice, and assessment pages to consume shared mock data
-Workflow:
-- Identify each page's current local state and fake data source.
-- Convert fake fetch flows to deterministic mock selectors/helpers where backend APIs do not exist yet.
-- Keep props small and predictable so these views can later switch to services.
-- Re-run lint/build after each page family is updated.
+The main gaps are:
+- no real auth or authorization;
+- no persistent database;
+- no end-to-end learning evidence loop;
+- no teacher action workflows;
+- no parent action workflows;
+- no true AI-powered tutoring or content generation;
+- no admin/content management layer;
+- no robust testing or production hardening.
 
-### 3. Build a real notifications panel in the top navbar
-Workflow:
-- Add typed notification models.
-- Create a reusable dropdown or panel primitive if needed.
-- Support unread count, empty state, and action links.
-- Make the panel keyboard-accessible and mobile-safe.
-- Verify sticky header interaction and z-index behavior.
+## Phase 1: Platform Foundations
 
-### 4. Expand the profile dropdown with account/settings/logout actions
-Workflow:
-- Define clear navigation destinations and temporary mock profile data.
-- Add menu actions with typed configuration.
-- Prepare hooks for future auth/session wiring.
-- Add accessible menu semantics and close behavior.
+### 1. Real authentication and session management
+Deliverables:
+- Replace mock login/register with real auth.
+- Hash and validate passwords.
+- Add secure server-side sessions or JWT with refresh strategy.
+- Add role-based access control for student, teacher, parent, and admin.
+- Protect API routes on the server, not only the client.
+- Add logout, session expiry, forgot password, and reset password.
 
-### 5. Create a dashboard overview page with KPI cards, progress bars, recent activity, and recommendations
-Workflow:
-- Define the dashboard summary data model first.
-- Compose from existing primitives (`Card`, `ProgressBar`, `Button`).
-- Reuse mock data from the shared source of truth.
-- Ensure mobile-first layout and empty/loading states.
+Implementation notes:
+- Introduce a real user table and auth schema.
+- Remove role inference from URL/path.
+- Redirect users based on role after login.
+- Make navbar/sidebar/session state depend on server-validated identity.
 
-### 6. Add loading, empty, and error UI states for every dashboard section
-Workflow:
-- Enumerate each widget and current state coverage.
-- Add skeletons, empty-state copy, and error placeholders consistently.
-- Keep state visuals aligned with the design system.
-- Verify no page shows raw blank sections.
+### 2. Persistent database and data model migration
+Deliverables:
+- Replace in-memory data arrays with a real database.
+- Add schema for users, students, parents, teachers, classes, enrollments, concepts, concept dependencies, questions, attempts, mastery, assessments, assignments, notifications, goals, alerts, and reports.
+- Add seed data for local development.
+- Add repository/service layer boundaries so UI does not depend on raw storage.
 
-### 7. Unify the older duplicate layout/components with the new shell and remove dead paths
-Workflow:
-- Compare current live shell files against older layout/navigation files.
-- Migrate any remaining useful logic into the active shell.
-- Delete or deprecate unused components once routes are stable.
-- Verify no imports point at legacy layout modules.
+Implementation notes:
+- Start with the current `pcdc-types` domain model and normalize it.
+- Separate demo fixtures from production data access.
+- Add migrations and seed scripts.
 
-## Student Experience
+### 3. API and service hardening
+Deliverables:
+- Standardize API response shapes.
+- Add input validation for every route.
+- Add error handling, auth guards, and permission checks.
+- Add pagination/filtering where needed.
+- Add audit logging for important actions.
 
-### 1. Build a mastery overview widget using the current `ProgressBar`
-Workflow:
-- Use a typed mastery model.
-- Map concepts to percentages and labels.
-- Add summary insights like strongest and weakest concepts.
-- Support empty and partial data.
+Implementation notes:
+- Keep route files thin.
+- Move business logic into feature services and domain modules.
+- Add request validation and typed contracts.
 
-### 2. Create a learning path page with module cards, completion states, and next-step actions
-Workflow:
-- Define a module progression model.
-- Render ordered cards with status badges and CTA buttons.
-- Support locked, in-progress, and completed states.
-- Reuse route-safe links to practice or assessment pages.
+## Phase 2: Student Learning Core
 
-### 3. Add a practice page with question cards, answer selection, and result feedback
-Workflow:
-- Use typed question/answer models.
-- Keep question state local and deterministic for mock mode.
-- Add result feedback and explanation states.
-- Prepare submission shape for future API posting.
+### 4. End-to-end practice workflow
+Deliverables:
+- Connect question answering to backend attempt submission.
+- Persist each answer with correctness, timestamp, and confidence.
+- Recalculate mastery after each practice session.
+- Refresh dashboard recommendation and progress after submission.
+- Add practice modes: topic practice, recommended practice, assessment review, and revision practice.
 
-### 4. Add an assessments page with status cards, due dates, and completion progress
-Workflow:
-- Add an assessment list model with metadata.
-- Render cards with status, question count, and CTA.
-- Support upcoming, in-progress, and completed states.
-- Keep links compatible with practice/assessment flows.
+Implementation notes:
+- Stop scoring only in local component state.
+- Reuse one submission contract for both practice and assessments.
+- Add session summaries and per-concept results.
 
-### 5. Create a recent activity timeline
-Workflow:
-- Define an activity event model.
-- Render event rows with timestamps and categories.
-- Add empty state and truncation rules.
-- Reuse this data in both student and parent experiences if useful.
+### 5. Assessments system
+Deliverables:
+- Create real assessment entities with sections, due dates, availability windows, and question sets.
+- Allow assessment start, resume, submit, review, and teacher grading where applicable.
+- Track attempt history and completion status.
+- Add assessment results page with concept breakdown.
 
-### 6. Add a recommended actions panel based on weak topics
-Workflow:
-- Define recommendation criteria in mock mode.
-- Create a stable recommendation model and CTA destination.
-- Surface reason, target concept, and next action.
-- Keep copy concise and actionable.
+Implementation notes:
+- Separate formative practice from formal assessments.
+- Add timer support only if required by product rules.
+- Support completed, in-progress, assigned, overdue, and reviewed states.
 
-### 7. Add a daily goals widget
-Workflow:
-- Define goal status and progress models.
-- Render simple progress states and completion markers.
-- Add defaults that can later be driven by real user settings.
+### 6. Learning path and concept progression
+Deliverables:
+- Build a real concept/module progression model.
+- Unlock concepts based on prerequisites and mastery thresholds.
+- Show current stage, blocked concepts, next milestone, and completed modules.
+- Allow students to enter practice or assessment directly from the path.
 
-## Teacher Experience
+Implementation notes:
+- Use concept dependency data already present in the domain model.
+- Add route-safe actions from the dashboard and progress views.
+- Track completion state persistently.
 
-### 1. Build a teacher dashboard with class summary cards
-Workflow:
-- Define class KPI models.
-- Use reusable stat cards and shared spacing rules.
-- Keep summary blocks composable for later real analytics.
+### 7. Goals, habits, and accountability
+Deliverables:
+- Persist user goals.
+- Add create, edit, delete, archive, and completion flows.
+- Add weekly targets for time spent, topics completed, or assessments finished.
+- Show streaks and habit tracking.
+- Allow teacher-assigned goals later in the roadmap.
 
-### 2. Add student performance tables with filters
-Workflow:
-- Define row models and filter state.
-- Use a reusable table primitive once added.
-- Support empty/filter/no-result states.
+Implementation notes:
+- Separate personal goals from assigned goals.
+- Add simple defaults first, then scheduling and reminders.
 
-### 3. Create a weak-concept analysis panel
-Workflow:
-- Use typed concept performance data.
-- Highlight low-performing concepts with clear thresholds.
-- Reuse chart or progress visual patterns.
+### 8. Progress and history analytics
+Deliverables:
+- Add mastery trends over time.
+- Add learning time, streaks, assessment outcomes, and revision history.
+- Add concept-level drill-down and recent improvement/decline indicators.
+- Show why the mastery score changed.
 
-### 4. Add assignment overview cards
-Workflow:
-- Define assignment summary models.
-- Render due status, completion rate, and CTA links.
-- Keep the card system reusable across roles.
+Implementation notes:
+- Keep current mastery bars, but add historical views and explanatory metrics.
+- Build reusable analytics cards and charts.
 
-### 5. Build a student detail page with mastery breakdown and activity history
-Workflow:
-- Reuse the mastery and activity models.
-- Create a route-friendly page scaffold for future real data.
-- Use role-appropriate actions and navigation.
+## Phase 3: Adaptive and AI Learning Layer
 
-## Parent Experience
+### 9. Upgrade mastery and recommendation engines
+Deliverables:
+- Move from simple score calculation to a more complete evidence model.
+- Include recency, consistency, difficulty, confidence, and concept dependency weight.
+- Improve recommendation quality for weak concepts, prerequisite gaps, and next-best-topic sequencing.
+- Expose recommendation explanation to the UI.
 
-### 1. Build a parent dashboard with student progress summary
-Workflow:
-- Model parent-to-student summary data.
-- Show headline status, current progress, and recent movement.
-- Keep fallback states when linked students are missing.
+Implementation notes:
+- Version the scoring logic.
+- Keep recommendation output stable for UI consumption.
+- Add tests for edge cases and concept graph behavior.
 
-### 2. Add weekly activity and consistency widgets
-Workflow:
-- Define weekly streak and activity-count models.
-- Surface trend language, not just raw counts.
-- Reuse shared cards and progress visuals.
+### 10. Spaced revision engine
+Deliverables:
+- Build a true revision queue per student.
+- Track due dates by concept and evidence freshness.
+- Distinguish between weak-topic remediation and spaced review.
+- Surface revision tasks on dashboard and learning path.
 
-### 3. Add strengths/weaknesses cards
-Workflow:
-- Reuse mastery thresholds from student/teacher views.
-- Present strongest and weakest concepts clearly.
-- Keep copy understandable for non-teacher users.
+Implementation notes:
+- Replace the placeholder concept-attempt mapping in the current revision scheduler.
+- Add completed revision history.
 
-### 4. Add alert cards for low activity or missed assessments
-Workflow:
-- Model alerts separately from notifications.
-- Prioritize actionable, parent-friendly language.
-- Link alerts to the relevant child view or report.
+### 11. AI tutor and explanation system
+Deliverables:
+- Add AI-generated explanations for incorrect answers.
+- Add step-by-step guided hints.
+- Add concept summaries and personalized study tips.
+- Add an AI study coach for next-session planning.
 
-### 5. Create a printable/shareable progress summary section
-Workflow:
-- Build a report-friendly layout block.
-- Keep spacing and typography print-safe.
-- Defer export integration until the summary UI stabilizes.
+Implementation notes:
+- Keep teacher-reviewed or controlled prompt structure where needed.
+- Log prompts/responses for safety and debugging.
+- Start with assistive explanation features before open-ended chat.
 
-## Authentication and Access
+### 12. AI study plan generation
+Deliverables:
+- Generate daily or weekly study plans based on mastery, goals, deadlines, and recent performance.
+- Include time estimates, topic sequence, and revision slots.
+- Regenerate plans when new evidence arrives.
 
-### 1. Wire login and register forms to client-side validation
-Workflow:
-- Define form schemas and typed form state.
-- Add validation feedback and submission states.
-- Keep service calls abstracted for future auth backend integration.
+Implementation notes:
+- Plans should be actionable, not generic.
+- Add explainability: why this plan was suggested.
 
-### 2. Add auth state handling in a shared provider/store
-Workflow:
-- Define user/session shape first.
-- Add provider or store with mock/default session support.
-- Replace page-local assumptions with shared auth access.
+### 13. AI content assistance
+Deliverables:
+- Generate draft practice questions, explanations, and remediation sets for teachers/admins.
+- Suggest targeted assignments for weak concepts.
+- Support content review before publishing.
 
-### 3. Protect dashboard routes
-Workflow:
-- Gate route groups or dashboard pages via layout logic.
-- Add redirect behavior for unauthenticated users.
-- Ensure auth pages remain outside dashboard chrome.
+Implementation notes:
+- Keep human approval in the loop.
+- Store generated artifacts separately from published content.
 
-### 4. Add role-based redirects for student/teacher/parent dashboards
-Workflow:
-- Define role-to-route mapping in one place.
-- Reuse auth session information.
-- Keep route decisions deterministic and testable.
+## Phase 4: Teacher Product
 
-### 5. Add logout flow from the profile dropdown
-Workflow:
-- Add a logout action hook to the navbar profile menu.
-- Clear mock auth state cleanly.
-- Redirect users to the right public route.
+### 14. Teacher class management
+Deliverables:
+- Create classes and sections.
+- Enroll students.
+- Group students by class, risk level, or custom cohorts.
+- View roster details and quick actions.
 
-## Navigation and Layout
+Implementation notes:
+- Connect teachers to classes through a real enrollment model.
+- Support filtering and sorting at class scale.
 
-### 1. Add breadcrumb support in the navbar
-Workflow:
-- Define route metadata map.
-- Derive breadcrumb labels from current path.
-- Keep mobile layouts compact.
+### 15. Teacher analytics dashboard v2
+Deliverables:
+- Add class trend charts.
+- Add concept heatmaps.
+- Add assessment item analysis.
+- Add mastery distribution and at-risk segmentation.
+- Add drill-down from class to student to concept to question.
 
-### 2. Add section titles and route metadata per page
-Workflow:
-- Create a route metadata helper.
-- Use it in the sticky navbar and page headers.
-- Reduce duplicated heading strings over time.
+Implementation notes:
+- Keep overview cards for high-level scanning.
+- Add a dedicated analytics section rather than overloading one page.
 
-### 3. Improve sidebar collapse persistence with local storage
-Workflow:
-- Persist collapse preference client-side.
-- Restore state on hydration without layout jumps.
-- Keep mobile drawer state separate from desktop preference.
+### 16. Assignment and intervention workflows
+Deliverables:
+- Create assignments by concept, topic, or assessment.
+- Assign to class, group, or individual students.
+- Track completion, submission, late status, and scores.
+- Recommend interventions for struggling students.
+- Let teachers send targeted nudges.
 
-### 4. Add mobile close-on-route-change behavior if needed
-Workflow:
-- Watch pathname changes in the sidebar.
-- Close transient mobile UI on navigation.
-- Verify transition timing does not feel abrupt.
+Implementation notes:
+- Link assignment creation to weak-concept analysis.
+- Add saved assignment templates later.
 
-### 5. Add keyboard and focus handling for sidebar and dropdown interactions
-Workflow:
-- Define escape, tab, and focus-return behavior.
-- Prevent focus leaks behind overlays.
-- Verify interaction using keyboard-only navigation.
+### 17. Student detail workspace for teachers
+Deliverables:
+- Turn the current student detail page into an intervention workspace.
+- Show mastery trends, recent activity, recent attempts, missed work, goals, and alerts.
+- Add teacher notes and follow-up actions.
+- Allow assigning remediation directly from the page.
 
-## Design System / UI
+Implementation notes:
+- Reuse student analytics components with teacher-specific actions.
+- Add chronological event history.
 
-### 1. Create reusable `Badge`, `Avatar`, `DropdownMenu`, `Tabs`, `Table`, and `Modal` components
-Workflow:
-- Build one primitive at a time with typed props.
-- Keep variants small and semantic.
-- Use className-friendly composition.
+## Phase 5: Parent Product
 
-### 2. Add chart-ready card components for analytics sections
-Workflow:
-- Create wrapper components for charts and KPI summaries.
-- Keep them mock-data friendly first.
-- Preserve responsive layout behavior.
+### 18. Parent-child linking and account management
+Deliverables:
+- Link parent accounts to one or more students.
+- Let parents switch between children if applicable.
+- Add invite/link flow from school or teacher context.
 
-### 3. Standardize page headers and section wrappers
-Workflow:
-- Replace one-off heading layouts with reusable wrappers.
-- Accept title, subtitle, actions, and className.
-- Apply across dashboard routes gradually.
+Implementation notes:
+- Enforce proper permissions.
+- Keep child data visibility scoped to linked accounts only.
 
-### 4. Document token usage and component patterns
-Workflow:
-- Create a lightweight reference inside the repo.
-- Focus on how tokens map to components and states.
-- Keep examples short and practical.
+### 19. Parent dashboard v2
+Deliverables:
+- Show progress summary, recent activity, current goals, and alert status.
+- Add trend summaries in plain language.
+- Add upcoming assessments and missed work.
+- Add recommended at-home support actions.
 
-### 5. Add skeleton loaders for dashboard widgets
-Workflow:
-- Create reusable skeleton patterns per widget type.
-- Use them consistently during mock async states.
-- Avoid page jitter from mismatched heights.
+Implementation notes:
+- Use non-technical wording.
+- Prioritize clarity over dense analytics.
 
-## Data Layer Prep
+### 20. Parent alerts and communication
+Deliverables:
+- Add alerts for low activity, missed assessments, falling mastery, and overdue assignments.
+- Add parent acknowledgement and read state.
+- Add parent-teacher messaging or contact requests.
+- Add alert preferences.
 
-### 1. Create `lib/mocks` or feature-level `model` files for all current hardcoded data
-Workflow:
-- Define central domain mock files by concern.
-- Export typed selectors/helpers, not only raw arrays.
-- Keep naming aligned with future service contracts.
+Implementation notes:
+- Keep alert types actionable.
+- Avoid notification spam with basic throttling rules.
 
-### 2. Define TypeScript types for users, notifications, mastery, assessments, and practice sessions
-Workflow:
-- Extend current shared domain types where needed.
-- Keep types close to actual UI requirements.
-- Avoid `any` and page-local ad hoc types.
+### 21. Shareable and printable reports
+Deliverables:
+- Add printable progress summaries.
+- Add weekly digest reports.
+- Add export-ready report layouts for parent sharing.
 
-### 3. Add service-layer wrappers for future API integration
-Workflow:
-- Create stable interfaces for data access.
-- Back them with mock data initially.
-- Swap implementations later without rewriting views.
+Implementation notes:
+- Make print layouts stable and readable.
+- Reuse report data models from the analytics layer.
 
-### 4. Normalize dashboard data shapes so mock and real data can swap cleanly
-Workflow:
-- Pick one canonical view model per page.
-- Convert raw domain objects in one place.
-- Keep UI components dumb and presentational where possible.
+## Phase 6: Admin and Content Management
 
-## Quality / Cleanup
+### 22. Admin role and control panel
+Deliverables:
+- Add an admin role.
+- Add admin dashboard for users, classes, content, and system health.
+- Add basic moderation and audit views.
 
-### 1. Add component tests for `Button`, `Card`, `ProgressBar`, sidebar, and navbar
-Workflow:
-- Start with render and interaction smoke tests.
-- Focus first on critical UI states and accessibility props.
-- Expand after core flows stabilize.
+Implementation notes:
+- Restrict admin tools strictly by role.
+- Keep admin routes isolated from standard dashboards.
 
-### 2. Add page smoke tests for dashboard routes
-Workflow:
-- Validate route rendering and shell composition.
-- Include auth and dashboard route groups.
-- Catch regressions from layout moves early.
+### 23. Curriculum and concept management
+Deliverables:
+- Add CRUD for subjects, levels, concepts, and prerequisite maps.
+- Add validation to prevent invalid dependency graphs.
+- Add concept metadata for reporting and recommendations.
 
-### 3. Remove or merge older duplicate layout files like legacy `navbar.tsx` and `sidebar.tsx` if unused
-Workflow:
-- Confirm current import graph first.
-- Delete only after verifying no route depends on them.
-- Keep commits narrowly scoped.
+Implementation notes:
+- Build graph-safe editing flows.
+- Add import/export later if needed.
 
-### 4. Run a final pass on accessibility labels, keyboard navigation, and focus states
-Workflow:
-- Audit interactive components systematically.
-- Add ARIA and focus fixes where required.
-- Re-test mobile and desktop interactions.
+### 24. Question bank and assessment authoring
+Deliverables:
+- Add question CRUD with concept mapping, difficulty, options, and explanations.
+- Add assessment builder with reusable question bank support.
+- Add review/publish flow.
 
-### 5. Upgrade dependency versions after UI stabilization
-Workflow:
-- Upgrade one stack area at a time.
-- Re-run lint, build, and smoke checks after each change.
-- Avoid mixing dependency upgrades with feature work.
+Implementation notes:
+- Keep draft and published states separate.
+- Add AI draft generation as an assistive tool, not the only authoring path.
 
-## Current Implementation Order
+## Phase 7: Notifications, Messaging, and Engagement
 
-1. Centralize typed mock data.
-2. Refactor student, teacher, parent, practice, assessment, and progress views to consume it.
-3. Stabilize dashboard widgets and remove fake fetch flows where APIs do not exist.
-4. Then move on to notifications and profile actions.
+### 25. Notifications system v2
+Deliverables:
+- Add mark-as-read, archive, filtering, and deep links.
+- Add event-driven notification creation.
+- Add unread counts per user.
+- Add preference management.
+
+Implementation notes:
+- Separate alerts from general notifications.
+- Keep dropdown and dedicated notifications page aligned.
+
+### 26. Messaging and collaboration
+Deliverables:
+- Add teacher-student and teacher-parent message channels where permitted.
+- Add basic conversation threading and timestamps.
+- Add role-aware communication rules.
+
+Implementation notes:
+- Start with simple internal messaging before external delivery integrations.
+
+## Phase 8: UX, Accessibility, and Design Cleanup
+
+### 27. Product identity and route consistency
+Deliverables:
+- Replace the current design-system-style landing experience with a learning-platform home/marketing flow.
+- Align route structure and redirects by role.
+- Remove duplicate/legacy layout paths and dead components.
+
+Implementation notes:
+- Keep one active shell and one active navigation model.
+- Normalize route metadata and titles.
+
+### 28. Accessibility and interaction hardening
+Deliverables:
+- Audit keyboard support, focus states, dropdowns, overlays, tables, and forms.
+- Add proper labels, ARIA usage, and focus return.
+- Improve mobile behavior for sidebar, menus, and tables.
+
+Implementation notes:
+- Treat accessibility as a release requirement, not polish.
+
+### 29. UI state coverage
+Deliverables:
+- Add loading, empty, error, and success states for every major widget and page.
+- Standardize skeletons and placeholders.
+- Eliminate blank or misleading states.
+
+Implementation notes:
+- Build reusable state components where possible.
+
+## Phase 9: Quality, Testing, and Production Readiness
+
+### 30. Testing strategy
+Deliverables:
+- Add unit tests for domain logic.
+- Add component tests for critical UI primitives and auth flows.
+- Add integration tests for API routes.
+- Add end-to-end tests for core student, teacher, and parent workflows.
+
+Implementation notes:
+- Start with mastery, recommendation, revision, auth, and practice submission.
+- Add CI gating for lint, typecheck, tests, and build.
+
+### 31. Observability and operations
+Deliverables:
+- Add structured logging.
+- Add error monitoring.
+- Add analytics/event tracking for user behavior and product metrics.
+- Add admin-facing operational visibility where useful.
+
+Implementation notes:
+- Capture enough data to debug learning and recommendation issues.
+
+### 32. Security and compliance baseline
+Deliverables:
+- Add secure auth/session handling.
+- Validate and sanitize inputs.
+- Add rate limiting for sensitive endpoints.
+- Add audit trails for privileged actions.
+- Review education/privacy requirements relevant to the target market.
+
+Implementation notes:
+- Build these alongside auth and API hardening, not after launch.
+
+## Recommended Build Order
+
+### Stage A: Make the prototype real
+1. Real auth and RBAC.
+2. Persistent database and migrations.
+3. Harden API/service layer.
+4. Connect practice and assessment submissions to persisted evidence.
+5. Recalculate mastery and recommendations from real attempts.
+
+### Stage B: Complete the student learning loop
+1. Learning path progression.
+2. Real assessments.
+3. Goals and revision queue.
+4. Trend-based progress analytics.
+
+### Stage C: Complete teacher and parent workflows
+1. Teacher class management.
+2. Assignments and interventions.
+3. Teacher student-detail workspace.
+4. Parent linking, alerts, and digest/reporting.
+
+### Stage D: Add AI product depth
+1. AI explanations and hints.
+2. AI study plans.
+3. AI-assisted content authoring.
+
+### Stage E: Production hardening
+1. Notifications v2 and messaging.
+2. Accessibility and UX cleanup.
+3. Testing, observability, and security pass.
+4. Admin/content tools.
+
+## Success Criteria
+
+The platform should be considered feature-complete for the next milestone when:
+- all three roles use real authenticated accounts;
+- learning evidence persists and updates mastery reliably;
+- recommendations and revision suggestions reflect real student behavior;
+- teachers can assign and track interventions;
+- parents can monitor and respond to progress signals;
+- AI features add measurable value beyond static rules;
+- the app is tested, secure, and deployable.

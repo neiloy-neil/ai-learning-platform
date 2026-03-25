@@ -2,18 +2,29 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+
+import { getDefaultRouteForRole, appRoutes } from '@/lib/app-routes';
 import type { User } from '@/lib/pcdc-types';
-import { authService } from '../services/auth.service';
+import { UserRole } from '@/lib/pcdc-types';
+import { demoUsers, type DemoUserKey } from '@/lib/mocks';
 
 type AuthContextType = {
   user: User | null;
   token: string | null;
   login: (email: string, pass: string) => Promise<void>;
+  loginAsDemo: (userKey: DemoUserKey) => void;
   logout: () => void;
   isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function getDemoUserKeyFromEmail(email: string): DemoUserKey {
+  const normalizedEmail = email.toLowerCase();
+  if (normalizedEmail.includes('maya') || normalizedEmail.includes('teacher')) return 'teacher';
+  if (normalizedEmail.includes('jordan') || normalizedEmail.includes('parent')) return 'parent';
+  return 'student';
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -33,14 +44,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    const { user: loggedInUser, token: authToken } = await authService.login(email, pass);
-
-    setUser(loggedInUser);
+  const persistUser = (nextUser: User) => {
+    const authToken = `demo-token-${nextUser.role}`;
+    setUser(nextUser);
     setToken(authToken);
-    localStorage.setItem('authUser', JSON.stringify(loggedInUser));
+    localStorage.setItem('authUser', JSON.stringify(nextUser));
     localStorage.setItem('authToken', authToken);
-    router.push('/student');
+    router.push(getDefaultRouteForRole(nextUser.role));
+  };
+
+  const login = async (email: string, _pass: string) => {
+    persistUser(demoUsers[getDemoUserKeyFromEmail(email)]);
+  };
+
+  const loginAsDemo = (userKey: DemoUserKey) => {
+    persistUser(demoUsers[userKey]);
   };
 
   const logout = () => {
@@ -48,11 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     localStorage.removeItem('authUser');
     localStorage.removeItem('authToken');
-    router.push('/login');
+    router.push(appRoutes.auth.login);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, loginAsDemo, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -66,4 +84,8 @@ export function useAuth() {
   }
 
   return context;
+}
+
+export function useRoleRoute(role: UserRole) {
+  return getDefaultRouteForRole(role);
 }

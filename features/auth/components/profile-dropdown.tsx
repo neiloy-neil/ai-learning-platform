@@ -5,20 +5,28 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from './auth-provider';
 
 export default function ProfileDropdown() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <button
           aria-label="Open profile menu"
-          className="h-8 w-8 rounded-full bg-primary/20 transition-all hover:ring-2 hover:ring-primary/40"
+          className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary/20 px-3 text-sm font-semibold text-primary transition-all hover:ring-2 hover:ring-primary/40"
           type="button"
-        />
+        >
+          {user?.name?.charAt(0) ?? 'D'}
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-64">
+        <DropdownMenuItem>
+          <div className="space-y-1">
+            <p className="font-semibold">{user?.name ?? 'Demo User'}</p>
+            <p className="text-xs text-muted-foreground">{user?.role ?? 'demo'}</p>
+          </div>
+        </DropdownMenuItem>
         <DropdownMenuItem>Account</DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuItem>Demo Settings</DropdownMenuItem>
         <div className="cursor-pointer" onClick={logout}>
           <DropdownMenuItem>Logout</DropdownMenuItem>
         </div>

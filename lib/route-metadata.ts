@@ -20,6 +20,10 @@ const metadataMap: Record<string, RouteMetadata> = {
     title: 'Assessments',
     subtitle: 'Test your knowledge and track your progress.',
   },
+  '/student/practice': {
+    title: 'Practice',
+    subtitle: 'Work through targeted questions with instant feedback.',
+  },
   '/student/progress': {
     title: 'Your Progress',
     subtitle: 'A detailed overview of your concept mastery.',

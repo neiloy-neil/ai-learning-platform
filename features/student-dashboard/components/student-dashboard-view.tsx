@@ -1,17 +1,16 @@
 'use client';
 
-import { getStudentDashboardData } from '@/lib/mocks';
-
 import LearningPathTimeline from './learning-path-timeline';
 import MasteryOverview from './mastery-overview';
 import RecentActivity from './recent-activity';
 import RecommendedAction from './recommended-action';
 import SmartReminders from './smart-reminders';
 import WelcomeHeader from './welcome-header';
+import { useDemoData } from '@/features/demo/components/demo-data-provider';
 
 export default function StudentDashboardView() {
-  const { concepts, mastery, recommendation, recentActivity, reminders, user } =
-    getStudentDashboardData();
+  const { dashboardData } = useDemoData();
+  const { concepts, mastery, recommendation, recentActivity, reminders, user } = dashboardData;
 
   return (
     <div className="space-y-8">

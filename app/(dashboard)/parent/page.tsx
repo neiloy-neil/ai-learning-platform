@@ -1,6 +1,7 @@
+import { redirect } from 'next/navigation';
 
-import ParentDashboardView from '@/features/parent-dashboard/components/parent-dashboard-view';
+import { appRoutes } from '@/lib/app-routes';
 
 export default function ParentPage() {
-  return <ParentDashboardView />;
+  redirect(appRoutes.parent.dashboard);
 }

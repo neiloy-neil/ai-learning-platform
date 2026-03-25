@@ -1,6 +1,7 @@
+import { redirect } from 'next/navigation';
 
-import StudentDashboardView from '@/features/student-dashboard/components/student-dashboard-view';
+import { appRoutes } from '@/lib/app-routes';
 
 export default function StudentPage() {
-  return <StudentDashboardView />;
+  redirect(appRoutes.student.dashboard);
 }
