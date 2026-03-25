@@ -9,6 +9,7 @@ import {
   buildProgressData,
   completePracticeSession,
   createInitialStudentState,
+  createInitialTeacherManagementState,
   demoUsers,
   getAssessments,
   getNotificationsForUserFromState,
@@ -17,14 +18,24 @@ import {
   type DemoAssessmentResult,
   type DemoGoal,
   type DemoStudentState,
+  type DemoTeacherClass,
+  type DemoTeacherStudent,
   type PracticeMode,
+  type TeacherCohort,
 } from '@/lib/mocks';
 import type { Notification } from '@/lib/pcdc-types';
 
 const storageKey = 'demoStudentState';
+const teacherStorageKey = 'demoTeacherManagementState';
+
+type DemoTeacherManagementState = {
+  classes: DemoTeacherClass[];
+  students: DemoTeacherStudent[];
+};
 
 type DemoDataContextType = {
   state: DemoStudentState;
+  teacherState: DemoTeacherManagementState;
   dashboardData: ReturnType<typeof buildDashboardData>;
   progressData: ReturnType<typeof buildProgressData>;
   learningPath: ReturnType<typeof buildLearningPath>;
@@ -33,6 +44,9 @@ type DemoDataContextType = {
   getNotifications: (userId?: string) => Notification[];
   markNotificationRead: (notificationId: string) => void;
   archiveNotification: (notificationId: string) => void;
+  addTeacherClass: (input: { name: string; section: string; focusArea: string }) => void;
+  assignStudentToClass: (studentId: string, classId: string) => void;
+  cycleStudentCohort: (studentId: string) => void;
   completeSession: (input: {
     answers: Array<{ questionId: string; selectedOptionId: string; confidenceRating: number }>;
     mode: PracticeMode;
@@ -54,19 +68,33 @@ function reviveDemoState(raw: string): DemoStudentState {
   };
 }
 
+function reviveTeacherState(raw: string): DemoTeacherManagementState {
+  return JSON.parse(raw) as DemoTeacherManagementState;
+}
+
 export function DemoDataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DemoStudentState>(createInitialStudentState());
+  const [teacherState, setTeacherState] = useState<DemoTeacherManagementState>(createInitialTeacherManagementState());
 
   useEffect(() => {
     const storedValue = localStorage.getItem(storageKey);
     if (storedValue) {
       setState(reviveDemoState(storedValue));
     }
+
+    const storedTeacherState = localStorage.getItem(teacherStorageKey);
+    if (storedTeacherState) {
+      setTeacherState(reviveTeacherState(storedTeacherState));
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(state));
   }, [state]);
+
+  useEffect(() => {
+    localStorage.setItem(teacherStorageKey, JSON.stringify(teacherState));
+  }, [teacherState]);
 
   const value = useMemo<DemoDataContextType>(() => {
     const dashboardData = buildDashboardData(state);
@@ -76,6 +104,7 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
 
     return {
       state,
+      teacherState,
       dashboardData,
       progressData,
       learningPath,
@@ -94,6 +123,58 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         setState((current) => ({
           ...current,
           notifications: current.notifications.filter((notification) => notification.id !== notificationId),
+        }));
+      },
+      addTeacherClass: (input) => {
+        setTeacherState((current) => ({
+          ...current,
+          classes: [
+            {
+              id: `class-${current.classes.length + 1}`,
+              name: input.name,
+              section: input.section,
+              focusArea: input.focusArea,
+              studentIds: [],
+            },
+            ...current.classes,
+          ],
+        }));
+      },
+      assignStudentToClass: (studentId, classId) => {
+        setTeacherState((current) => {
+          const nextStudents = current.students.map((student) =>
+            student.id === studentId ? { ...student, classId } : student,
+          );
+
+          const nextClasses = current.classes.map((teacherClass) => ({
+            ...teacherClass,
+            studentIds:
+              teacherClass.id === classId
+                ? Array.from(new Set([...teacherClass.studentIds, studentId]))
+                : teacherClass.studentIds.filter((id) => id !== studentId),
+          }));
+
+          return {
+            classes: nextClasses,
+            students: nextStudents,
+          };
+        });
+      },
+      cycleStudentCohort: (studentId) => {
+        const cohortOrder: TeacherCohort[] = ['Core', 'Acceleration', 'Intervention'];
+        setTeacherState((current) => ({
+          ...current,
+          students: current.students.map((student) => {
+            if (student.id !== studentId) {
+              return student;
+            }
+
+            const currentIndex = cohortOrder.indexOf(student.cohort);
+            return {
+              ...student,
+              cohort: cohortOrder[(currentIndex + 1) % cohortOrder.length],
+            };
+          }),
         }));
       },
       completeSession: (input) => {
@@ -135,7 +216,7 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         }));
       },
     };
-  }, [state]);
+  }, [state, teacherState]);
 
   return <DemoDataContext.Provider value={value}>{children}</DemoDataContext.Provider>;
 }

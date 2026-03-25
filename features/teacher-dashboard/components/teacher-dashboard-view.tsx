@@ -3,22 +3,30 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
+import PageHeader from '@/components/layout/page-header';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import PageHeader from '@/components/layout/page-header';
+import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
-import { getTeacherAssignments, getTeacherDashboardData } from '@/lib/mocks';
+import { getTeacherAssignments, mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
 import type { Assignment } from '@/lib/pcdc-types';
 
 const statusTone: Record<string, string> = {
   Strong: 'bg-success/20 text-success',
   Good: 'bg-primary/15 text-primary',
   Weak: 'bg-danger/20 text-danger',
+};
+
+const cohortTone: Record<TeacherCohort, string> = {
+  Core: 'bg-secondary text-secondary-foreground',
+  Acceleration: 'bg-success/20 text-success',
+  Intervention: 'bg-danger/20 text-danger',
 };
 
 const StatCard = ({ title, value }: { title: string; value: string | number }) => (
@@ -33,29 +41,160 @@ const StatCard = ({ title, value }: { title: string; value: string | number }) =
 );
 
 export default function TeacherDashboardView() {
+  const { teacherState, addTeacherClass, assignStudentToClass, cycleStudentCohort } = useDemoData();
   const [filterName, setFilterName] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  const { classStats, weakConcepts, students } = getTeacherDashboardData();
+  const [selectedClassId, setSelectedClassId] = useState('all');
+  const [className, setClassName] = useState('');
+  const [sectionName, setSectionName] = useState('');
+  const [focusArea, setFocusArea] = useState('');
   const assignments: Assignment[] = getTeacherAssignments();
 
+  const teacherStats = useMemo(() => {
+    const sourceStudents =
+      selectedClassId === 'all'
+        ? teacherState.students
+        : teacherState.students.filter((student) => student.classId === selectedClassId);
+
+    const averageScore =
+      sourceStudents.length === 0
+        ? 0
+        : Math.round(sourceStudents.reduce((sum, student) => sum + student.avgScore, 0) / sourceStudents.length);
+
+    return {
+      averageScore,
+      completionRate: 85,
+      studentsAtRisk: sourceStudents.filter((student) => student.status === 'Weak').length,
+    };
+  }, [selectedClassId, teacherState.students]);
+
+  const classCards = useMemo(
+    () =>
+      teacherState.classes.map((teacherClass) => {
+        const roster = teacherState.students.filter((student) => student.classId === teacherClass.id);
+        const averageScore =
+          roster.length === 0 ? 0 : Math.round(roster.reduce((sum, student) => sum + student.avgScore, 0) / roster.length);
+
+        return {
+          ...teacherClass,
+          rosterCount: roster.length,
+          weakCount: roster.filter((student) => student.status === 'Weak').length,
+          averageScore,
+        };
+      }),
+    [teacherState.classes, teacherState.students],
+  );
+
   const filteredStudents = useMemo(() => {
-    return students.filter((student) => {
+    return teacherState.students.filter((student) => {
       const matchesName = student.name.toLowerCase().includes(filterName.toLowerCase());
       const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
-      return matchesName && matchesStatus;
+      const matchesClass = selectedClassId === 'all' || student.classId === selectedClassId;
+      return matchesName && matchesStatus && matchesClass;
     });
-  }, [filterName, filterStatus, students]);
+  }, [filterName, filterStatus, selectedClassId, teacherState.students]);
+
+  function handleCreateClass() {
+    const name = className.trim();
+    const section = sectionName.trim();
+    const focus = focusArea.trim();
+    if (!name || !section || !focus) {
+      return;
+    }
+
+    addTeacherClass({ name, section, focusArea: focus });
+    setClassName('');
+    setSectionName('');
+    setFocusArea('');
+  }
 
   return (
     <div className="space-y-8">
       <PageHeader />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatCard title="Average Score" value={`${classStats.averageScore}%`} />
-        <StatCard title="Completion Rate" value={`${classStats.completionRate}%`} />
-        <StatCard title="Students at Risk" value={classStats.studentsAtRisk} />
+        <StatCard title="Average Score" value={`${teacherStats.averageScore}%`} />
+        <StatCard title="Completion Rate" value={`${teacherStats.completionRate}%`} />
+        <StatCard title="Students at Risk" value={teacherStats.studentsAtRisk} />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Class and Section Management</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.4fr_1fr_1.3fr_auto]">
+            <Input
+              placeholder="New class name"
+              value={className}
+              onChange={(event) => setClassName(event.target.value)}
+            />
+            <Input
+              placeholder="Section"
+              value={sectionName}
+              onChange={(event) => setSectionName(event.target.value)}
+            />
+            <Input
+              placeholder="Focus area"
+              value={focusArea}
+              onChange={(event) => setFocusArea(event.target.value)}
+            />
+            <Button className="w-full xl:w-auto" onClick={handleCreateClass} variant="secondary">
+              Add class
+            </Button>
+          </div>
+
+          {classCards.length === 0 ? (
+            <EmptyStatePanel
+              className="border-0 bg-transparent shadow-none"
+              title="No classes configured"
+              description="Add a class to start grouping students into sections and intervention cohorts."
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {classCards.map((teacherClass) => (
+                <Card
+                  key={teacherClass.id}
+                  className={selectedClassId === teacherClass.id ? 'border-primary/60 shadow-floating' : undefined}
+                >
+                  <CardHeader className="space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <CardTitle className="text-lg">{teacherClass.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{teacherClass.section}</p>
+                      </div>
+                      <Button
+                        onClick={() =>
+                          setSelectedClassId((current) => (current === teacherClass.id ? 'all' : teacherClass.id))
+                        }
+                        size="sm"
+                        variant={selectedClassId === teacherClass.id ? 'primary' : 'secondary'}
+                      >
+                        {selectedClassId === teacherClass.id ? 'Showing' : 'Filter'}
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{teacherClass.focusArea}</p>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-3 gap-3 text-sm">
+                    <div className="rounded-2xl border border-border/70 p-3">
+                      <p className="text-muted-foreground">Roster</p>
+                      <p className="mt-1 text-2xl font-bold">{teacherClass.rosterCount}</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/70 p-3">
+                      <p className="text-muted-foreground">Avg. Score</p>
+                      <p className="mt-1 text-2xl font-bold">{teacherClass.averageScore}%</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/70 p-3">
+                      <p className="text-muted-foreground">At Risk</p>
+                      <p className="mt-1 text-2xl font-bold">{teacherClass.weakCount}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Card>
@@ -63,14 +202,14 @@ export default function TeacherDashboardView() {
             <CardTitle>Weakest Concepts</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {weakConcepts.length === 0 ? (
+            {mockTeacherWeakConcepts.length === 0 ? (
               <EmptyStatePanel
                 className="border-0 bg-transparent shadow-none"
                 title="No weak concepts"
                 description="Class-level concept risk will appear here once student evidence is available."
               />
             ) : (
-              weakConcepts.map((item) => (
+              mockTeacherWeakConcepts.map((item) => (
                 <div key={item.conceptId}>
                   <div className="mb-1 flex items-center justify-between">
                     <h3 className="text-sm font-semibold">{item.conceptName}</h3>
@@ -87,48 +226,91 @@ export default function TeacherDashboardView() {
           <CardHeader>
             <CardTitle>Student Overview</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="mb-4 flex space-x-4">
-              <Input className="flex-1" placeholder="Filter by name..." value={filterName} onChange={(event) => setFilterName(event.target.value)} />
+          <CardContent className="space-y-4">
+            <div className="flex flex-col gap-4 xl:flex-row">
+              <Input
+                className="flex-1"
+                placeholder="Filter by name..."
+                value={filterName}
+                onChange={(event) => setFilterName(event.target.value)}
+              />
+              <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                <SelectTrigger className="xl:w-[220px]">{selectedClassId === 'all' ? 'All classes' : classCards.find((item) => item.id === selectedClassId)?.name ?? 'Class'}</SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All classes</SelectItem>
+                  {classCards.map((teacherClass) => (
+                    <SelectItem key={teacherClass.id} value={teacherClass.id}>
+                      {teacherClass.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by Status" />
+                <SelectTrigger className="xl:w-[180px]">
+                  {filterStatus === 'all' ? 'All statuses' : filterStatus}
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="Strong">Strong</SelectItem>
                   <SelectItem value="Good">Good</SelectItem>
                   <SelectItem value="Weak">Weak</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div className="overflow-auto">
               {filteredStudents.length === 0 ? (
                 <EmptyStatePanel
                   className="border-0 bg-transparent shadow-none"
                   title="No matching students"
-                  description="Try changing the current filter to bring students back into the table."
+                  description="Try changing the current class or status filter to bring students back into the table."
                 />
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Student Name</TableHead>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Class</TableHead>
                       <TableHead>Avg. Score</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Cohort</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredStudents.map((student) => (
-                      <TableRow className="cursor-pointer" key={student.id}>
+                      <TableRow key={student.id}>
                         <TableCell className="font-semibold">
                           <Link href={`/teacher/students/${student.id}`}>{student.name}</Link>
+                        </TableCell>
+                        <TableCell>
+                          <Select value={student.classId} onValueChange={(value) => assignStudentToClass(student.id, value)}>
+                            <SelectTrigger className="min-w-[180px]">
+                              {classCards.find((teacherClass) => teacherClass.id === student.classId)?.name ?? 'Assign class'}
+                            </SelectTrigger>
+                            <SelectContent>
+                              {classCards.map((teacherClass) => (
+                                <SelectItem key={teacherClass.id} value={teacherClass.id}>
+                                  {teacherClass.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>{student.avgScore}%</TableCell>
                         <TableCell>
                           <span className={`rounded-full px-2 py-1 text-xs font-bold ${statusTone[student.status]}`}>
                             {student.status}
                           </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            className={cohortTone[student.cohort]}
+                            onClick={() => cycleStudentCohort(student.id)}
+                            size="sm"
+                            variant="ghost"
+                          >
+                            {student.cohort}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -172,6 +354,7 @@ export const TeacherDashboardSkeleton = () => (
       <Skeleton className="h-32" />
       <Skeleton className="h-32" />
     </div>
+    <Skeleton className="h-56 w-full" />
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <Skeleton className="h-64" />
       <Skeleton className="h-64" />

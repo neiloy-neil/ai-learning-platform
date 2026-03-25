@@ -30,7 +30,7 @@ Status legend:
 - [x] Teacher dashboard moved off fetch-driven mock APIs
 - [x] Teacher assignments backed by shared mock source
 - [x] Student detail workspace aligned with shared demo data
-- [ ] Teacher class/section management
+- [x] Teacher class/section management
 - [ ] Teacher intervention actions and nudges
 
 ## Parent Product
@@ -62,6 +62,6 @@ Status legend:
 
 ## Next Up
 
-1. Rewrite the public landing/home flow so it matches the learning platform demo instead of the design-system showcase.
-2. Finish route/UI consistency cleanup around headers, empty states, and remaining legacy shell pieces.
-3. Add interaction completion for notifications and parent printable/report surfaces.
+1. Add teacher intervention actions and targeted nudges to the shared demo state and teacher views.
+2. Add parent child switching with linked-child demo state support.
+3. Add messaging threads for teacher-student and teacher-parent demo flows.

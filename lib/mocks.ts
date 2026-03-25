@@ -71,6 +71,25 @@ export type ProgressDatum = {
   rationale: string;
 };
 
+export type TeacherCohort = 'Core' | 'Acceleration' | 'Intervention';
+
+export type DemoTeacherClass = {
+  id: string;
+  name: string;
+  section: string;
+  focusArea: string;
+  studentIds: string[];
+};
+
+export type DemoTeacherStudent = {
+  id: string;
+  name: string;
+  avgScore: number;
+  status: 'Strong' | 'Good' | 'Weak';
+  classId: string;
+  cohort: TeacherCohort;
+};
+
 export type LearningPathNode = {
   conceptId: string;
   conceptName: string;
@@ -300,10 +319,27 @@ export const mockTeacherWeakConcepts = [
   { conceptId: 'graphing-inequalities', conceptName: 'Graphing Inequalities', performance: 61 },
 ];
 export const mockTeacherStudents = [
-  { id: 'student-a', name: 'Alice', avgScore: 92, status: 'Strong' as const },
-  { id: 'student-b', name: 'Bob', avgScore: 75, status: 'Good' as const },
-  { id: 'student-c', name: 'Charlie', avgScore: 55, status: 'Weak' as const },
-  { id: 'student-d', name: 'David', avgScore: 81, status: 'Good' as const },
+  { id: 'student-a', name: 'Alice', avgScore: 92, status: 'Strong' as const, classId: 'class-1', cohort: 'Acceleration' as const },
+  { id: 'student-b', name: 'Bob', avgScore: 75, status: 'Good' as const, classId: 'class-1', cohort: 'Core' as const },
+  { id: 'student-c', name: 'Charlie', avgScore: 55, status: 'Weak' as const, classId: 'class-2', cohort: 'Intervention' as const },
+  { id: 'student-d', name: 'David', avgScore: 81, status: 'Good' as const, classId: 'class-2', cohort: 'Core' as const },
+] satisfies DemoTeacherStudent[];
+
+export const mockTeacherClasses: DemoTeacherClass[] = [
+  {
+    id: 'class-1',
+    name: 'Algebra Foundations',
+    section: 'Section A',
+    focusArea: 'Equation fluency and graph interpretation',
+    studentIds: ['student-a', 'student-b'],
+  },
+  {
+    id: 'class-2',
+    name: 'Quadratics Readiness',
+    section: 'Section B',
+    focusArea: 'Factorization and function confidence',
+    studentIds: ['student-c', 'student-d'],
+  },
 ];
 
 export const mockTeacherAssignments: Assignment[] = [
@@ -715,6 +751,13 @@ export function getProgressData(state?: DemoStudentState) {
 
 export function getTeacherAssignments() {
   return mockTeacherAssignments;
+}
+
+export function createInitialTeacherManagementState() {
+  return {
+    classes: mockTeacherClasses.map((item) => ({ ...item, studentIds: [...item.studentIds] })),
+    students: mockTeacherStudents.map((item) => ({ ...item })),
+  };
 }
 
 export function getNotificationsForUser(userId?: string) {
