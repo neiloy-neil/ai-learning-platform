@@ -120,6 +120,7 @@ type DemoDataContextType = {
     category: 'Encouragement' | 'Intervention' | 'Follow-up';
   }) => void;
   addTeacherNote: (studentId: string, text: string) => void;
+  createParentContactRequest: (input: { studentId: string; topic: string }) => void;
   sendThreadMessage: (input: {
     threadId: string;
     senderRole: 'teacher' | 'student' | 'parent';
@@ -521,6 +522,40 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           notes: [
             { id: `note-${current.notes.length + 1}`, studentId, text: trimmedText, createdAtLabel: 'Just now' },
             ...current.notes,
+            ],
+          }));
+        },
+      createParentContactRequest: (input) => {
+        const topic = input.topic.trim();
+        if (!topic) {
+          return;
+        }
+
+        setTeacherState((current) => ({
+          ...current,
+          contactRequests: [
+            {
+              id: `contact-${current.contactRequests.length + 1}`,
+              parentName: demoUsers.parent.name,
+              studentId: input.studentId,
+              topic,
+              requestedAtLabel: 'Just now',
+            },
+            ...current.contactRequests,
+          ],
+        }));
+
+        setState((current) => ({
+          ...current,
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.teacher.id,
+              text: `New parent follow-up request: ${topic}.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
           ],
         }));
       },

@@ -15,6 +15,7 @@ import { mockConcepts } from '@/lib/mocks';
 export default function AiTutorView() {
   const {
     aiTutorMessages,
+    assessments,
     generatedQuizzes,
     generatedQuizAssessments,
     latestStudyPlan,
@@ -34,6 +35,7 @@ export default function AiTutorView() {
   const activeQuiz = generatedQuizzes.find((quiz) => quiz.id === activeQuizId) ?? generatedQuizzes[0];
   const activeQuizAssessment = activeQuiz ? generatedQuizAssessments[activeQuiz.id] : null;
   const selectedConcept = mockConcepts.find((concept) => concept.id === conceptId) ?? mockConcepts[0];
+  const latestReviewedAssessment = assessments.find((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed');
 
   const quickPrompts = [
     'Explain this concept',
@@ -41,6 +43,8 @@ export default function AiTutorView() {
     'Give me a hint',
     'Recommend my next step',
     'Motivate me for today',
+    'Help me review an assessment',
+    'Build a revision plan',
   ];
 
   const unansweredCount = useMemo(() => {
@@ -175,6 +179,30 @@ export default function AiTutorView() {
                   Generate a 75-minute plan
                 </Button>
               </div>
+              <div className="rounded-2xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">Assessment coaching</p>
+                <p className="mt-2">
+                  {latestReviewedAssessment
+                    ? `${latestReviewedAssessment.title} is ready for post-assessment coaching and next-step planning.`
+                    : 'Complete or review an assessment to unlock a stronger coaching workflow here.'}
+                </p>
+                <div className="mt-4 flex flex-col gap-3">
+                  <Button
+                    onClick={() =>
+                      sendAiTutorPrompt({
+                        prompt: 'Help me review an assessment',
+                        conceptName: selectedConcept.name,
+                      })
+                    }
+                    variant="secondary"
+                  >
+                    Generate coaching message
+                  </Button>
+                  <Button asChild variant="ghost">
+                    <Link href={appRoutes.student.assessments}>Open assessments</Link>
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -271,6 +299,26 @@ export default function AiTutorView() {
                     ))}
                   </div>
                 </div>
+              </div>
+            ) : null}
+
+            {activeQuizAssessment ? (
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Button
+                  className="md:flex-1"
+                  onClick={() =>
+                    sendAiTutorPrompt({
+                      prompt: 'Build a revision plan',
+                      conceptName: activeQuiz.conceptName,
+                    })
+                  }
+                  variant="secondary"
+                >
+                  Turn result into revision plan
+                </Button>
+                <Button asChild className="md:flex-1" variant="ghost">
+                  <Link href={appRoutes.student.assessments}>Open assessment review</Link>
+                </Button>
               </div>
             ) : null}
           </CardContent>

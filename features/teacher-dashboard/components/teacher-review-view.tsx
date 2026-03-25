@@ -1,8 +1,12 @@
 'use client';
 
+import Link from 'next/link';
+
 import PageHeader from '@/components/layout/page-header';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
+import { appRoutes, getTeacherStudentRoute } from '@/lib/app-routes';
 
 export default function TeacherReviewView() {
   const { teacherState } = useDemoData();
@@ -11,7 +15,7 @@ export default function TeacherReviewView() {
     <div className="space-y-8">
       <PageHeader />
 
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[0.9fr_1.1fr_0.9fr]">
         <Card glass>
           <CardHeader>
             <CardTitle>Review Queue</CardTitle>
@@ -29,6 +33,14 @@ export default function TeacherReviewView() {
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">Due {item.dueLabel}</p>
+                <div className="mt-4 flex flex-col gap-3 md:flex-row">
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href={getTeacherStudentRoute(item.studentId)}>Open workspace</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="ghost">
+                    <Link href={appRoutes.teacher.messages}>Open messages</Link>
+                  </Button>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -53,6 +65,37 @@ export default function TeacherReviewView() {
                 <p className="mt-3 text-sm text-muted-foreground">Submitted {submission.submittedAtLabel}</p>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Parent Follow-up Requests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {teacherState.contactRequests.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                No open parent requests yet.
+              </div>
+            ) : (
+              teacherState.contactRequests.map((request) => (
+                <div className="rounded-3xl border border-border/70 p-4" key={request.id}>
+                  <p className="font-semibold text-foreground">{request.parentName}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{request.topic}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                    {request.requestedAtLabel}
+                  </p>
+                  <div className="mt-4 flex flex-col gap-3">
+                    <Button asChild size="sm" variant="secondary">
+                      <Link href={getTeacherStudentRoute(request.studentId)}>Open learner</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="ghost">
+                      <Link href={appRoutes.teacher.messages}>Reply in messages</Link>
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

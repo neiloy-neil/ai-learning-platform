@@ -19,7 +19,7 @@ const statusColors: Record<string, string> = {
 
 export default function AssessmentListView() {
   const router = useRouter();
-  const { assessments, generatedQuizzes, generatedQuizAssessments, state } = useDemoData();
+  const { assessments, generatedQuizzes, generatedQuizAssessments, state, latestStudyPlan } = useDemoData();
 
   return (
     <div className="space-y-8">
@@ -84,13 +84,23 @@ export default function AssessmentListView() {
                 {assessment.lastScore !== undefined ? <p>Latest score: {assessment.lastScore}%</p> : null}
               </div>
               {assessment.status === 'Reviewed' || assessment.status === 'Completed' ? (
-                <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
-                  {buildAssessmentResult(assessment, state.attempts).conceptBreakdown.map((item) => (
-                    <p key={`${assessment.id}-${item.conceptId}`}>
-                      {item.conceptName}: {item.correct}/{item.total} correct
+                <>
+                  <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+                    {buildAssessmentResult(assessment, state.attempts).conceptBreakdown.map((item) => (
+                      <p key={`${assessment.id}-${item.conceptId}`}>
+                        {item.conceptName}: {item.correct}/{item.total} correct
+                      </p>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border border-border/70 p-4">
+                    <p className="font-semibold">Post-assessment coaching</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {latestStudyPlan
+                        ? latestStudyPlan.tasks[0]?.title ?? 'A follow-up study block is ready.'
+                        : 'Generate a study plan or ask AI for coaching to turn this review into the next study block.'}
                     </p>
-                  ))}
-                </div>
+                  </div>
+                </>
               ) : null}
               <div className="flex flex-col gap-3">
                 <Button onClick={() => router.push(`${appRoutes.student.practice}?assessmentId=${assessment.id}`)}>
@@ -99,6 +109,11 @@ export default function AssessmentListView() {
                 <Button asChild variant="secondary">
                   <Link href={appRoutes.student.aiTutor}>Ask AI for assessment help</Link>
                 </Button>
+                {(assessment.status === 'Reviewed' || assessment.status === 'Completed') ? (
+                  <Button asChild variant="ghost">
+                    <Link href={appRoutes.student.studyPlan}>Open coaching plan</Link>
+                  </Button>
+                ) : null}
               </div>
             </CardContent>
           </Card>

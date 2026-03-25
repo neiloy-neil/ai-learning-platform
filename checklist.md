@@ -35,6 +35,7 @@ Status legend:
 - [x] Assessment review cards expanded with richer concept breakdown and AI support actions
 - [x] Learning-path and practice flows connected more directly into AI support
 - [x] Student dashboard upgraded with denser agenda/checkpoint and AI review blocks
+- [x] Post-assessment coaching tied into AI Tutor and study-plan follow-up
 
 ### Teacher Product
 
@@ -64,6 +65,8 @@ Status legend:
 - [x] Mark-as-read / archive interactions
 - [x] Messaging threads
 - [x] Messaging surfaces upgraded with role-aware follow-up context and cross-links
+- [x] Parent alert flow can create teacher follow-up requests in shared demo state
+- [x] Teacher review workflow now exposes parent follow-up requests and direct cross-links
 
 ### UX and Cleanup
 
