@@ -2,6 +2,26 @@
 
 This document is the working product and engineering plan for turning the current prototype into a complete AI learning platform. It covers the missing features, the build order, and the expected outcomes for each area.
 
+## Scope Split
+
+The project is now intentionally split into two tracks:
+- `Demo track`: completed enough to support a strong client walkthrough using shared mock data and role-based demo login.
+- `Production track`: deferred work required to make the platform persistent, secure, operationally sound, and backend-backed.
+
+## Demo Track Status
+
+The current demo build already includes:
+- role-card login for student, teacher, and parent;
+- canonical role-prefixed routes and cleaned-up navigation;
+- shared demo state for student, teacher, and parent flows;
+- demo practice, assessments, goals, progress, notifications, messaging, and printable parent summary;
+- teacher class management, interventions, and student workspaces;
+- parent child switching and parent messaging;
+- landing-page, route, empty-state, and accessibility cleanup;
+- local test coverage plus CI checks for lint, test, and build.
+
+This means the app is ready to present as a frontend-driven product demo without connecting a real backend yet.
+
 ## Product Goal
 
 Build a role-based learning platform that:
@@ -17,20 +37,26 @@ The current codebase already includes:
 - Next.js App Router frontend and dashboard shell;
 - student, teacher, and parent dashboard routes;
 - reusable UI primitives;
-- mock authentication;
+- demo authentication;
 - mock/in-memory API routes;
 - rule-based mastery, recommendation, and revision logic;
-- demo practice, assessments, notifications, and progress views.
+- demo practice, assessments, notifications, messaging, and progress views;
+- demo teacher and parent workflows;
+- test and CI coverage for the demo branch.
 
 The main gaps are:
 - no real auth or authorization;
 - no persistent database;
 - no end-to-end learning evidence loop;
-- no teacher action workflows;
-- no parent action workflows;
+- no persistent teacher action workflows;
+- no persistent parent action workflows;
 - no true AI-powered tutoring or content generation;
 - no admin/content management layer;
-- no robust testing or production hardening.
+- no production-grade observability, security, or deployment hardening.
+
+## Production Track
+
+Everything below this section should be treated as the post-demo production roadmap.
 
 ## Phase 1: Platform Foundations
 
