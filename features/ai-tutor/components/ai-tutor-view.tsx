@@ -431,6 +431,54 @@ export default function AiTutorView() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Connected Coaching Loop</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Step 1: Explain the gap</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start with a concept explanation or assessment review so the next move is based on the real misconception instead of guesswork.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Step 2: Test it fast</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Generate a short AI quiz, assess it immediately, and use the result to tighten the next revision block.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Step 3: Re-enter the planner</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Once the concept is clearer, push the signal back into the study plan and progress views so the loop stays consistent.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Action Handoff</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.revision}>Open revision queue</Link>
+            </Button>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.progress}>Open progress loop</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.studyPlan}>Open study plan</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.assessments}>Open assessment review</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

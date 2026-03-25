@@ -15,7 +15,9 @@ const intensityTone = {
 } as const;
 
 export default function RevisionView() {
-  const { dashboardData } = useDemoData();
+  const { dashboardData, latestStudyPlan, generatedQuizzes, generatedQuizAssessments } = useDemoData();
+  const latestGeneratedQuiz = generatedQuizzes[0];
+  const latestGeneratedQuizAssessment = latestGeneratedQuiz ? generatedQuizAssessments[latestGeneratedQuiz.id] : null;
 
   return (
     <div className="space-y-8">
@@ -83,6 +85,68 @@ export default function RevisionView() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Revision Coaching Loop</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">1. Clear the weakest concept</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start with {dashboardData.revisionQueue[0]?.conceptName ?? dashboardData.recommendation.nextConceptName} to remove the biggest blocker first.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">2. Use AI to explain the gap</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Ask the AI tutor to simplify the concept or turn it into a short checkpoint before the next assessed attempt.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">3. Rebalance the plan</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Move back to the study plan once the queue starts shrinking so the next session stays realistic.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Connected Signals</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestStudyPlan ? (
+              <div className="rounded-3xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">Latest plan signal</p>
+                <p className="mt-2 text-sm text-muted-foreground">{latestStudyPlan.rationale}</p>
+              </div>
+            ) : null}
+            {latestGeneratedQuizAssessment ? (
+              <div className="rounded-3xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">Latest AI quiz signal</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {latestGeneratedQuiz?.title} scored {latestGeneratedQuizAssessment.score}% and is currently steering the revision queue.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Once an AI quiz is assessed, its coaching signal will appear here beside the revision queue.
+              </div>
+            )}
+            <div className="flex flex-col gap-3 md:flex-row">
+              <Button asChild className="md:flex-1" variant="secondary">
+                <Link href={appRoutes.student.aiTutor}>Open AI Tutor</Link>
+              </Button>
+              <Button asChild className="md:flex-1" variant="ghost">
+                <Link href={appRoutes.student.progress}>Open progress loop</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

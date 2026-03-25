@@ -56,6 +56,7 @@ export default function ProgressView() {
     .slice()
     .sort((left, right) => left.mastery - right.mastery)
     .slice(0, 3);
+  const weakestConcept = recommendedFocus[0];
 
   return (
     <div className="space-y-8">
@@ -247,6 +248,56 @@ export default function ProgressView() {
                 <Link href={appRoutes.student.revision}>Open revision queue</Link>
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Connected Coaching Loop</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Progress signal</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {weakestConcept
+                  ? `${weakestConcept.conceptName} is still the weakest active concept and should be cleared before the next major checkpoint.`
+                  : 'No weak concept is currently dominating the coaching loop.'}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Revision handoff</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use the revision queue to stabilise the next weak concept, then come back here to confirm the movement in mastery and confidence.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">AI handoff</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Ask AI for an explanation or short checkpoint when the rationale is clear but the score still is not moving.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Action Bridge</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.revision}>Open revision queue</Link>
+            </Button>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.aiTutor}>Open AI Tutor coaching</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.studyPlan}>Open study plan</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.assessments}>Open assessment review</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

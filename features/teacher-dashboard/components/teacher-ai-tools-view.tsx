@@ -26,6 +26,11 @@ export default function TeacherAiToolsView() {
   const [focus, setFocus] = useState('Quadratics');
   const [className, setClassName] = useState(teacherState.classes[0]?.name ?? 'Algebra Foundations');
   const latestArtifacts = teacherArtifacts.slice(0, 3);
+  const routedTargets = [
+    { label: 'Assignments', href: appRoutes.teacher.assignments, description: 'Turn a generated quiz or remediation set into a concrete intervention.' },
+    { label: 'Review', href: appRoutes.teacher.review, description: 'Use summaries and follow-up artifacts while clearing the review desk.' },
+    { label: 'Analytics', href: appRoutes.teacher.analytics, description: 'Keep AI outputs visible beside class performance and risk signals.' },
+  ];
 
   return (
     <div className="space-y-8">
@@ -177,6 +182,23 @@ export default function TeacherAiToolsView() {
           </CardContent>
         </Card>
       </div>
+
+      <Card glass>
+        <CardHeader>
+          <CardTitle>Artifact Destinations</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          {routedTargets.map((target) => (
+            <div className="rounded-3xl border border-border/70 p-4" key={target.label}>
+              <p className="font-semibold text-foreground">{target.label}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{target.description}</p>
+              <Button asChild className="mt-4 w-full" size="sm" variant="secondary">
+                <Link href={target.href}>Open {target.label.toLowerCase()}</Link>
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }

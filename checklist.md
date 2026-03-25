@@ -45,6 +45,7 @@ Status legend:
 - [x] Teacher-parent follow-up actions now sync across alerts, review, and messaging
 - [x] AI Tutor now surfaces stronger artifact/coaching output panels
 - [x] Student progress now includes a coaching timeline and priority focus rail
+- [x] Revision, progress, and AI Tutor now read as one connected coaching loop
 
 ### Teacher Product
 
@@ -60,6 +61,7 @@ Status legend:
 - [x] Teacher student-detail workspace upgraded into a denser intervention console
 - [x] Teacher analytics page upgraded into a fuller operational analytics view
 - [x] Teacher assignments page upgraded into a workflow board with AI support context
+- [x] Teacher AI artifacts now surface more directly in student-detail and routed teacher workflows
 
 ### Parent Product
 

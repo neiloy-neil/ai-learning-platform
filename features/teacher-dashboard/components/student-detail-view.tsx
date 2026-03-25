@@ -58,6 +58,11 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
   );
   const recommendedTemplate = teacherState.templates.find((template) => template.recommendedFor === student?.cohort) ?? teacherState.templates[0];
   const relevantProgress = progressData.slice(0, 4);
+  const relevantArtifacts = teacherArtifacts.filter((artifact) =>
+    artifact.summary.toLowerCase().includes(className.toLowerCase()) ||
+    artifact.summary.toLowerCase().includes('intervention') ||
+    artifact.summary.toLowerCase().includes('summary'),
+  ).slice(0, 4);
 
   function handleAssign() {
     const title = assignmentTitle.trim();
@@ -386,6 +391,59 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
             <Button asChild className="w-full" variant="ghost">
               <Link href={appRoutes.teacher.analytics}>Open analytics</Link>
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>AI Artifact Routing</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {relevantArtifacts.length > 0 ? (
+              relevantArtifacts.map((artifact) => (
+                <div className="rounded-2xl border border-border/70 p-4" key={`student-artifact-${artifact.id}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-foreground">{artifact.title}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">{artifact.summary}</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                      {artifact.tool}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyStatePanel
+                className="border-0 bg-transparent shadow-none"
+                title="No routed AI artifacts yet"
+                description="Generate a remediation set, parent summary, or class summary to surface it directly in the learner workspace."
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Intervention Bridge</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Recommended next move</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Pair one template assignment with one AI artifact and one parent-visible follow-up to keep this learner’s intervention trail coherent.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 md:flex-row">
+              <Button asChild className="md:flex-1" variant="secondary">
+                <Link href={appRoutes.teacher.aiTools}>Generate artifact</Link>
+              </Button>
+              <Button asChild className="md:flex-1" variant="ghost">
+                <Link href={appRoutes.teacher.messages}>Open family follow-up</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
