@@ -50,7 +50,7 @@ Status legend:
 
 - [~] Product identity and route consistency cleanup
 - [x] Landing page rewritten for learning-product positioning
-- [ ] Remove or consolidate remaining legacy layout/components
+- [x] Remove or consolidate remaining legacy layout/components
 - [ ] Standardized loading/empty/error states across all major widgets
 - [ ] Accessibility hardening for menus, tables, overlays, and forms
 

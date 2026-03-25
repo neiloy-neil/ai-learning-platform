@@ -3,7 +3,7 @@ interface RouteMetadata {
   subtitle: string;
 }
 
-const metadataMap: Record<string, RouteMetadata> = {
+export const metadataMap: Record<string, RouteMetadata> = {
   '/student/dashboard': {
     title: 'Student Dashboard',
     subtitle: 'Your personal learning hub.',
@@ -40,4 +40,21 @@ const metadataMap: Record<string, RouteMetadata> = {
 
 export function getRouteMetadata(pathname: string): RouteMetadata {
   return metadataMap[pathname] || { title: 'Dashboard', subtitle: 'Welcome to the platform.' };
+}
+
+const segmentLabelMap: Record<string, string> = {
+  student: 'Student',
+  teacher: 'Teacher',
+  parent: 'Parent',
+  dashboard: 'Dashboard',
+  'learning-path': 'Learning Path',
+  goals: 'Goals',
+  practice: 'Practice',
+  assessments: 'Assessments',
+  progress: 'Progress',
+  students: 'Students',
+};
+
+export function getRouteSegmentLabel(segment: string): string {
+  return segmentLabelMap[segment] || segment.replace(/-/g, ' ').replace(/\b\w/g, (match) => match.toUpperCase());
 }
