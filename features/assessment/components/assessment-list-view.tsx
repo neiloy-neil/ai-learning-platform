@@ -206,6 +206,30 @@ export default function AssessmentListView() {
           </CardContent>
         </Card>
       </div>
+
+      <Card glass>
+        <CardHeader>
+          <CardTitle>Assessment History Loop</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Reviewed items</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">{reviewedAssessments.length}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Scored assessments ready for explanation and follow-up planning.</p>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">AI-generated quizzes</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">{generatedQuizzes.length}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Short checkpoints that can feed the same coaching loop as formal assessments.</p>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Next handoff</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Move from assessment review into AI explanation, then into the study plan or progress loop.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

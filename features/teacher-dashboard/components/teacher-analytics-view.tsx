@@ -106,6 +106,14 @@ export default function TeacherAnalyticsView() {
                 <p className="text-sm font-semibold text-foreground">{cell.conceptName}</p>
                 <p className="mt-3 text-3xl font-semibold text-foreground">{cell.score}%</p>
                 <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">Class performance</p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href={appRoutes.teacher.review}>Open review response</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="ghost">
+                    <Link href={appRoutes.teacher.assignments}>Assign intervention</Link>
+                  </Button>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -152,20 +160,28 @@ export default function TeacherAnalyticsView() {
                     {teacherClass.averageScore}%
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
+                <div className="rounded-2xl border border-border/70 p-3">
+                  <p>Roster</p>
+                  <p className="mt-1 text-2xl font-semibold text-foreground">{teacherClass.rosterCount}</p>
+                </div>
                   <div className="rounded-2xl border border-border/70 p-3">
-                    <p>Roster</p>
-                    <p className="mt-1 text-2xl font-semibold text-foreground">{teacherClass.rosterCount}</p>
-                  </div>
-                  <div className="rounded-2xl border border-border/70 p-3">
-                    <p>At Risk</p>
-                    <p className="mt-1 text-2xl font-semibold text-foreground">{teacherClass.riskCount}</p>
-                  </div>
+                  <p>At Risk</p>
+                  <p className="mt-1 text-2xl font-semibold text-foreground">{teacherClass.riskCount}</p>
                 </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <div className="mt-4 flex flex-col gap-3 md:flex-row">
+                <Button asChild className="md:flex-1" size="sm" variant="secondary">
+                  <Link href={appRoutes.teacher.assignments}>Open assignment desk</Link>
+                </Button>
+                <Button asChild className="md:flex-1" size="sm" variant="ghost">
+                  <Link href={appRoutes.teacher.classes}>Open class roster</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
         <Card glass>
           <CardHeader>
@@ -241,6 +257,41 @@ export default function TeacherAnalyticsView() {
           </CardContent>
         </Card>
       </div>
+
+      <Card glass>
+        <CardHeader>
+          <CardTitle>Analytics-to-Action Bridge</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Weak concept detected</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Use review when the concept heatmap is dropping and the class needs a fast response.
+            </p>
+            <Button asChild className="mt-4 w-full" size="sm" variant="secondary">
+              <Link href={appRoutes.teacher.review}>Go to review</Link>
+            </Button>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Learner cluster at risk</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Move from analytics into assignments when a cohort or class needs a repeatable intervention.
+            </p>
+            <Button asChild className="mt-4 w-full" size="sm" variant="secondary">
+              <Link href={appRoutes.teacher.assignments}>Go to assignments</Link>
+            </Button>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Family signal rising</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Move into messages when analytics pressure and parent follow-up are both active.
+            </p>
+            <Button asChild className="mt-4 w-full" size="sm" variant="secondary">
+              <Link href={appRoutes.teacher.messages}>Go to messages</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

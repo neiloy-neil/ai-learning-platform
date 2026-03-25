@@ -325,6 +325,29 @@ export default function ProgressView() {
           ))}
         </CardContent>
       </Card>
+
+      <Card glass>
+        <CardHeader>
+          <CardTitle>History Density</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Activity signals</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">{state.activities.length}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Recent events feeding the coaching timeline.</p>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Attempt evidence</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">{state.attempts.length}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Practice and assessment attempts in the current demo session.</p>
+          </div>
+          <div className="rounded-3xl border border-border/70 p-4">
+            <p className="font-semibold text-foreground">Coaching artifacts</p>
+            <p className="mt-2 text-3xl font-semibold text-primary">{coachingTimeline.length}</p>
+            <p className="mt-2 text-sm text-muted-foreground">AI quiz, study plan, and assessment coaching entries currently active.</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

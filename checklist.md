@@ -35,6 +35,7 @@ Status legend:
 - [x] Study-plan page upgraded with calendar-style schedule snapshot
 - [x] Assessment review cards expanded with richer concept breakdown and AI support actions
 - [x] Assessment page now includes a review desk and post-assessment coaching rail
+- [x] Assessment and progress surfaces now expose denser coaching/history summaries
 - [x] Learning-path and practice flows connected more directly into AI support
 - [x] Student dashboard upgraded with denser agenda/checkpoint and AI review blocks
 - [x] Student dashboard now includes stronger coaching timeline and planning signal panels
@@ -60,6 +61,7 @@ Status legend:
 - [x] Teacher AI tools now expose clearer artifact workflow and signal panels
 - [x] Teacher student-detail workspace upgraded into a denser intervention console
 - [x] Teacher analytics page upgraded into a fuller operational analytics view
+- [x] Teacher analytics now links more directly into review, assignments, classes, and messages
 - [x] Teacher assignments page upgraded into a workflow board with AI support context
 - [x] Teacher AI artifacts now surface more directly in student-detail and routed teacher workflows
 
@@ -72,6 +74,7 @@ Status legend:
 - [x] Expanded parent navigation: children, reports, alerts, support tips
 - [x] Parent dashboard densified with digest, changes, upcoming work, messages preview, and AI helper
 - [x] Parent support tips and AI at-home guidance placeholder
+- [x] Parent reports and support views now surface more of the AI/coaching and follow-up trail
 
 ### Notifications and Messaging
 
