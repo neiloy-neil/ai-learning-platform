@@ -58,10 +58,10 @@ Status legend:
 
 - [x] Unit tests for demo mastery/recommendation/revision logic
 - [x] Component/smoke tests for auth and role dashboards
-- [ ] CI-quality verification beyond local lint/build
+- [x] CI-quality verification beyond local lint/build
 
 ## Next Up
 
 1. Revisit product identity and route cleanup only if any legacy path still leaks into the demo flow.
-2. Decide whether to add CI-quality verification for lint, test, and build or keep that deferred for the demo phase.
-3. Continue expanding role-specific demo depth only where it materially improves the client walkthrough.
+2. Continue expanding role-specific demo depth only where it materially improves the client walkthrough.
+3. Decide whether any remaining checklist items should be deferred explicitly for the post-demo production phase.
