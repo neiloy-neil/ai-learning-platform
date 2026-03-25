@@ -19,11 +19,12 @@ import {
   type DemoGoal,
   type DemoStudentState,
   type DemoTeacherClass,
+  type DemoTeacherNudge,
   type DemoTeacherStudent,
   type PracticeMode,
   type TeacherCohort,
 } from '@/lib/mocks';
-import type { Notification } from '@/lib/pcdc-types';
+import type { Assignment, Notification } from '@/lib/pcdc-types';
 
 const storageKey = 'demoStudentState';
 const teacherStorageKey = 'demoTeacherManagementState';
@@ -31,6 +32,8 @@ const teacherStorageKey = 'demoTeacherManagementState';
 type DemoTeacherManagementState = {
   classes: DemoTeacherClass[];
   students: DemoTeacherStudent[];
+  assignments: Assignment[];
+  nudges: DemoTeacherNudge[];
 };
 
 type DemoDataContextType = {
@@ -47,6 +50,13 @@ type DemoDataContextType = {
   addTeacherClass: (input: { name: string; section: string; focusArea: string }) => void;
   assignStudentToClass: (studentId: string, classId: string) => void;
   cycleStudentCohort: (studentId: string) => void;
+  createTeacherAssignment: (input: { title: string; description: string; studentId: string; dueDate: string }) => void;
+  sendTeacherNudge: (input: {
+    studentId: string;
+    audience: 'student' | 'parent';
+    message: string;
+    category: 'Encouragement' | 'Intervention' | 'Follow-up';
+  }) => void;
   completeSession: (input: {
     answers: Array<{ questionId: string; selectedOptionId: string; confidenceRating: number }>;
     mode: PracticeMode;
@@ -69,7 +79,15 @@ function reviveDemoState(raw: string): DemoStudentState {
 }
 
 function reviveTeacherState(raw: string): DemoTeacherManagementState {
-  return JSON.parse(raw) as DemoTeacherManagementState;
+  const parsed = JSON.parse(raw) as DemoTeacherManagementState;
+  return {
+    ...parsed,
+    assignments: parsed.assignments.map((item) => ({
+      ...item,
+      assignedDate: new Date(item.assignedDate),
+      dueDate: new Date(item.dueDate),
+    })),
+  };
 }
 
 export function DemoDataProvider({ children }: { children: ReactNode }) {
@@ -155,6 +173,7 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           }));
 
           return {
+            ...current,
             classes: nextClasses,
             students: nextStudents,
           };
@@ -175,6 +194,67 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
               cohort: cohortOrder[(currentIndex + 1) % cohortOrder.length],
             };
           }),
+        }));
+      },
+      createTeacherAssignment: (input) => {
+        setTeacherState((current) => ({
+          ...current,
+          assignments: [
+            {
+              id: `assignment-${current.assignments.length + 1}`,
+              title: input.title,
+              description: input.description,
+              assignedDate: new Date(),
+              dueDate: new Date(input.dueDate),
+              status: 'Assigned',
+              assignedToStudentId: input.studentId,
+            },
+            ...current.assignments,
+          ],
+        }));
+
+        setState((current) => ({
+          ...current,
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.student.id,
+              text: `New targeted assignment added: ${input.title}.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
+        }));
+      },
+      sendTeacherNudge: (input) => {
+        setTeacherState((current) => ({
+          ...current,
+          nudges: [
+            {
+              id: `nudge-${current.nudges.length + 1}`,
+              studentId: input.studentId,
+              audience: input.audience,
+              message: input.message,
+              category: input.category,
+              sentAt: new Date().toISOString(),
+            },
+            ...current.nudges,
+          ],
+        }));
+
+        setState((current) => ({
+          ...current,
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: input.audience === 'parent' ? demoUsers.parent.id : demoUsers.student.id,
+              text: input.message,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
         }));
       },
       completeSession: (input) => {

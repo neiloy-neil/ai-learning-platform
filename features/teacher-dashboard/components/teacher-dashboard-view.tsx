@@ -14,8 +14,7 @@ import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
-import { getTeacherAssignments, mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
-import type { Assignment } from '@/lib/pcdc-types';
+import { mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
 
 const statusTone: Record<string, string> = {
   Strong: 'bg-success/20 text-success',
@@ -41,14 +40,22 @@ const StatCard = ({ title, value }: { title: string; value: string | number }) =
 );
 
 export default function TeacherDashboardView() {
-  const { teacherState, addTeacherClass, assignStudentToClass, cycleStudentCohort } = useDemoData();
+  const { teacherState, addTeacherClass, assignStudentToClass, cycleStudentCohort, createTeacherAssignment, sendTeacherNudge } =
+    useDemoData();
   const [filterName, setFilterName] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedClassId, setSelectedClassId] = useState('all');
   const [className, setClassName] = useState('');
   const [sectionName, setSectionName] = useState('');
   const [focusArea, setFocusArea] = useState('');
-  const assignments: Assignment[] = getTeacherAssignments();
+  const [assignmentTitle, setAssignmentTitle] = useState('');
+  const [assignmentDescription, setAssignmentDescription] = useState('');
+  const [assignmentStudentId, setAssignmentStudentId] = useState('student-c');
+  const [assignmentDueDate, setAssignmentDueDate] = useState('2026-03-31');
+  const [nudgeMessage, setNudgeMessage] = useState('Finish the next targeted set before tomorrow so we can review the gap together.');
+  const [nudgeStudentId, setNudgeStudentId] = useState('student-c');
+  const assignments = teacherState.assignments;
+  const recentNudges = teacherState.nudges.slice(0, 4);
 
   const teacherStats = useMemo(() => {
     const sourceStudents =
@@ -106,6 +113,38 @@ export default function TeacherDashboardView() {
     setClassName('');
     setSectionName('');
     setFocusArea('');
+  }
+
+  function handleCreateAssignment() {
+    const title = assignmentTitle.trim();
+    const description = assignmentDescription.trim();
+    if (!title || !description || !assignmentStudentId || !assignmentDueDate) {
+      return;
+    }
+
+    createTeacherAssignment({
+      title,
+      description,
+      studentId: assignmentStudentId,
+      dueDate: assignmentDueDate,
+    });
+    setAssignmentTitle('');
+    setAssignmentDescription('');
+  }
+
+  function handleSendNudge(audience: 'student' | 'parent') {
+    const message = nudgeMessage.trim();
+    if (!message || !nudgeStudentId) {
+      return;
+    }
+
+    sendTeacherNudge({
+      studentId: nudgeStudentId,
+      audience,
+      message,
+      category: audience === 'parent' ? 'Follow-up' : 'Intervention',
+    });
+    setNudgeMessage('Keep the momentum going with one focused review block tonight.');
   }
 
   return (
@@ -324,9 +363,87 @@ export default function TeacherDashboardView() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Assignments Overview</CardTitle>
+          <CardTitle>Assignments and Intervention Actions</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+              <h3 className="font-semibold">Create targeted assignment</h3>
+              <Input
+                placeholder="Assignment title"
+                value={assignmentTitle}
+                onChange={(event) => setAssignmentTitle(event.target.value)}
+              />
+              <Input
+                placeholder="Assignment description"
+                value={assignmentDescription}
+                onChange={(event) => setAssignmentDescription(event.target.value)}
+              />
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <Select value={assignmentStudentId} onValueChange={setAssignmentStudentId}>
+                  <SelectTrigger>
+                    {teacherState.students.find((student) => student.id === assignmentStudentId)?.name ?? 'Assign student'}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teacherState.students.map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input type="date" value={assignmentDueDate} onChange={(event) => setAssignmentDueDate(event.target.value)} />
+              </div>
+              <Button onClick={handleCreateAssignment} variant="secondary">
+                Assign intervention
+              </Button>
+            </div>
+
+            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+              <h3 className="font-semibold">Send targeted nudge</h3>
+              <Select value={nudgeStudentId} onValueChange={setNudgeStudentId}>
+                <SelectTrigger>
+                  {teacherState.students.find((student) => student.id === nudgeStudentId)?.name ?? 'Select student'}
+                </SelectTrigger>
+                <SelectContent>
+                  {teacherState.students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input value={nudgeMessage} onChange={(event) => setNudgeMessage(event.target.value)} />
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Button className="md:flex-1" onClick={() => handleSendNudge('student')} variant="secondary">
+                  Nudge student
+                </Button>
+                <Button className="md:flex-1" onClick={() => handleSendNudge('parent')} variant="ghost">
+                  Notify parent
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {recentNudges.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recent nudges yet.</p>
+                ) : (
+                  recentNudges.map((nudge) => (
+                    <div className="rounded-2xl border border-border/70 p-3" key={nudge.id}>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold">
+                          {teacherState.students.find((student) => student.id === nudge.studentId)?.name ?? 'Student'}
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {nudge.category} to {nudge.audience}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">{nudge.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
           {assignments.length === 0 ? (
             <EmptyStatePanel
               className="border-0 bg-transparent shadow-none"
@@ -335,7 +452,7 @@ export default function TeacherDashboardView() {
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {assignments.map((assignment: Assignment) => (
+              {assignments.map((assignment) => (
                 <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
               ))}
             </div>

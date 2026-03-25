@@ -90,6 +90,15 @@ export type DemoTeacherStudent = {
   cohort: TeacherCohort;
 };
 
+export type DemoTeacherNudge = {
+  id: string;
+  studentId: string;
+  audience: 'student' | 'parent';
+  message: string;
+  category: 'Encouragement' | 'Intervention' | 'Follow-up';
+  sentAt: string;
+};
+
 export type LearningPathNode = {
   conceptId: string;
   conceptName: string;
@@ -757,6 +766,29 @@ export function createInitialTeacherManagementState() {
   return {
     classes: mockTeacherClasses.map((item) => ({ ...item, studentIds: [...item.studentIds] })),
     students: mockTeacherStudents.map((item) => ({ ...item })),
+    assignments: mockTeacherAssignments.map((item) => ({
+      ...item,
+      assignedDate: new Date(item.assignedDate),
+      dueDate: new Date(item.dueDate),
+    })),
+    nudges: [
+      {
+        id: 'nudge-1',
+        studentId: 'student-c',
+        audience: 'student' as const,
+        message: 'Start the quadratics rescue set before tomorrow so we can review gaps together.',
+        category: 'Intervention' as const,
+        sentAt: new Date(currentYear, 2, 25, 8, 10).toISOString(),
+      },
+      {
+        id: 'nudge-2',
+        studentId: 'student-b',
+        audience: 'parent' as const,
+        message: 'Bob is close to readiness. A short review session tonight would help lock it in.',
+        category: 'Follow-up' as const,
+        sentAt: new Date(currentYear, 2, 24, 18, 40).toISOString(),
+      },
+    ] satisfies DemoTeacherNudge[],
   };
 }
 

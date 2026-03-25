@@ -31,7 +31,7 @@ Status legend:
 - [x] Teacher assignments backed by shared mock source
 - [x] Student detail workspace aligned with shared demo data
 - [x] Teacher class/section management
-- [ ] Teacher intervention actions and nudges
+- [x] Teacher intervention actions and nudges
 
 ## Parent Product
 
@@ -62,6 +62,6 @@ Status legend:
 
 ## Next Up
 
-1. Add teacher intervention actions and targeted nudges to the shared demo state and teacher views.
-2. Add parent child switching with linked-child demo state support.
-3. Add messaging threads for teacher-student and teacher-parent demo flows.
+1. Add parent child switching with linked-child demo state support.
+2. Add messaging threads for teacher-student and teacher-parent demo flows.
+3. Add test coverage for demo auth, dashboards, and mastery/recommendation logic.
