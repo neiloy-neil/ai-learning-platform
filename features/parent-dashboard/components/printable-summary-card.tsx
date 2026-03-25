@@ -12,6 +12,8 @@ interface PrintableSummaryCardProps {
   weeklyActivity: { day: string; minutes: number }[];
   alerts: ParentAlert[];
   goals: Array<{ id: string; text: string; progress: number }>;
+  aiSupportSummary?: string | null;
+  followUpSummary?: string | null;
 }
 
 export default function PrintableSummaryCard({
@@ -21,6 +23,8 @@ export default function PrintableSummaryCard({
   weeklyActivity,
   alerts,
   goals,
+  aiSupportSummary,
+  followUpSummary,
 }: PrintableSummaryCardProps) {
   const getConceptName = (conceptId: string) => concepts.find((concept) => concept.id === conceptId)?.name ?? 'Unknown';
 
@@ -113,6 +117,20 @@ export default function PrintableSummaryCard({
                 </li>
               ))}
             </ul>
+          </div>
+        ) : null}
+
+        {aiSupportSummary ? (
+          <div className="rounded-3xl border border-border/70 bg-surface/70 p-5">
+            <h4 className="font-semibold text-foreground">AI Home Support Summary</h4>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{aiSupportSummary}</p>
+          </div>
+        ) : null}
+
+        {followUpSummary ? (
+          <div className="rounded-3xl border border-border/70 bg-surface/70 p-5">
+            <h4 className="font-semibold text-foreground">Family Follow-up Note</h4>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{followUpSummary}</p>
           </div>
         ) : null}
       </CardContent>

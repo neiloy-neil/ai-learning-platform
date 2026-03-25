@@ -63,7 +63,9 @@ export default function ParentReportsView() {
 
       <PrintableSummaryCard
         alerts={selectedProfile.alerts}
+        aiSupportSummary={selectedParentSupport?.homePlan ?? null}
         concepts={mockConcepts}
+        followUpSummary={linkedRequests[0]?.topic ?? null}
         goals={selectedProfile.goals.map((goal) => ({ id: goal.id, progress: goal.progress, text: goal.text }))}
         mastery={selectedProfile.mastery}
         student={selectedProfile.student}

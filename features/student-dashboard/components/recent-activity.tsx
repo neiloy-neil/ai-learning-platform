@@ -24,7 +24,7 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
           A live feed of the latest practice, assessment, and revision steps.
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <ul className="space-y-4">
           {activities.map((activity) => (
             <li className="flex items-start justify-between gap-4 rounded-2xl border border-border/70 bg-surface/70 p-4" key={activity.id}>
@@ -35,6 +35,9 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
             </li>
           ))}
         </ul>
+        <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+          This feed powers the coaching timeline, progress history, and AI follow-up surfaces across the student experience.
+        </div>
       </CardContent>
     </Card>
   );

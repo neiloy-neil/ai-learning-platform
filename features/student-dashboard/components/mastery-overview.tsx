@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { EmptyStatePanel } from '@/components/ui/state-panel';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import type { Concept, ConceptMastery } from '@/lib/pcdc-types';
+import { appRoutes } from '@/lib/app-routes';
 
 export default function MasteryOverview({ mastery, concepts }: { mastery: ConceptMastery[]; concepts: Concept[] }) {
   const getConceptName = (conceptId: string) => concepts.find((concept) => concept.id === conceptId)?.name ?? 'Unknown Concept';
@@ -49,6 +52,42 @@ export default function MasteryOverview({ mastery, concepts }: { mastery: Concep
             <p className="text-sm text-muted-foreground">This concept is the quickest path to an immediate mastery gain.</p>
             <ProgressBar value={weakestConcept.masteryScore} />
             <p className="text-sm font-semibold text-foreground">{weakestConcept.masteryScore}% mastery</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Card glass>
+          <CardHeader>
+            <CardTitle className="text-lg">Mastery Spread</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold text-foreground">
+              {strongestConcept.masteryScore - weakestConcept.masteryScore} pts
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">Current gap between the strongest and weakest concept signals.</p>
+          </CardContent>
+        </Card>
+        <Card glass>
+          <CardHeader>
+            <CardTitle className="text-lg">Action Link</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">Use the weakest concept as the fastest route into revision or AI coaching.</p>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.revision}>Open revision queue</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card glass>
+          <CardHeader>
+            <CardTitle className="text-lg">Coaching Link</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">When a concept stays weak after practice, use AI to explain and checkpoint it.</p>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.aiTutor}>Open AI Tutor</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

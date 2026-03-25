@@ -14,11 +14,12 @@ import { appRoutes } from '@/lib/app-routes';
 import { demoUsers, getConceptName, mockConcepts } from '@/lib/mocks';
 
 export default function ParentDashboardView() {
-  const { parentProfiles, selectedParentStudentId, selectParentStudent, selectedParentSupport, generateParentSupport } = useDemoData();
+  const { parentProfiles, selectedParentStudentId, selectParentStudent, selectedParentSupport, generateParentSupport, teacherState } = useDemoData();
   const selectedProfile =
     parentProfiles.find((profile) => profile.student.id === selectedParentStudentId) ?? parentProfiles[0];
   const strengths = selectedProfile.mastery.filter((item) => item.masteryScore >= 85);
   const weaknesses = selectedProfile.mastery.filter((item) => item.masteryScore < 60);
+  const linkedFollowUp = teacherState?.contactRequests?.find((request) => request.studentId === selectedProfile.student.id);
 
   return (
     <div className="space-y-8">
@@ -217,9 +218,55 @@ export default function ParentDashboardView() {
         </Card>
       </div>
 
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Family Communication Trail</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Current parent-teacher signal</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {linkedFollowUp
+                  ? linkedFollowUp.topic
+                  : 'No direct follow-up request is active for this learner right now.'}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">AI support carryover</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {selectedParentSupport?.homePlan ?? 'Refresh AI home support to create a clearer at-home plan for the next study block.'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Next Parent Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.parent.reports}>Open printable report</Link>
+            </Button>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.parent.alerts}>Open alerts and follow-up</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.parent.supportTips}>Open support tips</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.parent.messages}>Open messages</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
       <PrintableSummaryCard
         alerts={selectedProfile.alerts}
+        aiSupportSummary={selectedParentSupport?.homePlan ?? null}
         concepts={mockConcepts}
+        followUpSummary={linkedFollowUp?.topic ?? null}
         goals={selectedProfile.goals.map((goal) => ({ id: goal.id, progress: goal.progress, text: goal.text }))}
         mastery={selectedProfile.mastery}
         student={selectedProfile.student}
