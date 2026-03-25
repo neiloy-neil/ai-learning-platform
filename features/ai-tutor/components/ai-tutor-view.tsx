@@ -36,6 +36,9 @@ export default function AiTutorView() {
   const activeQuizAssessment = activeQuiz ? generatedQuizAssessments[activeQuiz.id] : null;
   const selectedConcept = mockConcepts.find((concept) => concept.id === conceptId) ?? mockConcepts[0];
   const latestReviewedAssessment = assessments.find((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed');
+  const activeAssessmentBreakdown = latestReviewedAssessment
+    ? `Review ${latestReviewedAssessment.title} and then reinforce ${latestReviewedAssessment.conceptIds[0] ?? selectedConcept.id}.`
+    : 'No reviewed assessment yet. Use a quiz or checkpoint first.';
 
   const quickPrompts = [
     'Explain this concept',
@@ -156,6 +159,35 @@ export default function AiTutorView() {
         </Card>
 
         <div className="space-y-8">
+          <Card glass>
+            <CardHeader>
+              <CardTitle>Guided Workflows</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                className="w-full"
+                onClick={() =>
+                  sendAiTutorPrompt({
+                    prompt: 'Explain this concept',
+                    conceptName: selectedConcept.name,
+                  })
+                }
+                variant="secondary"
+              >
+                Explain and simplify {selectedConcept.name}
+              </Button>
+              <Button className="w-full" onClick={() => generateStudyPlan(60)} variant="secondary">
+                Build a 60-minute coaching plan
+              </Button>
+              <Button className="w-full" onClick={handleGenerateQuiz} variant="secondary">
+                Generate a quick checkpoint quiz
+              </Button>
+              <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+                {activeAssessmentBreakdown}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card glass>
             <CardHeader>
               <CardTitle>Today with AI</CardTitle>
@@ -303,22 +335,30 @@ export default function AiTutorView() {
             ) : null}
 
             {activeQuizAssessment ? (
-              <div className="flex flex-col gap-3 md:flex-row">
-                <Button
-                  className="md:flex-1"
-                  onClick={() =>
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">Guided coaching output</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Start with {activeQuizAssessment.nextConcepts[0]}, then use one short revision block before the next scored attempt.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 md:flex-row">
+                  <Button
+                    className="md:flex-1"
+                    onClick={() =>
                     sendAiTutorPrompt({
                       prompt: 'Build a revision plan',
                       conceptName: activeQuiz.conceptName,
                     })
                   }
-                  variant="secondary"
-                >
-                  Turn result into revision plan
-                </Button>
-                <Button asChild className="md:flex-1" variant="ghost">
-                  <Link href={appRoutes.student.assessments}>Open assessment review</Link>
-                </Button>
+                    variant="secondary"
+                  >
+                    Turn result into revision plan
+                  </Button>
+                  <Button asChild className="md:flex-1" variant="ghost">
+                    <Link href={appRoutes.student.assessments}>Open assessment review</Link>
+                  </Button>
+                </div>
               </div>
             ) : null}
           </CardContent>

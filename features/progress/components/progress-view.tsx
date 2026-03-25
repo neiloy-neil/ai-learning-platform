@@ -25,11 +25,12 @@ function BarChart({ data }: { data: { conceptId: string; conceptName: string; ma
 }
 
 export default function ProgressView() {
-  const { progressData, state, generatedQuizzes, generatedQuizAssessments, latestStudyPlan } = useDemoData();
+  const { progressData, state, generatedQuizzes, generatedQuizAssessments, latestStudyPlan, assessments } = useDemoData();
   const totalMinutes = state.attempts.length * 12;
   const revisionCount = state.attempts.filter((attempt) => attempt.mode === 'revision').length;
   const latestAiQuiz = generatedQuizzes[0];
   const latestAiAssessment = latestAiQuiz ? generatedQuizAssessments[latestAiQuiz.id] : null;
+  const reviewedAssessments = assessments.filter((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed').slice(0, 2);
 
   return (
     <div className="space-y-8">
@@ -130,6 +131,50 @@ export default function ProgressView() {
             <Button asChild className="w-full" variant="ghost">
               <Link href={appRoutes.student.studyPlan}>Open study plan</Link>
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Assessment Coaching History</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {reviewedAssessments.length > 0 ? (
+              reviewedAssessments.map((assessment) => (
+                <div className="rounded-2xl border border-border/70 p-4" key={assessment.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold">{assessment.title}</p>
+                    <span className="text-sm font-semibold text-primary">{assessment.lastScore ?? 0}%</span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Reviewed result with concept-level feedback and follow-up coaching.
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Complete or review assessments to build a stronger coaching history here.
+              </div>
+            )}
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.assessments}>Open assessments</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Recent Coaching Signals</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {state.activities.slice(0, 4).map((activity) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={activity.id}>
+                <p className="font-semibold">{activity.text}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{activity.timeLabel}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>

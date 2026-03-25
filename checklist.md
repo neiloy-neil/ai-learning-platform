@@ -36,6 +36,9 @@ Status legend:
 - [x] Learning-path and practice flows connected more directly into AI support
 - [x] Student dashboard upgraded with denser agenda/checkpoint and AI review blocks
 - [x] Post-assessment coaching tied into AI Tutor and study-plan follow-up
+- [x] AI Tutor upgraded with guided workflow actions and coaching outputs
+- [x] Teacher review queue now supports direct intervention actions
+- [x] Progress page now includes coaching history and recent coaching signals
 
 ### Teacher Product
 
