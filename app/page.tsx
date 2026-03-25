@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { HomePageView } from "@/features/home/components/home-page-view";
 
 export const metadata: Metadata = {
-  title: "AI Learning Platform for Students, Teachers, and Parents",
+  title: "PCDC AI | Gamified Learning Platform for Students",
   description:
-    "A role-based learning platform with assessments, progress tracking, teacher oversight, parent visibility, and AI-powered study support.",
+    "A premium AI-powered learning platform for students with adaptive practice, mastery tracking, streaks, badges, and smart study guidance.",
 };
 
 export default function HomePage() {
