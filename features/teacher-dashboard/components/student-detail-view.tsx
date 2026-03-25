@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyStatePanel } from '@/components/ui/state-panel';
 import MasteryOverview from '@/features/student-dashboard/components/mastery-overview';
 import RecentActivity from '@/features/student-dashboard/components/recent-activity';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
@@ -53,15 +54,23 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
           <CardTitle>Assignments and Interventions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {assignments.map((assignment: Assignment) => (
-            <div className="rounded-2xl border border-border/70 p-4" key={assignment.id}>
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold">{assignment.title}</p>
-                <span className="text-sm font-semibold text-primary">{assignment.status}</span>
+          {assignments.length === 0 ? (
+            <EmptyStatePanel
+              className="border-0 bg-transparent shadow-none"
+              title="No interventions assigned"
+              description="Teacher-targeted assignments and follow-up actions will appear here when a student needs support."
+            />
+          ) : (
+            assignments.map((assignment: Assignment) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={assignment.id}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold">{assignment.title}</p>
+                  <span className="text-sm font-semibold text-primary">{assignment.status}</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{assignment.description}</p>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">{assignment.description}</p>
-            </div>
-          ))}
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

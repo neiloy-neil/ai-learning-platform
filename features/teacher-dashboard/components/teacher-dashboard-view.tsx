@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import PageHeader from '@/components/layout/page-header';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
@@ -62,15 +63,23 @@ export default function TeacherDashboardView() {
             <CardTitle>Weakest Concepts</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {weakConcepts.map((item) => (
-              <div key={item.conceptId}>
-                <div className="mb-1 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">{item.conceptName}</h3>
-                  <span className="text-xs font-bold text-danger">{item.performance}% Avg.</span>
+            {weakConcepts.length === 0 ? (
+              <EmptyStatePanel
+                className="border-0 bg-transparent shadow-none"
+                title="No weak concepts"
+                description="Class-level concept risk will appear here once student evidence is available."
+              />
+            ) : (
+              weakConcepts.map((item) => (
+                <div key={item.conceptId}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold">{item.conceptName}</h3>
+                    <span className="text-xs font-bold text-danger">{item.performance}% Avg.</span>
+                  </div>
+                  <ProgressBar value={item.performance} />
                 </div>
-                <ProgressBar value={item.performance} />
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -94,30 +103,38 @@ export default function TeacherDashboardView() {
               </Select>
             </div>
             <div className="overflow-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Student Name</TableHead>
-                    <TableHead>Avg. Score</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStudents.map((student) => (
-                    <TableRow className="cursor-pointer" key={student.id}>
-                      <TableCell className="font-semibold">
-                        <Link href={`/teacher/students/${student.id}`}>{student.name}</Link>
-                      </TableCell>
-                      <TableCell>{student.avgScore}%</TableCell>
-                      <TableCell>
-                        <span className={`rounded-full px-2 py-1 text-xs font-bold ${statusTone[student.status]}`}>
-                          {student.status}
-                        </span>
-                      </TableCell>
+              {filteredStudents.length === 0 ? (
+                <EmptyStatePanel
+                  className="border-0 bg-transparent shadow-none"
+                  title="No matching students"
+                  description="Try changing the current filter to bring students back into the table."
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student Name</TableHead>
+                      <TableHead>Avg. Score</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map((student) => (
+                      <TableRow className="cursor-pointer" key={student.id}>
+                        <TableCell className="font-semibold">
+                          <Link href={`/teacher/students/${student.id}`}>{student.name}</Link>
+                        </TableCell>
+                        <TableCell>{student.avgScore}%</TableCell>
+                        <TableCell>
+                          <span className={`rounded-full px-2 py-1 text-xs font-bold ${statusTone[student.status]}`}>
+                            {student.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -128,11 +145,19 @@ export default function TeacherDashboardView() {
           <CardTitle>Assignments Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {assignments.map((assignment: Assignment) => (
-              <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
-            ))}
-          </div>
+          {assignments.length === 0 ? (
+            <EmptyStatePanel
+              className="border-0 bg-transparent shadow-none"
+              title="No assignments yet"
+              description="Assignments and intervention sets will appear here once a teacher creates or targets work."
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {assignments.map((assignment: Assignment) => (
+                <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

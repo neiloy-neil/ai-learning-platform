@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyStatePanel } from "@/components/ui/state-panel";
 import type { ActivityItem } from "@/lib/mocks";
 
 type RecentActivityProps = {
@@ -6,6 +7,15 @@ type RecentActivityProps = {
 };
 
 export default function RecentActivity({ activities }: RecentActivityProps) {
+  if (activities.length === 0) {
+    return (
+      <EmptyStatePanel
+        title="Recent Activity"
+        description="Student activity will appear here once a practice session, assessment, or revision step is completed."
+      />
+    );
+  }
+
   return (
     <Card glass>
       <CardHeader>

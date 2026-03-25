@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { EmptyStatePanel } from "@/components/ui/state-panel";
 import type { Concept, ConceptMastery } from "@/lib/pcdc-types";
 
 export default function MasteryOverview({ mastery, concepts }: { mastery: ConceptMastery[], concepts: Concept[] }) {
@@ -22,7 +23,10 @@ export default function MasteryOverview({ mastery, concepts }: { mastery: Concep
       <h2 className="mb-4 text-2xl font-semibold">Mastery Overview</h2>
 
       {mastery.length === 0 ? (
-        <p className="text-muted-foreground">No mastery data available yet. Start practicing!</p>
+        <EmptyStatePanel
+          title="Mastery data is empty"
+          description="Start a practice or assessment session to generate the first concept mastery signals."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {strongestConcept && (

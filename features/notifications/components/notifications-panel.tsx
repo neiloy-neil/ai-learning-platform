@@ -30,7 +30,12 @@ export default function NotificationsPanel() {
       <DropdownMenuContent>
         <div className="border-b p-2 font-semibold">Notifications</div>
         {notifications.length === 0 ? (
-          <DropdownMenuItem>No new notifications</DropdownMenuItem>
+          <DropdownMenuItem>
+            <div className="space-y-1">
+              <p className="font-semibold">No new notifications</p>
+              <p className="text-xs text-muted-foreground">Role-specific updates will appear here as the demo state changes.</p>
+            </div>
+          </DropdownMenuItem>
         ) : (
           notifications.map((notification) => (
             <DropdownMenuItem key={notification.id}>

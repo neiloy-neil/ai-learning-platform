@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
+import { EmptyStatePanel } from '@/components/ui/state-panel';
 import WeeklyActivityWidget from './weekly-activity-widget';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { demoUsers, getConceptName, getParentAlerts } from '@/lib/mocks';
@@ -42,7 +43,13 @@ export default function ParentDashboardView() {
                   <p className="font-semibold">{getConceptName(item.conceptId)}</p>
                   <ProgressBar value={item.masteryScore} />
                 </div>
-              )) : <p className="text-muted-foreground">No strong concepts identified yet.</p>}
+              )) : (
+                <EmptyStatePanel
+                  className="border-0 bg-transparent shadow-none"
+                  title="No strengths yet"
+                  description="Strong concepts will appear once the learner builds stable mastery in a topic."
+                />
+              )}
             </CardContent>
           </Card>
           <Card glass>
@@ -53,19 +60,33 @@ export default function ParentDashboardView() {
                   <p className="font-semibold">{getConceptName(item.conceptId)}</p>
                   <ProgressBar value={item.masteryScore} />
                 </div>
-              )) : <p className="text-muted-foreground">No areas for improvement identified.</p>}
+              )) : (
+                <EmptyStatePanel
+                  className="border-0 bg-transparent shadow-none"
+                  title="No active risk areas"
+                  description="Once weaker concepts appear, this section will translate them into parent-friendly support signals."
+                />
+              )}
             </CardContent>
           </Card>
         </div>
         <Card glass>
           <CardHeader><CardTitle>Alerts and Goals</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            {alerts.map((alert) => (
-              <div className="rounded-2xl border border-border/70 p-4" key={alert.id}>
-                <p className="font-semibold">{alert.message}</p>
-                <p className="mt-2 text-sm capitalize text-muted-foreground">Type: {alert.type.replace('_', ' ')}</p>
-              </div>
-            ))}
+            {alerts.length === 0 ? (
+              <EmptyStatePanel
+                className="border-0 bg-transparent shadow-none"
+                title="No alerts right now"
+                description="Support alerts will show up here if activity drops, assessments are missed, or mastery slips."
+              />
+            ) : (
+              alerts.map((alert) => (
+                <div className="rounded-2xl border border-border/70 p-4" key={alert.id}>
+                  <p className="font-semibold">{alert.message}</p>
+                  <p className="mt-2 text-sm capitalize text-muted-foreground">Type: {alert.type.replace('_', ' ')}</p>
+                </div>
+              ))
+            )}
             <div className="rounded-2xl border border-border/70 p-4">
               <p className="font-semibold">Current goals</p>
               <p className="mt-2 text-sm text-muted-foreground">{goals.filter((goal) => goal.status === 'active').length} active study goals are helping keep the week on track.</p>
