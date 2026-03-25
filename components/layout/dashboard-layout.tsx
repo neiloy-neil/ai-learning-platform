@@ -1,17 +1,16 @@
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Sidebar from './sidebar';
-import Navbar from './navbar';
+import React, { useEffect, useState } from 'react';
+
 import { cn } from '@/lib/cn';
+import Navbar from './navbar';
+import Sidebar from './sidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // Desktop sidebar collapse state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    // Load collapse state from localStorage
     const storedState = localStorage.getItem('sidebarCollapsed');
     if (storedState !== null) {
       setIsSidebarCollapsed(JSON.parse(storedState));
@@ -35,30 +34,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [isSidebarOpen]);
 
   const toggleSidebarCollapse = () => {
-    const newState = !isSidebarCollapsed;
-    setIsSidebarCollapsed(newState);
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+    const nextState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(nextState);
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(nextState));
   };
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
-      <Sidebar isOpen={isSidebarOpen} isCollapsed={isSidebarCollapsed} />
-      <main className={cn(
-        "flex-1 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out",
-        isSidebarCollapsed ? "lg:ml-[5rem]" : "lg:ml-[16rem]" // Adjust main content margin based on collapse state
-        )}>
-        <Navbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} onToggleCollapse={toggleSidebarCollapse} />
-        <div className="p-4 sm:p-6 md:p-8">
-          {children}
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen">
+        <Sidebar isCollapsed={isSidebarCollapsed} isOpen={isSidebarOpen} />
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Navbar
+            isSidebarCollapsed={isSidebarCollapsed}
+            onMenuClick={() => setIsSidebarOpen((current) => !current)}
+            onToggleCollapse={toggleSidebarCollapse}
+          />
+          <main className="flex-1">
+            <div className={cn('mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
+              {children}
+            </div>
+          </main>
         </div>
-      </main>
-      {isSidebarOpen && (
-        <div
-          aria-hidden="true"
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+      </div>
+
+      {isSidebarOpen ? (
+        <button
+          aria-label="Close navigation menu"
+          className="fixed inset-0 z-30 bg-slate-950/40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
-        ></div>
-      )}
+          type="button"
+        />
+      ) : null}
     </div>
   );
 }

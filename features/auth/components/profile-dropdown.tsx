@@ -1,5 +1,7 @@
 'use client';
 
+import { LogOut, Settings, UserCircle2 } from 'lucide-react';
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 import { useAuth } from './auth-provider';
@@ -12,7 +14,7 @@ export default function ProfileDropdown() {
       <DropdownMenuTrigger>
         <button
           aria-label="Open profile menu"
-          className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary/20 px-3 text-sm font-semibold text-primary transition-all hover:ring-2 hover:ring-primary/40"
+          className="flex h-10 min-w-10 items-center justify-center rounded-2xl border border-border/70 bg-surface px-3 text-sm font-semibold text-foreground shadow-sm transition-all hover:border-primary/30 hover:bg-muted/70"
           type="button"
         >
           {user?.name?.charAt(0) ?? 'D'}
@@ -20,14 +22,34 @@ export default function ProfileDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64">
         <DropdownMenuItem>
-          <div className="space-y-1">
-            <p className="font-semibold">{user?.name ?? 'Demo User'}</p>
-            <p className="text-xs text-muted-foreground">{user?.role ?? 'demo'}</p>
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <UserCircle2 className="size-5" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold">{user?.name ?? 'Demo User'}</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{user?.role ?? 'demo'}</p>
+            </div>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem>Account</DropdownMenuItem>
-        <DropdownMenuItem>Demo Settings</DropdownMenuItem>
-        <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem>
+          <div className="flex items-center gap-2">
+            <UserCircle2 className="size-4" />
+            Account
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <div className="flex items-center gap-2">
+            <Settings className="size-4" />
+            Demo Settings
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={logout}>
+          <div className="flex items-center gap-2 text-danger">
+            <LogOut className="size-4" />
+            Logout
+          </div>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

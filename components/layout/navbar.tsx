@@ -1,39 +1,50 @@
+import { LayoutGrid, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import NotificationsPanel from "@/features/notifications/components/notifications-panel";
-import ProfileDropdown from "@/features/auth/components/profile-dropdown";
-import Breadcrumbs from "./breadcrumbs";
+import Breadcrumbs from './breadcrumbs';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import NotificationsPanel from '@/features/notifications/components/notifications-panel';
+import ProfileDropdown from '@/features/auth/components/profile-dropdown';
 
 interface NavbarProps {
   onMenuClick: () => void;
-  onToggleCollapse: () => void; // New prop for toggling desktop sidebar
+  onToggleCollapse: () => void;
+  isSidebarCollapsed: boolean;
 }
 
-export default function Navbar({ onMenuClick, onToggleCollapse }: NavbarProps) {
+export default function Navbar({ onMenuClick, onToggleCollapse, isSidebarCollapsed }: NavbarProps) {
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-surface border-b border-border flex-shrink-0">
-      <div className="flex items-center space-x-4">
-        {/* Mobile Menu Button */}
-        <div className="lg:hidden">
-          <Button aria-label="Open navigation menu" variant="ghost" size="sm" onClick={onMenuClick}>
-            Menu
+    <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-xl">
+      <div className="flex h-[76px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button aria-label="Open navigation menu" className="lg:hidden" onClick={onMenuClick} size="sm" variant="secondary">
+            <Menu className="size-4" />
           </Button>
-        </div>
-        {/* Desktop Sidebar Toggle Button */}
-        <div className="hidden lg:block">
-          <Button aria-label="Toggle sidebar width" variant="ghost" size="sm" onClick={onToggleCollapse}>
-            Toggle Sidebar
+          <Button
+            aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="hidden lg:inline-flex"
+            onClick={onToggleCollapse}
+            size="sm"
+            variant="secondary"
+          >
+            {isSidebarCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
           </Button>
+          <div className="hidden min-w-0 items-center gap-3 md:flex">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <LayoutGrid className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">Dashboard Workspace</p>
+              <Breadcrumbs />
+            </div>
+          </div>
         </div>
-        <Breadcrumbs />
-      </div>
 
-      {/* Right side content */}
-      <div className="flex items-center space-x-2">
-        <ThemeToggle />
-        <NotificationsPanel />
-        <ProfileDropdown />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+          <NotificationsPanel />
+          <ProfileDropdown />
+        </div>
       </div>
     </header>
   );
