@@ -37,6 +37,7 @@ export default function Sidebar({ isOpen, isCollapsed }: SidebarProps) {
 
   return (
     <aside
+      aria-label="Primary navigation"
       className={cn(
         'fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border bg-surface p-6 transition-all duration-300 ease-in-out lg:relative',
         isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0 lg:w-20 lg:translate-x-0',

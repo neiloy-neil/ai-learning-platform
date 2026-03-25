@@ -17,7 +17,7 @@ export default function NotificationsPanel() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button className="relative" size="sm" variant="ghost">
+        <Button aria-label="Open notifications" className="relative" size="sm" variant="ghost">
           <span>Bell</span>
           {unreadCount > 0 && (
             <span className="absolute right-0 top-0 flex h-2 w-2">

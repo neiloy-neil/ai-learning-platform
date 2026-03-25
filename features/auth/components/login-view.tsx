@@ -67,7 +67,7 @@ export default function LoginView() {
                   <p className="font-semibold text-foreground">{user.name}</p>
                   <p>{user.email}</p>
                 </div>
-                <Button className="w-full" onClick={() => loginAsDemo(roleCard.key)}>
+                <Button aria-label={`Enter demo as ${user.role}`} className="w-full" onClick={() => loginAsDemo(roleCard.key)}>
                   Enter as {user.role}
                 </Button>
               </CardContent>

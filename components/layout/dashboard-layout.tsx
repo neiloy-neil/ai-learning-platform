@@ -18,6 +18,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSidebarOpen]);
+
   const toggleSidebarCollapse = () => {
     const newState = !isSidebarCollapsed;
     setIsSidebarCollapsed(newState);
@@ -37,7 +53,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </main>
       {isSidebarOpen && (
-        <div 
+        <div
+          aria-hidden="true"
           className="lg:hidden fixed inset-0 bg-black/50 z-30"
           onClick={() => setIsSidebarOpen(false)}
         ></div>

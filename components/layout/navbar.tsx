@@ -16,13 +16,13 @@ export default function Navbar({ onMenuClick, onToggleCollapse }: NavbarProps) {
       <div className="flex items-center space-x-4">
         {/* Mobile Menu Button */}
         <div className="lg:hidden">
-          <Button variant="ghost" size="sm" onClick={onMenuClick}>
+          <Button aria-label="Open navigation menu" variant="ghost" size="sm" onClick={onMenuClick}>
             Menu
           </Button>
         </div>
         {/* Desktop Sidebar Toggle Button */}
         <div className="hidden lg:block">
-          <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
+          <Button aria-label="Toggle sidebar width" variant="ghost" size="sm" onClick={onToggleCollapse}>
             Toggle Sidebar
           </Button>
         </div>

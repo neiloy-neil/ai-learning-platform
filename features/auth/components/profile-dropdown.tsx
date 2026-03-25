@@ -27,9 +27,7 @@ export default function ProfileDropdown() {
         </DropdownMenuItem>
         <DropdownMenuItem>Account</DropdownMenuItem>
         <DropdownMenuItem>Demo Settings</DropdownMenuItem>
-        <div className="cursor-pointer" onClick={logout}>
-          <DropdownMenuItem>Logout</DropdownMenuItem>
-        </div>
+        <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
