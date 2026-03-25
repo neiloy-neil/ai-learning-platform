@@ -49,7 +49,7 @@ Status legend:
 ## UX and Cleanup
 
 - [~] Product identity and route consistency cleanup
-- [ ] Landing page rewritten for learning-product positioning
+- [x] Landing page rewritten for learning-product positioning
 - [ ] Remove or consolidate remaining legacy layout/components
 - [ ] Standardized loading/empty/error states across all major widgets
 - [ ] Accessibility hardening for menus, tables, overlays, and forms

@@ -6,18 +6,18 @@ export type Highlight = {
 
 export const homeHighlights: Highlight[] = [
   {
-    eyebrow: "Learn",
-    title: "Structured AI paths",
-    description: "Curated learning tracks that break large topics into progressive, production-oriented milestones.",
+    eyebrow: "Student",
+    title: "Practice, assessments, and mastery",
+    description: "Demo-ready learning flows connect question sessions to updated mastery, goals, reminders, and progress views.",
   },
   {
-    eyebrow: "Build",
-    title: "Reusable project kits",
-    description: "Composable UI and feature modules that keep experiments fast without sacrificing maintainability.",
+    eyebrow: "Teacher",
+    title: "Class risk and intervention visibility",
+    description: "Teacher dashboards surface weak concepts, assignment summaries, and student drill-downs from one shared mock dataset.",
   },
   {
-    eyebrow: "Ship",
-    title: "Clean architecture by default",
-    description: "Shared boundaries between app, features, components, and libraries keep the frontend scalable as it grows.",
+    eyebrow: "Parent",
+    title: "Clear progress and alerts",
+    description: "Parent-facing reporting keeps strengths, weak spots, and support signals easy to understand without analytics jargon.",
   },
 ];

@@ -1,100 +1,108 @@
-import { ArrowRight, CheckCircle2, ShieldAlert, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BrainCircuit, GraduationCap, LineChart, ShieldCheck, Users } from "lucide-react";
 import type { HTMLAttributes } from "react";
+
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { homeHighlights } from "@/features/home/model/home-highlights";
 import { cn } from "@/lib/cn";
-import { designSystem } from "@/lib/design-system";
+import { appRoutes } from "@/lib/app-routes";
 
 type HomePageViewProps = HTMLAttributes<HTMLDivElement> & {
   className?: string;
 };
 
-const palette = [
-  { label: "Primary", value: designSystem.colors.primary, tone: "bg-primary text-primary-foreground" },
-  { label: "Secondary", value: designSystem.colors.secondary, tone: "bg-secondary text-secondary-foreground" },
-  { label: "Success", value: designSystem.colors.success, tone: "bg-success text-success-foreground" },
-  { label: "Danger", value: designSystem.colors.danger, tone: "bg-danger text-danger-foreground" },
+const demoJourneys = [
+  {
+    title: "Student Journey",
+    description: "Adaptive practice, assessment sessions, learning paths, goals, and progress insights move together in one demo flow.",
+    icon: GraduationCap,
+  },
+  {
+    title: "Teacher Workspace",
+    description: "Class performance, weak concept visibility, assignments, and student drill-downs are presented as one coherent analytics surface.",
+    icon: Users,
+  },
+  {
+    title: "Parent Visibility",
+    description: "Progress summaries, alerts, and at-home support cues keep parent-facing reporting clear and non-technical.",
+    icon: ShieldCheck,
+  },
 ] as const;
 
-const foundations = [
+const proofPoints = [
   {
-    title: "Spacing",
-    value: "8, 12, 16, 24, 32, 48, 72",
+    label: "Adaptive engine",
+    value: "Mastery + recommendation",
   },
   {
-    title: "Radius",
-    value: "8, 14, 20, 28, pill",
+    label: "Demo roles",
+    value: "Student, Teacher, Parent",
   },
   {
-    title: "Shadows",
-    value: "panel, floating, glow, inset",
+    label: "Client-ready flows",
+    value: "Practice, goals, alerts, analytics",
   },
 ] as const;
 
 export function HomePageView({ className, ...props }: HomePageViewProps) {
   return (
     <div className={cn("px-6 pb-20 pt-8 lg:px-10", className)} {...props}>
-      <section className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+      <section className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
         <div className="space-y-6">
-          <span className="eyebrow">Premium SaaS design system</span>
+          <span className="eyebrow">AI Learning Platform Demo</span>
           <div className="space-y-4">
-            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Modern dashboard tokens with <span className="gradient-text">glassmorphism depth</span> and scalable Tailwind primitives.
+            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              Personalized learning workflows for <span className="gradient-text">students, teachers, and parents</span>.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-              A clean SaaS-ready system covering semantic color roles, blue-to-purple gradients, typography, spacing, radius, and layered shadows for premium dashboards.
+              This demo shows a role-based education product with adaptive practice, assessment tracking, mastery insights,
+              intervention-oriented teacher dashboards, and parent progress visibility.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="group" size="lg">
-              Explore tokens
-              <ArrowRight className="ml-2 size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <Button asChild className="group" size="lg">
+              <Link href={appRoutes.auth.login}>
+                Open Demo Access
+                <ArrowRight className="ml-2 size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Link>
             </Button>
-            <Button className="bg-transparent" size="lg" variant="secondary">
-              View foundations
+            <Button asChild className="bg-transparent" size="lg" variant="secondary">
+              <Link href={appRoutes.student.dashboard}>View Student Flow</Link>
             </Button>
           </div>
         </div>
 
         <Card className="glass-panel-strong overflow-hidden p-6 lg:p-8">
-          <div className="space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">Color palette</p>
+          <div className="space-y-5">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">What the demo proves</p>
             <div className="grid gap-4">
-              {palette.map((item) => (
+              {proofPoints.map((item) => (
                 <div className="glass-panel rounded-[1.25rem] p-4" key={item.label}>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
-                      <h2 className="mt-2 text-lg font-semibold text-foreground">{item.value}</h2>
-                    </div>
-                    <div className={cn("h-14 w-14 rounded-2xl shadow-glow", item.tone)} />
-                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
+                  <h2 className="mt-2 text-lg font-semibold text-foreground">{item.value}</h2>
                 </div>
               ))}
+            </div>
+            <div className="rounded-[1.5rem] border border-glass-stroke bg-surface/55 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-dashboard-gradient text-white shadow-glow">
+                  <BrainCircuit className="size-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Live adaptive story</p>
+                  <p className="text-sm text-muted-foreground">
+                    Practice outcomes update mastery, recommendations, goals, notifications, and role dashboards in one shared demo state.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
       </section>
 
-      <section className="mx-auto mt-16 grid max-w-6xl gap-5 md:grid-cols-3" id="tracks">
-        {[
-          {
-            icon: Sparkles,
-            title: "Gradient system",
-            description: "Brand gradients move from saturated blue to premium purple for hero treatments, active states, and emphasis surfaces.",
-          },
-          {
-            icon: CheckCircle2,
-            title: "Typography scale",
-            description: "A restrained scale keeps dense dashboards readable while still allowing strong display moments and crisp labels.",
-          },
-          {
-            icon: ShieldAlert,
-            title: "Glass surfaces",
-            description: "Translucent panels, soft borders, and layered shadows create depth without visual noise or heavy ornament.",
-          },
-        ].map((item) => {
+      <section className="mx-auto mt-16 grid max-w-6xl gap-5 md:grid-cols-3">
+        {demoJourneys.map((item) => {
           const Icon = item.icon;
 
           return (
@@ -109,48 +117,47 @@ export function HomePageView({ className, ...props }: HomePageViewProps) {
         })}
       </section>
 
-      <section className="mx-auto mt-16 grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]" id="system">
+      <section className="mx-auto mt-16 grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <Card className="glass-panel p-6 lg:p-8">
-          <span className="eyebrow">Typography</span>
-          <div className="mt-5 space-y-4">
-            <p className="text-5xl font-semibold tracking-tight">Display / 48</p>
-            <p className="text-3xl font-semibold tracking-tight">Heading / 30</p>
-            <p className="text-lg leading-7 text-muted-foreground">Body Large / 18 with generous line height for dashboard clarity.</p>
-            <p className="text-sm leading-6 text-muted-foreground">Body Small / 14 for supporting metrics, helper text, and dense sidebars.</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Caption / 12 tracking</p>
+          <span className="eyebrow">Product pillars</span>
+          <div className="mt-6 space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <BrainCircuit className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Adaptive learning guidance</p>
+                <p className="text-sm leading-6 text-muted-foreground">Mastery, recommendation, and revision logic keeps the demo focused on next-best actions.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <LineChart className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Cross-role analytics</p>
+                <p className="text-sm leading-6 text-muted-foreground">Students, teachers, and parents all see the same learning story from role-appropriate angles.</p>
+              </div>
+            </div>
           </div>
         </Card>
 
         <Card className="glass-panel-strong gradient-border p-6 lg:p-8">
-          <span className="eyebrow">Foundations</span>
+          <span className="eyebrow">Feature map</span>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            {foundations.map((item) => (
+            {homeHighlights.map((item) => (
               <div className="rounded-2xl border border-glass-stroke bg-surface/50 p-5" key={item.title}>
-                <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                <p className="mt-2 text-sm text-muted-foreground">{item.value}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{item.eyebrow}</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{item.title}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
               </div>
             ))}
             <div className="rounded-2xl border border-glass-stroke bg-surface/50 p-5 sm:col-span-2">
-              <p className="text-sm font-semibold text-foreground">Gradient</p>
-              <div className="mt-3 h-12 rounded-xl bg-dashboard-gradient shadow-glow" />
+              <p className="text-sm font-semibold text-foreground">Fast demo entry</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Role-card login at <code>/login</code> opens directly into the demo dashboards without backend setup.
+              </p>
             </div>
-          </div>
-        </Card>
-      </section>
-
-      <section className="mx-auto mt-16 max-w-6xl">
-        <Card className="glass-panel grid gap-6 p-6 lg:grid-cols-[0.9fr_1.1fr] lg:p-8">
-          <div className="space-y-3">
-            <span className="eyebrow">Reusable tokens</span>
-            <h2 className="text-3xl font-semibold tracking-tight">Tailwind config and semantic tokens stay aligned.</h2>
-          </div>
-          <div className="grid gap-4 text-sm leading-6 text-muted-foreground sm:grid-cols-2">
-            {homeHighlights.map((item) => (
-              <div key={item.title}>
-                <p className="font-semibold text-foreground">{item.title}</p>
-                <p>{item.description}</p>
-              </div>
-            ))}
           </div>
         </Card>
       </section>
