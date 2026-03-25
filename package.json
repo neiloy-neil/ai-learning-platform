@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "clean:next": "node scripts/clean-next.mjs",
+    "dev": "npm run clean:next && next dev",
+    "build": "npm run clean:next && next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js",
     "test": "vitest run",
