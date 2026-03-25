@@ -22,13 +22,16 @@ export default function SmartReminders({ reminders }: SmartRemindersProps) {
     <Card glass>
       <CardHeader>
         <CardTitle>Smart Reminders</CardTitle>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Quick follow-ups based on weak mastery or stale revision timing.
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {reminders.map((reminder) => (
-          <div className="flex items-center justify-between gap-4" key={reminder.concept.id}>
+          <div className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-surface/70 p-4 sm:flex-row sm:items-center sm:justify-between" key={reminder.concept.id}>
             <div>
               <p className="font-semibold">{reminder.concept.name}</p>
-              <p className="text-sm text-muted-foreground">Reason: {reminder.reason}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{reminder.reason}</p>
             </div>
             <Button
               size="sm"

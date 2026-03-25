@@ -1,39 +1,40 @@
-
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const BarChart = ({ data }: { data: { day: string, minutes: number }[] }) => {
-    const maxValue = Math.max(...data.map(d => d.minutes), 60); // Ensure a minimum height
-  
-    return (
-      <div className="w-full h-48 flex items-end space-x-2 p-4 bg-muted/50 rounded-lg">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center">
-            <div
-              className="w-full bg-gradient-to-t from-primary/50 to-primary rounded-t-md transition-all duration-500 ease-out hover:scale-y-105 origin-bottom"
-              style={{ height: `${(item.minutes / maxValue) * 100}%` }}
-              title={`${item.minutes} minutes`}
-            ></div>
-            <span className="text-xs text-muted-foreground mt-2 text-center">{item.day}</span>
-          </div>
-        ))}
-      </div>
-    );
+const BarChart = ({ data }: { data: { day: string; minutes: number }[] }) => {
+  const maxValue = Math.max(...data.map((item) => item.minutes), 60);
+
+  return (
+    <div className="grid h-52 grid-cols-5 items-end gap-3 rounded-3xl border border-border/70 bg-surface/70 p-4">
+      {data.map((item) => (
+        <div className="flex h-full flex-col items-center justify-end gap-2" key={item.day}>
+          <div
+            className="w-full rounded-2xl bg-gradient-to-t from-primary via-primary/80 to-secondary transition-transform duration-300 hover:scale-y-105"
+            style={{ height: `${(item.minutes / maxValue) * 100}%` }}
+            title={`${item.minutes} minutes`}
+          />
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{item.day}</span>
+        </div>
+      ))}
+    </div>
+  );
 };
 
-export default function WeeklyActivityWidget({ activity }: { activity: { day: string, minutes: number }[] }) {
-    const totalMinutes = activity.reduce((acc, curr) => acc + curr.minutes, 0);
+export default function WeeklyActivityWidget({ activity }: { activity: { day: string; minutes: number }[] }) {
+  const totalMinutes = activity.reduce((acc, curr) => acc + curr.minutes, 0);
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Weekly Activity</CardTitle>
-                <p className="text-sm text-muted-foreground">Total study time this week: <strong>{totalMinutes} minutes</strong></p>
-            </CardHeader>
-            <CardContent>
-                <BarChart data={activity} />
-            </CardContent>
-        </Card>
-    );
+  return (
+    <Card glass>
+      <CardHeader>
+        <CardTitle>Weekly Activity</CardTitle>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Total study time this week: <strong className="text-foreground">{totalMinutes} minutes</strong>
+        </p>
+      </CardHeader>
+      <CardContent>
+        <BarChart data={activity} />
+      </CardContent>
+    </Card>
+  );
 }
