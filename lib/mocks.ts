@@ -86,6 +86,7 @@ export type DemoStudentState = {
   assessments: DemoAssessment[];
   attempts: DemoAttempt[];
   goals: DemoGoal[];
+  notifications: Notification[];
 };
 
 export type DemoAssessmentResult = {
@@ -384,6 +385,7 @@ export function createInitialStudentState(): DemoStudentState {
     assessments: initialAssessments.map((item) => ({ ...item })),
     attempts: initialAttempts.map((item) => ({ ...item })),
     goals: initialGoals.map((item) => ({ ...item })),
+    notifications: mockNotifications.map((item) => ({ ...item, createdAt: new Date(item.createdAt) })),
   };
 }
 
@@ -721,6 +723,17 @@ export function getNotificationsForUser(userId?: string) {
   }
 
   return mockNotifications.filter((notification) => notification.userId === userId);
+}
+
+export function getNotificationsForUserFromState(
+  notifications: Notification[],
+  userId?: string,
+) {
+  if (!userId) {
+    return notifications;
+  }
+
+  return notifications.filter((notification) => notification.userId === userId);
 }
 
 export function getParentAlerts(studentId = demoUsers.student.id) {

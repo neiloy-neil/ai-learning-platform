@@ -11,6 +11,7 @@ import {
   createInitialStudentState,
   demoUsers,
   getAssessments,
+  getNotificationsForUserFromState,
   getPracticeQuestions,
   mockConcepts,
   type DemoAssessmentResult,
@@ -18,6 +19,7 @@ import {
   type DemoStudentState,
   type PracticeMode,
 } from '@/lib/mocks';
+import type { Notification } from '@/lib/pcdc-types';
 
 const storageKey = 'demoStudentState';
 
@@ -28,6 +30,9 @@ type DemoDataContextType = {
   learningPath: ReturnType<typeof buildLearningPath>;
   goals: DemoGoal[];
   assessments: ReturnType<typeof getAssessments>;
+  getNotifications: (userId?: string) => Notification[];
+  markNotificationRead: (notificationId: string) => void;
+  archiveNotification: (notificationId: string) => void;
   completeSession: (input: {
     answers: Array<{ questionId: string; selectedOptionId: string; confidenceRating: number }>;
     mode: PracticeMode;
@@ -45,6 +50,7 @@ function reviveDemoState(raw: string): DemoStudentState {
   return {
     ...parsed,
     mastery: parsed.mastery.map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) })),
+    notifications: parsed.notifications.map((item) => ({ ...item, createdAt: new Date(item.createdAt) })),
   };
 }
 
@@ -75,6 +81,21 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
       learningPath,
       goals: state.goals,
       assessments,
+      getNotifications: (userId) => getNotificationsForUserFromState(state.notifications, userId),
+      markNotificationRead: (notificationId) => {
+        setState((current) => ({
+          ...current,
+          notifications: current.notifications.map((notification) =>
+            notification.id === notificationId ? { ...notification, read: true } : notification,
+          ),
+        }));
+      },
+      archiveNotification: (notificationId) => {
+        setState((current) => ({
+          ...current,
+          notifications: current.notifications.filter((notification) => notification.id !== notificationId),
+        }));
+      },
       completeSession: (input) => {
         const nextState = completePracticeSession(state, input);
         const result = input.assessmentId

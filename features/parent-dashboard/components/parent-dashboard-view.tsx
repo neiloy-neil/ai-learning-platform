@@ -3,9 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { EmptyStatePanel } from '@/components/ui/state-panel';
+import PrintableSummaryCard from './printable-summary-card';
 import WeeklyActivityWidget from './weekly-activity-widget';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
-import { demoUsers, getConceptName, getParentAlerts } from '@/lib/mocks';
+import { demoUsers, getConceptName, getParentAlerts, mockConcepts } from '@/lib/mocks';
 import type { ParentAlert } from '@/lib/pcdc-types';
 
 const weeklyActivity = [
@@ -94,6 +95,15 @@ export default function ParentDashboardView() {
           </CardContent>
         </Card>
       </div>
+
+      <PrintableSummaryCard
+        alerts={alerts}
+        concepts={mockConcepts}
+        goals={goals.map((goal) => ({ id: goal.id, progress: goal.progress, text: goal.text }))}
+        mastery={state.mastery}
+        student={demoUsers.student}
+        weeklyActivity={weeklyActivity}
+      />
     </div>
   );
 }

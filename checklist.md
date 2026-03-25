@@ -38,12 +38,12 @@ Status legend:
 - [x] Parent dashboard aligned with shared demo data
 - [x] Parent alerts backed by shared mock source
 - [ ] Parent child switching
-- [ ] Printable/shareable report flow
+- [x] Printable/shareable report flow
 
 ## Notifications and Messaging
 
 - [x] Role-aware notifications from shared mock data
-- [ ] Mark-as-read / archive interactions
+- [x] Mark-as-read / archive interactions
 - [ ] Messaging threads
 
 ## UX and Cleanup

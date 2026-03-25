@@ -1,17 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/cn';
 import { useAuth } from '@/features/auth/components/auth-provider';
-import { getNotificationsForUser } from '@/lib/mocks';
-import type { Notification } from '@/lib/pcdc-types';
+import { useDemoData } from '@/features/demo/components/demo-data-provider';
 
 export default function NotificationsPanel() {
   const { user } = useAuth();
-  const notifications: Notification[] = useMemo(() => getNotificationsForUser(user?.id), [user?.id]);
+  const { archiveNotification, getNotifications, markNotificationRead } = useDemoData();
+  const notifications = getNotifications(user?.id);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   return (
@@ -39,7 +37,19 @@ export default function NotificationsPanel() {
         ) : (
           notifications.map((notification) => (
             <DropdownMenuItem key={notification.id}>
-              <div className={cn(!notification.read && 'font-bold')}>{notification.text}</div>
+              <div className="space-y-2">
+                <div className={cn('text-sm', !notification.read && 'font-bold')}>{notification.text}</div>
+                <div className="flex gap-2">
+                  {!notification.read ? (
+                    <Button size="sm" variant="secondary" onClick={() => markNotificationRead(notification.id)}>
+                      Mark read
+                    </Button>
+                  ) : null}
+                  <Button size="sm" variant="ghost" onClick={() => archiveNotification(notification.id)}>
+                    Archive
+                  </Button>
+                </div>
+              </div>
             </DropdownMenuItem>
           ))
         )}
