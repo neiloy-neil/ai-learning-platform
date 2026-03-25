@@ -7,6 +7,7 @@ import { getDefaultRouteForRole, appRoutes } from '@/lib/app-routes';
 import type { User } from '@/lib/pcdc-types';
 import { UserRole } from '@/lib/pcdc-types';
 import { demoUsers, type DemoUserKey } from '@/lib/mocks';
+import { getDemoUserKeyFromEmail } from '@/lib/demo-auth';
 
 type AuthContextType = {
   user: User | null;
@@ -18,13 +19,6 @@ type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-function getDemoUserKeyFromEmail(email: string): DemoUserKey {
-  const normalizedEmail = email.toLowerCase();
-  if (normalizedEmail.includes('maya') || normalizedEmail.includes('teacher')) return 'teacher';
-  if (normalizedEmail.includes('jordan') || normalizedEmail.includes('parent')) return 'parent';
-  return 'student';
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
