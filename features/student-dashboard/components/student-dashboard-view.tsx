@@ -14,8 +14,11 @@ import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { appRoutes } from '@/lib/app-routes';
 
 export default function StudentDashboardView() {
-  const { dashboardData } = useDemoData();
+  const { dashboardData, assessments, latestStudyPlan, generatedQuizzes, generatedQuizAssessments } = useDemoData();
   const { concepts, mastery, recommendation, recentActivity, reminders, user, streakDays, todayPlan, revisionQueue, recentQuizHistory } = dashboardData;
+  const nextAssessment = assessments.find((item) => item.status === 'Assigned' || item.status === 'In Progress') ?? assessments[0];
+  const latestAiQuiz = generatedQuizzes[0];
+  const latestAiAssessment = latestAiQuiz ? generatedQuizAssessments[latestAiQuiz.id] : null;
 
   return (
     <div className="space-y-8">
@@ -37,10 +40,16 @@ export default function StudentDashboardView() {
           </CardHeader>
           <CardContent className="space-y-3">
             {todayPlan.map((item) => (
-              <div className="rounded-2xl border border-border/70 p-3" key={item.id}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                  <span className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{item.timeLabel}</span>
+              <div className="flex items-start gap-3 rounded-2xl border border-border/70 p-3" key={item.id}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                  {item.type.slice(0, 3)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                    <span className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{item.timeLabel}</span>
+                  </div>
+                  <p className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">{item.type}</p>
                 </div>
               </div>
             ))}
@@ -62,6 +71,85 @@ export default function StudentDashboardView() {
             </Button>
             <Button asChild className="w-full" variant="ghost">
               <Link href={appRoutes.student.practice}>Generate practice from a topic</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Agenda and Checkpoints</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {nextAssessment ? (
+              <div className="rounded-2xl border border-border/70 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-foreground">{nextAssessment.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {nextAssessment.status} · due {new Date(nextAssessment.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    checkpoint
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">{nextAssessment.description}</p>
+              </div>
+            ) : null}
+            {latestStudyPlan ? (
+              <div className="rounded-2xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">AI coach note</p>
+                <p className="mt-2 text-sm text-muted-foreground">{latestStudyPlan.rationale}</p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Generate a study plan to turn today&apos;s work into a clearer agenda.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>AI Quiz Review</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestAiQuiz && latestAiAssessment ? (
+              <>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">{latestAiQuiz.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {latestAiAssessment.score}% · next concepts: {latestAiAssessment.nextConcepts.join(', ')}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground">{latestAiAssessment.studyAdvice}</p>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Use AI Tutor to generate a quiz and surface a fresh review signal here.
+              </div>
+            )}
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.aiTutor}>Open AI Tutor</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Planner Shortcuts</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full">
+              <Link href={appRoutes.student.assessments}>Review assessments</Link>
+            </Button>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.revision}>Clear revision queue</Link>
+            </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.progress}>Check progress trends</Link>
             </Button>
           </CardContent>
         </Card>

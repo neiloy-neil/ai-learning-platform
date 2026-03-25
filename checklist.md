@@ -34,6 +34,7 @@ Status legend:
 - [x] Study-plan page upgraded with calendar-style schedule snapshot
 - [x] Assessment review cards expanded with richer concept breakdown and AI support actions
 - [x] Learning-path and practice flows connected more directly into AI support
+- [x] Student dashboard upgraded with denser agenda/checkpoint and AI review blocks
 
 ### Teacher Product
 
@@ -62,6 +63,7 @@ Status legend:
 - [x] Role-aware notifications from shared mock data
 - [x] Mark-as-read / archive interactions
 - [x] Messaging threads
+- [x] Messaging surfaces upgraded with role-aware follow-up context and cross-links
 
 ### UX and Cleanup
 
