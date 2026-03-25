@@ -82,19 +82,31 @@ type DemoDataContextType = {
 const DemoDataContext = createContext<DemoDataContextType | undefined>(undefined);
 
 function reviveDemoState(raw: string): DemoStudentState {
-  const parsed = JSON.parse(raw) as DemoStudentState;
+  const fallback = createInitialStudentState();
+  const parsed = JSON.parse(raw) as Partial<DemoStudentState>;
   return {
+    ...fallback,
     ...parsed,
-    mastery: parsed.mastery.map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) })),
-    notifications: parsed.notifications.map((item) => ({ ...item, createdAt: new Date(item.createdAt) })),
+    mastery: (parsed.mastery ?? fallback.mastery).map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) })),
+    activities: parsed.activities ?? fallback.activities,
+    assessments: parsed.assessments ?? fallback.assessments,
+    attempts: parsed.attempts ?? fallback.attempts,
+    goals: parsed.goals ?? fallback.goals,
+    notifications: (parsed.notifications ?? fallback.notifications).map((item) => ({ ...item, createdAt: new Date(item.createdAt) })),
   };
 }
 
 function reviveTeacherState(raw: string): DemoTeacherManagementState {
-  const parsed = JSON.parse(raw) as DemoTeacherManagementState;
+  const fallback = createInitialTeacherManagementState();
+  const parsed = JSON.parse(raw) as Partial<DemoTeacherManagementState>;
   return {
+    ...fallback,
     ...parsed,
-    assignments: parsed.assignments.map((item) => ({
+    classes: parsed.classes ?? fallback.classes,
+    students: parsed.students ?? fallback.students,
+    nudges: parsed.nudges ?? fallback.nudges,
+    threads: parsed.threads ?? fallback.threads,
+    assignments: (parsed.assignments ?? fallback.assignments).map((item) => ({
       ...item,
       assignedDate: new Date(item.assignedDate),
       dueDate: new Date(item.dueDate),
@@ -110,12 +122,22 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedValue = localStorage.getItem(storageKey);
     if (storedValue) {
-      setState(reviveDemoState(storedValue));
+      try {
+        setState(reviveDemoState(storedValue));
+      } catch {
+        localStorage.removeItem(storageKey);
+        setState(createInitialStudentState());
+      }
     }
 
     const storedTeacherState = localStorage.getItem(teacherStorageKey);
     if (storedTeacherState) {
-      setTeacherState(reviveTeacherState(storedTeacherState));
+      try {
+        setTeacherState(reviveTeacherState(storedTeacherState));
+      } catch {
+        localStorage.removeItem(teacherStorageKey);
+        setTeacherState(createInitialTeacherManagementState());
+      }
     }
 
     const storedParentStudentId = localStorage.getItem(parentSelectionStorageKey);
