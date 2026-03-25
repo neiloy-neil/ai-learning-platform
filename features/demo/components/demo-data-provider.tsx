@@ -3,11 +3,27 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import {
+  assessGeneratedQuiz as buildGeneratedQuizAssessment,
+  buildTutorReply,
+  createGeneratedQuiz,
+  createParentSupportMessage,
+  createStudyPlan,
+  createTeacherAiArtifact,
+  type DemoAiAssessment,
+  type DemoGeneratedQuiz,
+  type DemoStudyPlan,
+  type TeacherAiArtifact,
+  type TeacherAiTool,
+} from '@/lib/mock-ai';
+import {
   buildAssessmentResult,
   buildDashboardData,
   buildLearningPath,
   buildParentChildProfiles,
   buildProgressData,
+  buildQuizHistory,
+  buildTeacherHeatmap,
+  buildTeacherWatchlist,
   completePracticeSession,
   createInitialStudentState,
   createInitialTeacherManagementState,
@@ -19,10 +35,17 @@ import {
   type DemoAssessmentResult,
   type DemoGoal,
   type DemoMessageThread,
+  type DemoParentContactRequest,
+  type DemoQuizHistoryItem,
   type DemoStudentState,
+  type DemoTeacherAssignmentTemplate,
   type DemoTeacherClass,
+  type DemoTeacherDeadline,
+  type DemoTeacherNote,
   type DemoTeacherNudge,
+  type DemoTeacherReviewItem,
   type DemoTeacherStudent,
+  type DemoTeacherSubmission,
   type PracticeMode,
   type TeacherCohort,
 } from '@/lib/mocks';
@@ -30,6 +53,7 @@ import type { Assignment, Notification } from '@/lib/pcdc-types';
 
 const storageKey = 'demoStudentState';
 const teacherStorageKey = 'demoTeacherManagementState';
+const aiStorageKey = 'demoAiState';
 const parentSelectionStorageKey = 'demoParentSelectedStudentId';
 
 type DemoTeacherManagementState = {
@@ -38,18 +62,48 @@ type DemoTeacherManagementState = {
   assignments: Assignment[];
   nudges: DemoTeacherNudge[];
   threads: DemoMessageThread[];
+  templates: DemoTeacherAssignmentTemplate[];
+  submissions: DemoTeacherSubmission[];
+  reviewQueue: DemoTeacherReviewItem[];
+  notes: DemoTeacherNote[];
+  deadlines: DemoTeacherDeadline[];
+  contactRequests: DemoParentContactRequest[];
+};
+
+type DemoAiChatMessage = {
+  id: string;
+  sender: 'student' | 'assistant';
+  text: string;
+  title?: string;
+};
+
+type DemoAiState = {
+  tutorMessages: DemoAiChatMessage[];
+  generatedQuizzes: DemoGeneratedQuiz[];
+  generatedQuizAssessments: Record<string, DemoAiAssessment>;
+  studyPlans: DemoStudyPlan[];
+  teacherArtifacts: TeacherAiArtifact[];
+  parentSupportMessages: Record<string, ReturnType<typeof createParentSupportMessage>>;
 };
 
 type DemoDataContextType = {
   state: DemoStudentState;
   teacherState: DemoTeacherManagementState;
-  dashboardData: ReturnType<typeof buildDashboardData>;
+  dashboardData: ReturnType<typeof buildDashboardData> & { recentQuizHistory: DemoQuizHistoryItem[] };
   progressData: ReturnType<typeof buildProgressData>;
   learningPath: ReturnType<typeof buildLearningPath>;
   goals: DemoGoal[];
   assessments: ReturnType<typeof getAssessments>;
   parentProfiles: ReturnType<typeof buildParentChildProfiles>;
   selectedParentStudentId: string;
+  aiTutorMessages: DemoAiChatMessage[];
+  generatedQuizzes: DemoGeneratedQuiz[];
+  generatedQuizAssessments: Record<string, DemoAiAssessment>;
+  latestStudyPlan: DemoStudyPlan | null;
+  teacherArtifacts: TeacherAiArtifact[];
+  teacherHeatmap: ReturnType<typeof buildTeacherHeatmap>;
+  teacherWatchlist: ReturnType<typeof buildTeacherWatchlist>;
+  selectedParentSupport: ReturnType<typeof createParentSupportMessage> | null;
   selectParentStudent: (studentId: string) => void;
   getNotifications: (userId?: string) => Notification[];
   markNotificationRead: (notificationId: string) => void;
@@ -58,12 +112,14 @@ type DemoDataContextType = {
   assignStudentToClass: (studentId: string, classId: string) => void;
   cycleStudentCohort: (studentId: string) => void;
   createTeacherAssignment: (input: { title: string; description: string; studentId: string; dueDate: string }) => void;
+  createAssignmentFromTemplate: (templateId: string, studentId: string) => void;
   sendTeacherNudge: (input: {
     studentId: string;
     audience: 'student' | 'parent';
     message: string;
     category: 'Encouragement' | 'Intervention' | 'Follow-up';
   }) => void;
+  addTeacherNote: (studentId: string, text: string) => void;
   sendThreadMessage: (input: {
     threadId: string;
     senderRole: 'teacher' | 'student' | 'parent';
@@ -77,9 +133,43 @@ type DemoDataContextType = {
   }) => DemoAssessmentResult | null;
   addGoal: () => void;
   cycleGoalStatus: (goalId: string) => void;
+  sendAiTutorPrompt: (input: { prompt: string; conceptName?: string }) => void;
+  generateQuiz: (input: {
+    conceptId: string;
+    conceptName: string;
+    subject: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    questionCount: number;
+    ownerRole: 'student' | 'teacher';
+  }) => DemoGeneratedQuiz;
+  assessGeneratedQuiz: (input: {
+    quizId: string;
+    answers: Array<{ questionId: string; selectedOptionId: string }>;
+  }) => DemoAiAssessment | null;
+  generateStudyPlan: (availableMinutes?: number) => DemoStudyPlan;
+  generateTeacherArtifact: (input: { tool: TeacherAiTool; focus: string; className: string }) => TeacherAiArtifact;
+  generateParentSupport: (studentId: string) => ReturnType<typeof createParentSupportMessage>;
 };
 
 const DemoDataContext = createContext<DemoDataContextType | undefined>(undefined);
+
+function createInitialAiState(): DemoAiState {
+  return {
+    tutorMessages: [
+      {
+        id: 'ai-message-1',
+        sender: 'assistant',
+        title: 'AI Tutor',
+        text: 'Ask me for a concept explanation, a simpler version of a topic, a hint, a study plan, or a generated quiz.',
+      },
+    ],
+    generatedQuizzes: [],
+    generatedQuizAssessments: {},
+    studyPlans: [],
+    teacherArtifacts: [],
+    parentSupportMessages: {},
+  };
+}
 
 function reviveDemoState(raw: string): DemoStudentState {
   const fallback = createInitialStudentState();
@@ -106,6 +196,12 @@ function reviveTeacherState(raw: string): DemoTeacherManagementState {
     students: parsed.students ?? fallback.students,
     nudges: parsed.nudges ?? fallback.nudges,
     threads: parsed.threads ?? fallback.threads,
+    templates: parsed.templates ?? fallback.templates,
+    submissions: parsed.submissions ?? fallback.submissions,
+    reviewQueue: parsed.reviewQueue ?? fallback.reviewQueue,
+    notes: parsed.notes ?? fallback.notes,
+    deadlines: parsed.deadlines ?? fallback.deadlines,
+    contactRequests: parsed.contactRequests ?? fallback.contactRequests,
     assignments: (parsed.assignments ?? fallback.assignments).map((item) => ({
       ...item,
       assignedDate: new Date(item.assignedDate),
@@ -114,9 +210,25 @@ function reviveTeacherState(raw: string): DemoTeacherManagementState {
   };
 }
 
+function reviveAiState(raw: string): DemoAiState {
+  const fallback = createInitialAiState();
+  const parsed = JSON.parse(raw) as Partial<DemoAiState>;
+  return {
+    ...fallback,
+    ...parsed,
+    tutorMessages: parsed.tutorMessages ?? fallback.tutorMessages,
+    generatedQuizzes: parsed.generatedQuizzes ?? fallback.generatedQuizzes,
+    generatedQuizAssessments: parsed.generatedQuizAssessments ?? fallback.generatedQuizAssessments,
+    studyPlans: parsed.studyPlans ?? fallback.studyPlans,
+    teacherArtifacts: parsed.teacherArtifacts ?? fallback.teacherArtifacts,
+    parentSupportMessages: parsed.parentSupportMessages ?? fallback.parentSupportMessages,
+  };
+}
+
 export function DemoDataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DemoStudentState>(createInitialStudentState());
   const [teacherState, setTeacherState] = useState<DemoTeacherManagementState>(createInitialTeacherManagementState());
+  const [aiState, setAiState] = useState<DemoAiState>(createInitialAiState());
   const [selectedParentStudentId, setSelectedParentStudentId] = useState(demoUsers.student.id);
 
   useEffect(() => {
@@ -126,7 +238,6 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         setState(reviveDemoState(storedValue));
       } catch {
         localStorage.removeItem(storageKey);
-        setState(createInitialStudentState());
       }
     }
 
@@ -136,7 +247,15 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         setTeacherState(reviveTeacherState(storedTeacherState));
       } catch {
         localStorage.removeItem(teacherStorageKey);
-        setTeacherState(createInitialTeacherManagementState());
+      }
+    }
+
+    const storedAiState = localStorage.getItem(aiStorageKey);
+    if (storedAiState) {
+      try {
+        setAiState(reviveAiState(storedAiState));
+      } catch {
+        localStorage.removeItem(aiStorageKey);
       }
     }
 
@@ -155,15 +274,35 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
   }, [teacherState]);
 
   useEffect(() => {
+    localStorage.setItem(aiStorageKey, JSON.stringify(aiState));
+  }, [aiState]);
+
+  useEffect(() => {
     localStorage.setItem(parentSelectionStorageKey, selectedParentStudentId);
   }, [selectedParentStudentId]);
 
   const value = useMemo<DemoDataContextType>(() => {
-    const dashboardData = buildDashboardData(state);
+    const baseDashboardData = buildDashboardData(state);
+    const aiQuizHistory: DemoQuizHistoryItem[] = Object.entries(aiState.generatedQuizAssessments).map(([quizId, assessment]) => {
+      const quiz = aiState.generatedQuizzes.find((item) => item.id === quizId);
+      return {
+        id: `history-${quizId}`,
+        title: quiz?.title ?? 'AI Quiz',
+        score: assessment.score,
+        completedAtLabel: 'Just now',
+        mode: 'ai-quiz',
+      };
+    });
+    const dashboardData = {
+      ...baseDashboardData,
+      recentQuizHistory: [...aiQuizHistory, ...buildQuizHistory(state)].slice(0, 5),
+    };
     const progressData = buildProgressData(state.mastery, state.attempts);
     const learningPath = buildLearningPath(state.mastery);
     const assessments = getAssessments(state);
     const parentProfiles = buildParentChildProfiles(state);
+    const teacherHeatmap = buildTeacherHeatmap(teacherState.students);
+    const teacherWatchlist = buildTeacherWatchlist(teacherState.students);
 
     return {
       state,
@@ -175,6 +314,14 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
       assessments,
       parentProfiles,
       selectedParentStudentId,
+      aiTutorMessages: aiState.tutorMessages,
+      generatedQuizzes: aiState.generatedQuizzes,
+      generatedQuizAssessments: aiState.generatedQuizAssessments,
+      latestStudyPlan: aiState.studyPlans[0] ?? null,
+      teacherArtifacts: aiState.teacherArtifacts,
+      teacherHeatmap,
+      teacherWatchlist,
+      selectedParentSupport: aiState.parentSupportMessages[selectedParentStudentId] ?? null,
       selectParentStudent: setSelectedParentStudentId,
       getNotifications: (userId) => getNotificationsForUserFromState(state.notifications, userId),
       markNotificationRead: (notificationId) => {
@@ -275,6 +422,42 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           ],
         }));
       },
+      createAssignmentFromTemplate: (templateId, studentId) => {
+        const template = teacherState.templates.find((item) => item.id === templateId);
+        if (!template) {
+          return;
+        }
+
+        const targetStudent = teacherState.students.find((student) => student.id === studentId);
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 3);
+
+        setTeacherState((current) => ({
+          ...current,
+          assignments: [
+            {
+              id: `assignment-${current.assignments.length + 1}`,
+              title: template.title,
+              description: `Template-based intervention for ${template.focusArea}. Recommended for ${template.recommendedFor}.`,
+              assignedDate: new Date(),
+              dueDate,
+              status: 'Assigned',
+              assignedToStudentId: studentId,
+            },
+            ...current.assignments,
+          ],
+        }));
+
+        if (targetStudent) {
+          setState((current) => ({
+            ...current,
+            activities: [
+              { id: `activity-${Date.now()}`, text: `Teacher assigned ${template.title}`, timeLabel: 'Just now' },
+              ...current.activities.slice(0, 4),
+            ],
+          }));
+        }
+      },
       sendTeacherNudge: (input) => {
         setTeacherState((current) => ({
           ...current,
@@ -305,6 +488,20 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           ],
         }));
       },
+      addTeacherNote: (studentId, text) => {
+        const trimmedText = text.trim();
+        if (!trimmedText) {
+          return;
+        }
+
+        setTeacherState((current) => ({
+          ...current,
+          notes: [
+            { id: `note-${current.notes.length + 1}`, studentId, text: trimmedText, createdAtLabel: 'Just now' },
+            ...current.notes,
+          ],
+        }));
+      },
       sendThreadMessage: (input) => {
         setTeacherState((current) => ({
           ...current,
@@ -331,7 +528,10 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
       completeSession: (input) => {
         const nextState = completePracticeSession(state, input);
         const result = input.assessmentId
-          ? buildAssessmentResult(nextState.assessments.find((assessment) => assessment.id === input.assessmentId) ?? assessments[0], nextState.attempts)
+          ? buildAssessmentResult(
+              nextState.assessments.find((assessment) => assessment.id === input.assessmentId) ?? assessments[0],
+              nextState.attempts,
+            )
           : null;
         setState(nextState);
         return result;
@@ -366,8 +566,109 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           }),
         }));
       },
+      sendAiTutorPrompt: (input) => {
+        const reply = buildTutorReply({
+          prompt: input.prompt,
+          conceptName: input.conceptName ?? dashboardData.recommendation.nextConceptName,
+          recommendedConceptName: dashboardData.recommendation.nextConceptName,
+        });
+
+        setAiState((current) => ({
+          ...current,
+          tutorMessages: [
+            ...current.tutorMessages,
+            { id: `ai-message-${current.tutorMessages.length + 1}`, sender: 'student', text: input.prompt },
+            {
+              id: `ai-message-${current.tutorMessages.length + 2}`,
+              sender: 'assistant',
+              title: reply.title,
+              text: reply.body,
+            },
+          ],
+        }));
+      },
+      generateQuiz: (input) => {
+        const quiz = createGeneratedQuiz(input);
+        setAiState((current) => ({
+          ...current,
+          generatedQuizzes: [quiz, ...current.generatedQuizzes.filter((item) => item.id !== quiz.id)],
+        }));
+        return quiz;
+      },
+      assessGeneratedQuiz: (input) => {
+        const quiz = aiState.generatedQuizzes.find((item) => item.id === input.quizId);
+        if (!quiz) {
+          return null;
+        }
+
+        const assessment = buildGeneratedQuizAssessment({ quiz, answers: input.answers });
+        setAiState((current) => ({
+          ...current,
+          generatedQuizAssessments: {
+            ...current.generatedQuizAssessments,
+            [quiz.id]: assessment,
+          },
+        }));
+        setState((current) => ({
+          ...current,
+          activities: [
+            { id: `activity-${Date.now()}`, text: `Completed ${quiz.title} with a ${assessment.score}% score`, timeLabel: 'Just now' },
+            ...current.activities.slice(0, 4),
+          ],
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.student.id,
+              text: `AI assessed ${quiz.title} and suggested your next study move.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
+        }));
+        return assessment;
+      },
+      generateStudyPlan: (availableMinutes = 70) => {
+        const recommendation = dashboardData.recommendation;
+        const nextAssessment = assessments[0];
+        const plan = createStudyPlan({
+          studentName: demoUsers.student.name,
+          availableMinutes,
+          focusConceptName: recommendation.nextConceptName,
+          assessmentTitle: nextAssessment?.title ?? 'Upcoming checkpoint',
+        });
+        setAiState((current) => ({
+          ...current,
+          studyPlans: [plan, ...current.studyPlans.filter((item) => item.id !== plan.id)],
+        }));
+        return plan;
+      },
+      generateTeacherArtifact: (input) => {
+        const artifact = createTeacherAiArtifact(input);
+        setAiState((current) => ({
+          ...current,
+          teacherArtifacts: [artifact, ...current.teacherArtifacts.filter((item) => item.id !== artifact.id)],
+        }));
+        return artifact;
+      },
+      generateParentSupport: (studentId) => {
+        const profile = parentProfiles.find((item) => item.student.id === studentId) ?? parentProfiles[0];
+        const weakestConcept = profile.mastery.slice().sort((left, right) => left.masteryScore - right.masteryScore)[0];
+        const support = createParentSupportMessage({
+          studentName: profile.student.name,
+          weakConceptName: weakestConcept ? mockConcepts.find((concept) => concept.id === weakestConcept.conceptId)?.name ?? 'current topic' : 'current topic',
+        });
+        setAiState((current) => ({
+          ...current,
+          parentSupportMessages: {
+            ...current.parentSupportMessages,
+            [studentId]: support,
+          },
+        }));
+        return support;
+      },
     };
-  }, [selectedParentStudentId, state, teacherState]);
+  }, [aiState, selectedParentStudentId, state, teacherState]);
 
   return <DemoDataContext.Provider value={value}>{children}</DemoDataContext.Provider>;
 }

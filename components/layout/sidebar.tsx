@@ -2,7 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, BookOpen, GraduationCap, LayoutDashboard, LineChart, MessageSquare, Target, Users } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  Bot,
+  CalendarClock,
+  ClipboardCheck,
+  FileText,
+  GraduationCap,
+  LayoutDashboard,
+  LineChart,
+  MessageSquare,
+  ShieldAlert,
+  Sparkles,
+  Target,
+  Users,
+} from 'lucide-react';
 
 import { cn } from '@/lib/cn';
 import { appRoutes } from '@/lib/app-routes';
@@ -18,19 +33,31 @@ type NavItem = {
 const navItems: Record<UserRole, NavItem[]> = {
   [UserRole.STUDENT]: [
     { href: appRoutes.student.dashboard, label: 'Dashboard', icon: LayoutDashboard },
-    { href: appRoutes.student.learningPath, label: 'Learning Path', icon: BookOpen },
-    { href: appRoutes.student.goals, label: 'Goals', icon: Target },
+    { href: appRoutes.student.aiTutor, label: 'AI Tutor', icon: Bot },
     { href: appRoutes.student.practice, label: 'Practice', icon: GraduationCap },
     { href: appRoutes.student.assessments, label: 'Assessments', icon: BarChart3 },
+    { href: appRoutes.student.revision, label: 'Revision', icon: ClipboardCheck },
+    { href: appRoutes.student.studyPlan, label: 'Study Plan', icon: CalendarClock },
+    { href: appRoutes.student.learningPath, label: 'Learning Path', icon: BookOpen },
+    { href: appRoutes.student.goals, label: 'Goals', icon: Target },
     { href: appRoutes.student.progress, label: 'Progress', icon: LineChart },
   ],
   [UserRole.TEACHER]: [
-    { href: appRoutes.teacher.dashboard, label: 'Class Dashboard', icon: Users },
+    { href: appRoutes.teacher.dashboard, label: 'Dashboard', icon: LayoutDashboard },
+    { href: appRoutes.teacher.classes, label: 'Classes', icon: Users },
+    { href: appRoutes.teacher.assignments, label: 'Assignments', icon: FileText },
+    { href: appRoutes.teacher.review, label: 'Review', icon: ClipboardCheck },
+    { href: appRoutes.teacher.analytics, label: 'Analytics', icon: LineChart },
+    { href: appRoutes.teacher.aiTools, label: 'AI Tools', icon: Sparkles },
     { href: appRoutes.teacher.messages, label: 'Messages', icon: MessageSquare },
   ],
   [UserRole.PARENT]: [
-    { href: appRoutes.parent.dashboard, label: 'Child Progress', icon: LineChart },
+    { href: appRoutes.parent.dashboard, label: 'Dashboard', icon: LayoutDashboard },
+    { href: appRoutes.parent.children, label: 'Children', icon: Users },
+    { href: appRoutes.parent.reports, label: 'Reports', icon: FileText },
+    { href: appRoutes.parent.alerts, label: 'Alerts', icon: ShieldAlert },
     { href: appRoutes.parent.messages, label: 'Messages', icon: MessageSquare },
+    { href: appRoutes.parent.supportTips, label: 'Support Tips', icon: Sparkles },
   ],
 };
 

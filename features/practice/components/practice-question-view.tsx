@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -205,6 +206,14 @@ function PracticeQuestionCore() {
               <h3 className="mb-2 text-lg font-bold">{isCorrect ? 'Correct!' : 'Incorrect'}</h3>
               <p>{currentQuestion.explanation}</p>
               <p className="mt-3 text-sm text-muted-foreground">Concept focus: {currentQuestion.conceptIds.map((item) => getConceptName(item)).join(', ')}</p>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="sm" variant="secondary">
+                  <Link href={appRoutes.student.aiTutor}>Ask AI to explain this</Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link href={appRoutes.student.aiTutor}>Simplify this concept</Link>
+                </Button>
+              </div>
             </div>
           ) : null}
         </CardContent>

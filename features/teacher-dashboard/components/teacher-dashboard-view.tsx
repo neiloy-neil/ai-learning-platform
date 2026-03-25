@@ -14,7 +14,7 @@ import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
-import { getTeacherStudentRoute } from '@/lib/app-routes';
+import { appRoutes, getTeacherStudentRoute } from '@/lib/app-routes';
 import { mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
 
 const statusTone: Record<string, string> = {
@@ -41,7 +41,18 @@ const StatCard = ({ title, value }: { title: string; value: string | number }) =
 );
 
 export default function TeacherDashboardView() {
-  const { teacherState, addTeacherClass, assignStudentToClass, cycleStudentCohort, createTeacherAssignment, sendTeacherNudge } =
+  const {
+    teacherState,
+    teacherHeatmap,
+    teacherWatchlist,
+    teacherArtifacts,
+    addTeacherClass,
+    assignStudentToClass,
+    cycleStudentCohort,
+    createTeacherAssignment,
+    sendTeacherNudge,
+    addTeacherNote,
+  } =
     useDemoData();
   const [filterName, setFilterName] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -55,6 +66,7 @@ export default function TeacherDashboardView() {
   const [assignmentDueDate, setAssignmentDueDate] = useState('2026-03-31');
   const [nudgeMessage, setNudgeMessage] = useState('Finish the next targeted set before tomorrow so we can review the gap together.');
   const [nudgeStudentId, setNudgeStudentId] = useState('student-c');
+  const [teacherNote, setTeacherNote] = useState('Student needs one more scaffolded check before independent practice.');
   const assignments = teacherState.assignments;
   const recentNudges = teacherState.nudges.slice(0, 4);
 
@@ -156,6 +168,65 @@ export default function TeacherDashboardView() {
         <StatCard title="Average Score" value={`${teacherStats.averageScore}%`} />
         <StatCard title="Completion Rate" value={`${teacherStats.completionRate}%`} />
         <StatCard title="Students at Risk" value={teacherStats.studentsAtRisk} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">At-Risk Watchlist</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {teacherWatchlist.map((student) => (
+              <Link className="block rounded-2xl border border-border/70 p-3 transition hover:border-primary/40" href={getTeacherStudentRoute(student.id)} key={student.id}>
+                <p className="font-semibold">{student.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {student.cohort} · {student.avgScore}%
+                </p>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Assignment Templates</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {teacherState.templates.slice(0, 3).map((template) => (
+              <div className="rounded-2xl border border-border/70 p-3" key={template.id}>
+                <p className="font-semibold">{template.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{template.focusArea}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {teacherState.deadlines.map((deadline) => (
+              <div className="rounded-2xl border border-border/70 p-3" key={deadline.id}>
+                <p className="font-semibold">{deadline.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {deadline.type} · {deadline.dueLabel}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Parent Contact Requests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {teacherState.contactRequests.map((request) => (
+              <div className="rounded-2xl border border-border/70 p-3" key={request.id}>
+                <p className="font-semibold">{request.parentName}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{request.topic}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -362,12 +433,69 @@ export default function TeacherDashboardView() {
         </Card>
       </div>
 
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr_0.9fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Concept Heatmap</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            {teacherHeatmap.map((item) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={item.conceptId}>
+                <p className="text-sm font-semibold">{item.conceptName}</p>
+                <p className="mt-3 text-3xl font-bold">{item.score}%</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted-foreground">Class signal</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Submission Feed</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {teacherState.submissions.map((submission) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={submission.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{submission.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{submission.studentName}</p>
+                  </div>
+                  <span className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{submission.status}</span>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">Submitted {submission.submittedAtLabel}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Tools Rail</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full">
+              <Link href={appRoutes.teacher.aiTools}>Open AI tools</Link>
+            </Button>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.teacher.analytics}>Open analytics</Link>
+            </Button>
+            {teacherArtifacts.slice(0, 2).map((artifact) => (
+              <div className="rounded-2xl border border-border/70 p-3" key={artifact.id}>
+                <p className="font-semibold">{artifact.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{artifact.summary}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Assignments and Intervention Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="space-y-3 rounded-3xl border border-border/70 p-4">
               <h3 className="font-semibold">Create targeted assignment</h3>
               <Input
@@ -441,6 +569,30 @@ export default function TeacherDashboardView() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+              <h3 className="font-semibold">Teacher notes panel</h3>
+              <Input value={teacherNote} onChange={(event) => setTeacherNote(event.target.value)} />
+              <Button
+                onClick={() => {
+                  addTeacherNote(nudgeStudentId, teacherNote);
+                  setTeacherNote('Flagged for a stronger exit check before the next assignment.');
+                }}
+                variant="secondary"
+              >
+                Save note
+              </Button>
+              <div className="space-y-2">
+                {teacherState.notes.slice(0, 4).map((note) => (
+                  <div className="rounded-2xl border border-border/70 p-3" key={note.id}>
+                    <p className="text-sm font-semibold">
+                      {teacherState.students.find((student) => student.id === note.studentId)?.name ?? 'Student'}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{note.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

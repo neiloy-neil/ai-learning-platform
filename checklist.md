@@ -26,6 +26,10 @@ Status legend:
 - [x] Learning path progression from prerequisites and mastery thresholds
 - [x] Goals backed by shared demo state
 - [x] Progress trends and rationale copy
+- [x] Student AI Tutor page with deterministic chat prompts
+- [x] Student revision queue page and dashboard surfacing
+- [x] Student AI study-plan generator and dashboard surfacing
+- [x] AI quiz generation and assessment placeholder flow
 
 ### Teacher Product
 
@@ -34,6 +38,9 @@ Status legend:
 - [x] Student detail workspace aligned with shared demo data
 - [x] Teacher class/section management
 - [x] Teacher intervention actions and nudges
+- [x] Expanded teacher navigation: classes, assignments, review, analytics, AI tools
+- [x] Teacher dashboard densified with watchlist, templates, heatmap, submissions, deadlines, and contact requests
+- [x] Teacher AI tools placeholder page and generated artifacts
 
 ### Parent Product
 
@@ -41,6 +48,9 @@ Status legend:
 - [x] Parent alerts backed by shared mock source
 - [x] Parent child switching
 - [x] Printable/shareable report flow
+- [x] Expanded parent navigation: children, reports, alerts, support tips
+- [x] Parent dashboard densified with digest, changes, upcoming work, messages preview, and AI helper
+- [x] Parent support tips and AI at-home guidance placeholder
 
 ### Notifications and Messaging
 
@@ -55,6 +65,7 @@ Status legend:
 - [x] Remove or consolidate remaining legacy layout/components
 - [x] Standardized loading/empty/error states across all major widgets
 - [x] Accessibility hardening for menus, tables, overlays, and forms
+- [x] Sidebar expanded with deeper role-specific navigation and route metadata
 
 ### Quality
 
@@ -82,9 +93,10 @@ Status legend:
 
 - [ ] Evidence-model mastery engine v2 on real data
 - [ ] Spaced revision queue with durable due-state tracking
-- [ ] AI tutor, hints, and explanation system
-- [ ] AI study plan generation
-- [ ] AI content assistance for teachers/admins
+- [~] Demo-only AI tutor, hints, quiz generation, study plans, and teacher content tools
+- [ ] AI tutor, hints, and explanation system on real model-backed data
+- [ ] AI study plan generation on real evidence
+- [ ] AI content assistance for teachers/admins with approval workflow
 
 ### Teacher, Parent, and Admin Expansion
 

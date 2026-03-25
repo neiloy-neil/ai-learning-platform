@@ -144,6 +144,12 @@ export type DemoParentChildProfile = {
   goals: DemoGoal[];
   alerts: ParentAlert[];
   weeklyActivity: ParentWeeklyActivity[];
+  digest: DemoParentDigest;
+  changes: DemoParentChangeItem[];
+  supportTips: DemoParentSupportTip[];
+  upcomingAssessments: { id: string; title: string; dueLabel: string }[];
+  missedWork: { id: string; title: string; status: string }[];
+  teacherMessagesPreview: { id: string; sender: string; text: string }[];
 };
 
 export type DemoAssessmentResult = {
@@ -152,6 +158,102 @@ export type DemoAssessmentResult = {
   correctAnswers: number;
   totalQuestions: number;
   conceptBreakdown: { conceptId: string; conceptName: string; correct: number; total: number }[];
+};
+
+export type DemoRevisionTask = {
+  id: string;
+  conceptId: string;
+  conceptName: string;
+  reason: string;
+  dueLabel: string;
+  intensity: 'light' | 'medium' | 'high';
+};
+
+export type DemoScheduleItem = {
+  id: string;
+  label: string;
+  timeLabel: string;
+  type: 'practice' | 'revision' | 'assessment' | 'coaching';
+};
+
+export type DemoQuizHistoryItem = {
+  id: string;
+  title: string;
+  score: number;
+  completedAtLabel: string;
+  mode: 'practice' | 'assessment' | 'ai-quiz';
+};
+
+export type DemoTeacherAssignmentTemplate = {
+  id: string;
+  title: string;
+  focusArea: string;
+  audience: 'class' | 'cohort' | 'student';
+  recommendedFor: string;
+};
+
+export type DemoTeacherSubmission = {
+  id: string;
+  studentId: string;
+  studentName: string;
+  title: string;
+  status: 'Needs Review' | 'Reviewed';
+  submittedAtLabel: string;
+};
+
+export type DemoTeacherReviewItem = {
+  id: string;
+  studentId: string;
+  studentName: string;
+  title: string;
+  priority: 'High' | 'Medium';
+  dueLabel: string;
+};
+
+export type DemoTeacherNote = {
+  id: string;
+  studentId: string;
+  text: string;
+  createdAtLabel: string;
+};
+
+export type DemoTeacherDeadline = {
+  id: string;
+  title: string;
+  dueLabel: string;
+  type: 'assignment' | 'assessment' | 'meeting';
+};
+
+export type DemoParentContactRequest = {
+  id: string;
+  parentName: string;
+  studentId: string;
+  topic: string;
+  requestedAtLabel: string;
+};
+
+export type DemoTeacherHeatmapCell = {
+  conceptId: string;
+  conceptName: string;
+  score: number;
+};
+
+export type DemoParentDigest = {
+  summary: string;
+  attendanceTone: string;
+};
+
+export type DemoParentChangeItem = {
+  id: string;
+  title: string;
+  description: string;
+  tone: 'positive' | 'warning';
+};
+
+export type DemoParentSupportTip = {
+  id: string;
+  title: string;
+  description: string;
 };
 
 const currentYear = new Date().getFullYear();
@@ -409,6 +511,78 @@ export const mockTeacherAssignments: Assignment[] = [
     assignedToStudentId: 'student-a',
     score: 88,
   },
+];
+
+export const mockTeacherAssignmentTemplates: DemoTeacherAssignmentTemplate[] = [
+  {
+    id: 'template-1',
+    title: 'Quadratics Rescue Sprint',
+    focusArea: 'Quadratics',
+    audience: 'cohort',
+    recommendedFor: 'Intervention',
+  },
+  {
+    id: 'template-2',
+    title: 'Polynomial Confidence Check',
+    focusArea: 'Polynomials',
+    audience: 'class',
+    recommendedFor: 'Core',
+  },
+  {
+    id: 'template-3',
+    title: 'Stretch Challenge Set',
+    focusArea: 'Graphing Inequalities',
+    audience: 'student',
+    recommendedFor: 'Acceleration',
+  },
+];
+
+export const mockTeacherSubmissions: DemoTeacherSubmission[] = [
+  {
+    id: 'submission-1',
+    studentId: 'student-c',
+    studentName: 'Charlie',
+    title: 'Quadratics Rescue Set',
+    status: 'Needs Review',
+    submittedAtLabel: '35 min ago',
+  },
+  {
+    id: 'submission-2',
+    studentId: 'student-b',
+    studentName: 'Bob',
+    title: 'Polynomial Confidence Check',
+    status: 'Reviewed',
+    submittedAtLabel: '2h ago',
+  },
+  {
+    id: 'submission-3',
+    studentId: 'student-a',
+    studentName: 'Alice',
+    title: 'Functions Readiness Review',
+    status: 'Needs Review',
+    submittedAtLabel: 'Today',
+  },
+];
+
+export const mockTeacherReviewQueue: DemoTeacherReviewItem[] = [
+  { id: 'review-1', studentId: 'student-c', studentName: 'Charlie', title: 'Quadratics misconception check', priority: 'High', dueLabel: 'Today' },
+  { id: 'review-2', studentId: 'student-b', studentName: 'Bob', title: 'Polynomial checkpoint feedback', priority: 'Medium', dueLabel: 'Tomorrow' },
+];
+
+export const mockTeacherNotes: DemoTeacherNote[] = [
+  { id: 'note-1', studentId: 'student-c', text: 'Needs tighter step-by-step support before independent work.', createdAtLabel: 'Today' },
+  { id: 'note-2', studentId: 'student-b', text: 'Close to readiness. Parent follow-up is helping homework completion.', createdAtLabel: 'Yesterday' },
+];
+
+export const mockTeacherDeadlines: DemoTeacherDeadline[] = [
+  { id: 'deadline-1', title: 'Quadratics rescue submissions due', dueLabel: 'Tomorrow', type: 'assignment' },
+  { id: 'deadline-2', title: 'Weekly quiz grading block', dueLabel: 'Friday', type: 'assessment' },
+  { id: 'deadline-3', title: 'Parent follow-up calls', dueLabel: 'Friday afternoon', type: 'meeting' },
+];
+
+export const mockTeacherContactRequests: DemoParentContactRequest[] = [
+  { id: 'contact-1', parentName: 'Morgan Brown', studentId: 'student-b', topic: 'Clarify improvement plan for next week', requestedAtLabel: '1h ago' },
+  { id: 'contact-2', parentName: 'Elena Davis', studentId: 'student-c', topic: 'Support options for home revision', requestedAtLabel: 'Today' },
 ];
 
 export const mockNotifications: Notification[] = [
@@ -692,6 +866,108 @@ export function buildAssessmentResult(assessment: DemoAssessment, attempts: Demo
   return { assessment, score, correctAnswers, totalQuestions, conceptBreakdown };
 }
 
+export function buildRevisionQueue(mastery: ConceptMastery[], attempts: DemoAttempt[]): DemoRevisionTask[] {
+  return mastery
+    .filter((item) => item.masteryScore < strongThreshold)
+    .sort((left, right) => left.masteryScore - right.masteryScore)
+    .slice(0, 4)
+    .map((item, index) => {
+      const latestAttempt = attempts.find((attempt) => attempt.conceptIds.includes(item.conceptId));
+      const dueLabel = latestAttempt ? `Due ${minutesAgo(latestAttempt.submittedAt)}` : 'Due now';
+      return {
+        id: `revision-${item.conceptId}`,
+        conceptId: item.conceptId,
+        conceptName: getConceptName(item.conceptId),
+        reason:
+          item.masteryScore < progressThreshold
+            ? 'Weak concept needs remediation before the next checkpoint.'
+            : 'Good momentum, but one more spaced review will stabilize it.',
+        dueLabel,
+        intensity: index === 0 || item.masteryScore < progressThreshold ? 'high' : item.masteryScore < 75 ? 'medium' : 'light',
+      };
+    });
+}
+
+export function getStudyStreakDays(attempts: DemoAttempt[]) {
+  const recentAttempt = attempts[0];
+  if (!recentAttempt) {
+    return 0;
+  }
+
+  const daysSinceRecent = Math.max(0, Math.floor((Date.now() - new Date(recentAttempt.submittedAt).getTime()) / (1000 * 60 * 60 * 24)));
+  return Math.max(1, 5 - daysSinceRecent);
+}
+
+export function buildTodayPlan(state: DemoStudentState): DemoScheduleItem[] {
+  const recommendation = buildRecommendation(state.mastery);
+  const nextAssessment = state.assessments.find((assessment) => assessment.status === 'Assigned' || assessment.status === 'In Progress');
+
+  return [
+    {
+      id: 'schedule-1',
+      label: `Targeted practice: ${recommendation.nextConceptName}`,
+      timeLabel: '4:00 PM',
+      type: 'practice',
+    },
+    {
+      id: 'schedule-2',
+      label: 'Revision queue refresh',
+      timeLabel: '4:25 PM',
+      type: 'revision',
+    },
+    {
+      id: 'schedule-3',
+      label: nextAssessment ? `Assessment prep: ${nextAssessment.title}` : 'Coach reflection check-in',
+      timeLabel: '5:00 PM',
+      type: nextAssessment ? 'assessment' : 'coaching',
+    },
+  ];
+}
+
+export function buildQuizHistory(state: DemoStudentState): DemoQuizHistoryItem[] {
+  const assessmentHistory = state.assessments
+    .filter((assessment) => assessment.lastScore !== undefined)
+    .slice(0, 3)
+    .map((assessment) => ({
+      id: `history-${assessment.id}`,
+      title: assessment.title,
+      score: assessment.lastScore ?? 0,
+      completedAtLabel: assessment.completedAt ? minutesAgo(assessment.completedAt) : 'This week',
+      mode: 'assessment' as const,
+    }));
+
+  const practiceHistory = state.attempts
+    .filter((attempt) => attempt.source === 'practice')
+    .slice(0, 2)
+    .map((attempt, index) => ({
+      id: `history-practice-${index + 1}-${attempt.id}`,
+      title: `${getConceptName(attempt.conceptIds[0] ?? 'linear-equations')} quick check`,
+      score: attempt.isCorrect ? 100 : 50,
+      completedAtLabel: minutesAgo(attempt.submittedAt),
+      mode: 'practice' as const,
+    }));
+
+  return [...assessmentHistory, ...practiceHistory].slice(0, 5);
+}
+
+export function buildTeacherHeatmap(students: DemoTeacherStudent[]): DemoTeacherHeatmapCell[] {
+  return mockTeacherWeakConcepts.map((item, index) => {
+    const interventionWeight = students.filter((student) => student.cohort === 'Intervention').length * 2;
+    return {
+      conceptId: item.conceptId,
+      conceptName: item.conceptName,
+      score: Math.max(25, item.performance - interventionWeight + index * 4),
+    };
+  });
+}
+
+export function buildTeacherWatchlist(students: DemoTeacherStudent[]) {
+  return students
+    .filter((student) => student.status === 'Weak' || student.cohort === 'Intervention')
+    .sort((left, right) => left.avgScore - right.avgScore)
+    .slice(0, 4);
+}
+
 export function buildDashboardData(state: DemoStudentState) {
   return {
     user: demoUsers.student,
@@ -700,6 +976,10 @@ export function buildDashboardData(state: DemoStudentState) {
     recommendation: buildRecommendation(state.mastery),
     recentActivity: state.activities,
     reminders: buildReminders(state.mastery, state.attempts),
+    revisionQueue: buildRevisionQueue(state.mastery, state.attempts),
+    streakDays: getStudyStreakDays(state.attempts),
+    todayPlan: buildTodayPlan(state),
+    recentQuizHistory: buildQuizHistory(state),
   };
 }
 
@@ -817,6 +1097,47 @@ export function buildParentChildProfiles(state?: DemoStudentState): DemoParentCh
         { day: 'Thu', minutes: 50 },
         { day: 'Fri', minutes: 40 },
       ],
+      digest: {
+        summary: 'Alex stayed active across the week, but quadratics still needs one focused follow-up before the next milestone.',
+        attendanceTone: 'Steady weekly effort with one high-value gap still open.',
+      },
+      changes: [
+        {
+          id: 'change-1',
+          title: 'Quadratics improved slightly',
+          description: 'Recent targeted practice created a small lift, but the concept is still below readiness.',
+          tone: 'positive',
+        },
+        {
+          id: 'change-2',
+          title: 'Assessment deadline is close',
+          description: 'The algebra diagnostic is now the highest-risk upcoming checkpoint.',
+          tone: 'warning',
+        },
+      ],
+      supportTips: [
+        {
+          id: 'tip-1',
+          title: 'Ask for a worked example aloud',
+          description: 'Have Alex explain one quadratics example step by step before starting independent work.',
+        },
+        {
+          id: 'tip-2',
+          title: 'Use a short review block',
+          description: 'A 15-minute focused review is more valuable right now than a long general study session.',
+        },
+      ],
+      upcomingAssessments: source.assessments.slice(0, 2).map((assessment) => ({
+        id: assessment.id,
+        title: assessment.title,
+        dueLabel: new Date(assessment.dueDate).toLocaleDateString(),
+      })),
+      missedWork: [
+        { id: 'missed-1', title: 'Quadratics review reflection', status: 'Overdue' },
+      ],
+      teacherMessagesPreview: [
+        { id: 'preview-1', sender: 'Maya Thompson', text: 'A short quadratics review tonight would help lock in the last session.' },
+      ],
     },
     {
       student: mockSecondStudent,
@@ -829,6 +1150,34 @@ export function buildParentChildProfiles(state?: DemoStudentState): DemoParentCh
         { day: 'Wed', minutes: 30 },
         { day: 'Thu', minutes: 15 },
         { day: 'Fri', minutes: 25 },
+      ],
+      digest: {
+        summary: 'Mia is staying engaged, but one overdue review task is keeping progress flatter than it should be.',
+        attendanceTone: 'Moderate activity with inconsistent follow-through on weak-topic cleanup.',
+      },
+      changes: [
+        {
+          id: 'change-3',
+          title: 'Overdue review still open',
+          description: 'The quadratics review task has not been completed yet.',
+          tone: 'warning',
+        },
+      ],
+      supportTips: [
+        {
+          id: 'tip-3',
+          title: 'Clear one overdue task first',
+          description: 'Have Mia finish the open review item before starting new work so momentum resets cleanly.',
+        },
+      ],
+      upcomingAssessments: [
+        { id: 'assessment-child-2', title: 'Functions readiness checkpoint', dueLabel: '03/29/2026' },
+      ],
+      missedWork: [
+        { id: 'missed-2', title: 'Quadratics revision queue', status: 'Overdue' },
+      ],
+      teacherMessagesPreview: [
+        { id: 'preview-2', sender: 'Maya Thompson', text: 'Mia is close to stable progress once the overdue quadratics review is cleared.' },
       ],
     },
   ];
@@ -925,6 +1274,12 @@ export function createInitialTeacherManagementState() {
         ],
       },
     ] satisfies DemoMessageThread[],
+    templates: mockTeacherAssignmentTemplates.map((item) => ({ ...item })),
+    submissions: mockTeacherSubmissions.map((item) => ({ ...item })),
+    reviewQueue: mockTeacherReviewQueue.map((item) => ({ ...item })),
+    notes: mockTeacherNotes.map((item) => ({ ...item })),
+    deadlines: mockTeacherDeadlines.map((item) => ({ ...item })),
+    contactRequests: mockTeacherContactRequests.map((item) => ({ ...item })),
   };
 }
 
