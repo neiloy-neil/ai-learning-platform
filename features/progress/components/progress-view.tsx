@@ -1,8 +1,12 @@
 'use client';
 
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
+import { appRoutes } from '@/lib/app-routes';
 
 function BarChart({ data }: { data: { conceptId: string; conceptName: string; mastery: number }[] }) {
   return (
@@ -21,9 +25,11 @@ function BarChart({ data }: { data: { conceptId: string; conceptName: string; ma
 }
 
 export default function ProgressView() {
-  const { progressData, state } = useDemoData();
+  const { progressData, state, generatedQuizzes, generatedQuizAssessments, latestStudyPlan } = useDemoData();
   const totalMinutes = state.attempts.length * 12;
   const revisionCount = state.attempts.filter((attempt) => attempt.mode === 'revision').length;
+  const latestAiQuiz = generatedQuizzes[0];
+  const latestAiAssessment = latestAiQuiz ? generatedQuizAssessments[latestAiQuiz.id] : null;
 
   return (
     <div className="space-y-8">
@@ -70,6 +76,63 @@ export default function ProgressView() {
           <BarChart data={progressData} />
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>AI Quiz Signal</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestAiQuiz && latestAiAssessment ? (
+              <>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold">{latestAiQuiz.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {latestAiAssessment.score}% score with next concepts: {latestAiAssessment.nextConcepts.join(', ')}.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold">Study advice</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{latestAiAssessment.studyAdvice}</p>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Generate and assess an AI quiz from the AI Tutor page to surface a concept-specific progress signal here.
+              </div>
+            )}
+            <Button asChild className="w-full" variant="secondary">
+              <Link href={appRoutes.student.aiTutor}>Open AI Tutor</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Study Plan Tie-In</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestStudyPlan ? (
+              latestStudyPlan.tasks.slice(0, 3).map((task) => (
+                <div className="rounded-2xl border border-border/70 p-4" key={task.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold">{task.title}</p>
+                    <span className="text-sm font-semibold text-primary">{task.minutes} min</span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{task.reason}</p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Generate a study plan to connect today&apos;s progress signals to a concrete next-session schedule.
+              </div>
+            )}
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.studyPlan}>Open study plan</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card glass>
         <CardHeader>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { appRoutes } from "@/lib/app-routes";
 import type { DashboardRecommendation } from "@/lib/mocks";
 
 type RecommendedActionProps = {
@@ -25,9 +26,14 @@ export default function RecommendedAction({ recommendation }: RecommendedActionP
           <p className="text-sm leading-6 text-muted-foreground">{recommendation.reason}</p>
           <p className="mt-3 text-xl font-semibold text-foreground">{recommendation.nextConceptName}</p>
         </div>
-        <Button asChild className="w-full">
-          <Link href={recommendation.href}>{recommendation.ctaLabel}</Link>
-        </Button>
+        <div className="flex flex-col gap-3">
+          <Button asChild className="w-full">
+            <Link href={recommendation.href}>{recommendation.ctaLabel}</Link>
+          </Button>
+          <Button asChild className="w-full" variant="secondary">
+            <Link href={appRoutes.student.aiTutor}>Ask AI why this is next</Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

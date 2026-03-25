@@ -293,9 +293,31 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         mode: 'ai-quiz',
       };
     });
+    const studyPlanSchedule = aiState.studyPlans[0]
+      ? aiState.studyPlans[0].tasks.slice(0, 3).map((task) => ({
+          id: `schedule-${task.id}`,
+          label: task.title,
+          timeLabel: `${task.minutes} min`,
+          type:
+            task.type === 'reflection'
+              ? ('coaching' as const)
+              : task.type,
+        }))
+      : [];
+    const quizReviewSchedule = aiQuizHistory[0]
+      ? [
+          {
+            id: `schedule-quiz-${aiQuizHistory[0].id}`,
+            label: `Review ${aiQuizHistory[0].title}`,
+            timeLabel: 'AI recap',
+            type: 'assessment' as const,
+          },
+        ]
+      : [];
     const dashboardData = {
       ...baseDashboardData,
       recentQuizHistory: [...aiQuizHistory, ...buildQuizHistory(state)].slice(0, 5),
+      todayPlan: [...studyPlanSchedule, ...quizReviewSchedule, ...baseDashboardData.todayPlan].slice(0, 4),
     };
     const progressData = buildProgressData(state.mastery, state.attempts);
     const learningPath = buildLearningPath(state.mastery);

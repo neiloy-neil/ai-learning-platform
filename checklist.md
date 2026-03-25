@@ -30,6 +30,7 @@ Status legend:
 - [x] Student revision queue page and dashboard surfacing
 - [x] Student AI study-plan generator and dashboard surfacing
 - [x] AI quiz generation and assessment placeholder flow
+- [x] AI quiz and study-plan signals surfaced in progress, assessments, and dashboard scheduling
 
 ### Teacher Product
 
@@ -41,6 +42,7 @@ Status legend:
 - [x] Expanded teacher navigation: classes, assignments, review, analytics, AI tools
 - [x] Teacher dashboard densified with watchlist, templates, heatmap, submissions, deadlines, and contact requests
 - [x] Teacher AI tools placeholder page and generated artifacts
+- [x] Teacher student-detail workspace upgraded into a denser intervention console
 
 ### Parent Product
 
