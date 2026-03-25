@@ -7,17 +7,17 @@ export type Highlight = {
 export const homeHighlights: Highlight[] = [
   {
     eyebrow: "Student",
-    title: "Practice, assessments, and mastery",
-    description: "Demo-ready learning flows connect question sessions to updated mastery, goals, reminders, and progress views.",
+    title: "Practice, assessments, and study support",
+    description: "Students can move through practice sessions, assessments, revision, learning paths, goals, and AI Tutor guidance from one connected experience.",
   },
   {
     eyebrow: "Teacher",
-    title: "Class risk and intervention visibility",
-    description: "Teacher dashboards surface weak concepts, assignment summaries, and student drill-downs from one shared mock dataset.",
+    title: "Class oversight and intervention workflows",
+    description: "Teachers can review class performance, identify weak concepts, assign support work, and follow up through a dedicated dashboard.",
   },
   {
     eyebrow: "Parent",
-    title: "Clear progress and alerts",
-    description: "Parent-facing reporting keeps strengths, weak spots, and support signals easy to understand without analytics jargon.",
+    title: "Progress visibility and family engagement",
+    description: "Parents receive clear progress updates, alerts, reports, and practical support tips to stay involved in the learning journey.",
   },
 ];

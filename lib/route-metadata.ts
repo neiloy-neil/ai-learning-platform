@@ -10,7 +10,7 @@ export const metadataMap: Record<string, RouteMetadata> = {
   },
   '/student/ai-tutor': {
     title: 'AI Tutor',
-    subtitle: 'Ask for explanations, hints, quizzes, and next-step guidance powered by deterministic demo AI.',
+    subtitle: 'Ask for explanations, hints, quizzes, and next-step guidance tailored to your learning.',
   },
   '/student/goals': {
     title: 'My Goals',
@@ -134,3 +134,4 @@ const segmentLabelMap: Record<string, string> = {
 export function getRouteSegmentLabel(segment: string): string {
   return segmentLabelMap[segment] || segment.replace(/-/g, ' ').replace(/\b\w/g, (match) => match.toUpperCase());
 }
+

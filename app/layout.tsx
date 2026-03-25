@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Learning Platform",
-  description: "A modern AI education frontend built with Next.js, TypeScript, and Tailwind CSS.",
+  title: "AI Learning Platform for Students, Teachers, and Parents",
+  description: "A role-based learning platform for students, teachers, and parents with personalized study support, assessments, progress tracking, and family engagement tools.",
 };
 
 export default function RootLayout({
@@ -27,3 +27,4 @@ export default function RootLayout({
     </html>
   );
 }
+
