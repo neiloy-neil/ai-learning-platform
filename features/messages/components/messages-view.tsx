@@ -50,6 +50,9 @@ export default function MessagesView({ role }: MessagesViewProps) {
   const linkedContactRequests = selectedThread
     ? teacherState.contactRequests.filter((request) => request.studentId === selectedThread.studentId).slice(0, 2)
     : [];
+  const linkedStudentNotes = selectedThread
+    ? teacherState.notes.filter((note) => note.studentId === selectedThread.studentId).slice(0, 2)
+    : [];
 
   function handleSend() {
     const text = draft.trim();
@@ -204,6 +207,21 @@ export default function MessagesView({ role }: MessagesViewProps) {
                       )}
                     </div>
                   </div>
+                  <div className="rounded-2xl border border-border/70 p-4">
+                    <p className="font-semibold">Teacher notes</p>
+                    <div className="mt-3 space-y-3">
+                      {linkedStudentNotes.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No teacher notes attached to this learner yet.</p>
+                      ) : (
+                        linkedStudentNotes.map((note) => (
+                          <div key={note.id}>
+                            <p className="text-sm font-semibold">{note.createdAtLabel}</p>
+                            <p className="text-sm text-muted-foreground">{note.text}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </>
               ) : (
                 <EmptyStatePanel
@@ -230,6 +248,17 @@ export default function MessagesView({ role }: MessagesViewProps) {
                         </p>
                       ))
                     )}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold">Upcoming work</p>
+                  <div className="mt-3 space-y-3">
+                    {selectedParentProfile.upcomingAssessments.slice(0, 2).map((assessment) => (
+                      <div key={assessment.id}>
+                        <p className="text-sm font-semibold">{assessment.title}</p>
+                        <p className="text-sm text-muted-foreground">Due {assessment.dueLabel}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">

@@ -495,6 +495,24 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
             },
             ...current.nudges,
           ],
+          threads: current.threads.map((thread) => {
+            if (thread.studentId !== input.studentId || thread.participantRole !== input.audience) {
+              return thread;
+            }
+
+            return {
+              ...thread,
+              messages: [
+                ...thread.messages,
+                {
+                  id: `message-${thread.messages.length + 1}-${Date.now()}`,
+                  senderRole: 'teacher',
+                  text: input.message,
+                  sentAt: new Date().toISOString(),
+                },
+              ],
+            };
+          }),
         }));
 
         setState((current) => ({
@@ -543,6 +561,46 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
             },
             ...current.contactRequests,
           ],
+          threads: current.threads.some(
+            (thread) => thread.studentId === input.studentId && thread.participantRole === 'parent',
+          )
+            ? current.threads.map((thread) => {
+                if (thread.studentId !== input.studentId || thread.participantRole !== 'parent') {
+                  return thread;
+                }
+
+                return {
+                  ...thread,
+                  topic,
+                  messages: [
+                    ...thread.messages,
+                    {
+                      id: `message-${thread.messages.length + 1}-${Date.now()}`,
+                      senderRole: 'parent',
+                      text: topic,
+                      sentAt: new Date().toISOString(),
+                    },
+                  ],
+                };
+              })
+            : [
+                {
+                  id: `thread-parent-${input.studentId}`,
+                  studentId: input.studentId,
+                  participantRole: 'parent',
+                  participantName: demoUsers.parent.name,
+                  topic,
+                  messages: [
+                    {
+                      id: `message-1-${Date.now()}`,
+                      senderRole: 'parent',
+                      text: topic,
+                      sentAt: new Date().toISOString(),
+                    },
+                  ],
+                },
+                ...current.threads,
+              ],
         }));
 
         setState((current) => ({
@@ -698,6 +756,23 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
           ...current,
           studyPlans: [plan, ...current.studyPlans.filter((item) => item.id !== plan.id)],
         }));
+        setState((current) => ({
+          ...current,
+          activities: [
+            { id: `activity-${Date.now()}`, text: `AI built a ${availableMinutes}-minute study plan`, timeLabel: 'Just now' },
+            ...current.activities.slice(0, 4),
+          ],
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.student.id,
+              text: `Your AI study plan is ready with a focus on ${recommendation.nextConceptName}.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
+        }));
         return plan;
       },
       generateTeacherArtifact: (input) => {
@@ -705,6 +780,19 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         setAiState((current) => ({
           ...current,
           teacherArtifacts: [artifact, ...current.teacherArtifacts.filter((item) => item.id !== artifact.id)],
+        }));
+        setState((current) => ({
+          ...current,
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.teacher.id,
+              text: `AI prepared ${artifact.title} for ${input.className}.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
         }));
         return artifact;
       },
@@ -721,6 +809,19 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
             ...current.parentSupportMessages,
             [studentId]: support,
           },
+        }));
+        setState((current) => ({
+          ...current,
+          notifications: [
+            {
+              id: `notification-${current.notifications.length + 1}`,
+              userId: demoUsers.parent.id,
+              text: `AI refreshed the at-home support plan for ${profile.student.name}.`,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...current.notifications,
+          ],
         }));
         return support;
       },

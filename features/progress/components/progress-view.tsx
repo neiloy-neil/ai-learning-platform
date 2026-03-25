@@ -31,6 +31,31 @@ export default function ProgressView() {
   const latestAiQuiz = generatedQuizzes[0];
   const latestAiAssessment = latestAiQuiz ? generatedQuizAssessments[latestAiQuiz.id] : null;
   const reviewedAssessments = assessments.filter((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed').slice(0, 2);
+  const coachingTimeline = [
+    latestAiAssessment
+      ? {
+          id: 'coaching-ai-quiz',
+          title: `AI quiz reviewed: ${latestAiQuiz?.title ?? 'AI Quiz'}`,
+          description: latestAiAssessment.studyAdvice,
+        }
+      : null,
+    latestStudyPlan
+      ? {
+          id: 'coaching-plan',
+          title: latestStudyPlan.title,
+          description: latestStudyPlan.rationale,
+        }
+      : null,
+    ...reviewedAssessments.map((assessment) => ({
+      id: `coaching-assessment-${assessment.id}`,
+      title: `${assessment.title} coaching`,
+      description: `Score ${assessment.lastScore ?? 0}% with concept-level review and follow-up actions.`,
+    })),
+  ].filter(Boolean) as { id: string; title: string; description: string }[];
+  const recommendedFocus = progressData
+    .slice()
+    .sort((left, right) => left.mastery - right.mastery)
+    .slice(0, 3);
 
   return (
     <div className="space-y-8">
@@ -175,6 +200,53 @@ export default function ProgressView() {
                 <p className="mt-2 text-sm text-muted-foreground">{activity.timeLabel}</p>
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Coaching Timeline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {coachingTimeline.length > 0 ? (
+              coachingTimeline.map((item) => (
+                <div className="rounded-2xl border border-border/70 p-4" key={item.id}>
+                  <p className="font-semibold text-foreground">{item.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Coaching timeline entries will appear after AI quiz reviews, study plans, and assessment feedback are generated.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Priority Focus Rail</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recommendedFocus.map((item) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={item.conceptId}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold text-foreground">{item.conceptName}</p>
+                  <span className="text-sm font-semibold text-primary">{item.mastery}%</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{item.rationale}</p>
+              </div>
+            ))}
+            <div className="flex flex-col gap-3 md:flex-row">
+              <Button asChild className="md:flex-1" variant="secondary">
+                <Link href={appRoutes.student.aiTutor}>Ask AI for the next move</Link>
+              </Button>
+              <Button asChild className="md:flex-1" variant="ghost">
+                <Link href={appRoutes.student.revision}>Open revision queue</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

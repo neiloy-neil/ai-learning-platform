@@ -19,6 +19,7 @@ export default function AiTutorView() {
     generatedQuizzes,
     generatedQuizAssessments,
     latestStudyPlan,
+    state,
     sendAiTutorPrompt,
     generateQuiz,
     assessGeneratedQuiz,
@@ -39,6 +40,7 @@ export default function AiTutorView() {
   const activeAssessmentBreakdown = latestReviewedAssessment
     ? `Review ${latestReviewedAssessment.title} and then reinforce ${latestReviewedAssessment.conceptIds[0] ?? selectedConcept.id}.`
     : 'No reviewed assessment yet. Use a quiz or checkpoint first.';
+  const latestActivities = state.activities.slice(0, 3);
 
   const quickPrompts = [
     'Explain this concept',
@@ -364,6 +366,71 @@ export default function AiTutorView() {
           </CardContent>
         </Card>
       ) : null}
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>AI Artifact Output</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Current concept briefing</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {selectedConcept.name} is being prioritized because it links directly to the next mastery bottleneck and upcoming assessment readiness.
+              </p>
+            </div>
+            {latestStudyPlan ? (
+              <div className="rounded-2xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">{latestStudyPlan.title}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{latestStudyPlan.rationale}</p>
+              </div>
+            ) : null}
+            {activeQuizAssessment ? (
+              <div className="rounded-2xl border border-border/70 p-4">
+                <p className="font-semibold text-foreground">Quiz coaching artifact</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Focus next on {activeQuizAssessment.nextConcepts.join(', ')}. {activeQuizAssessment.studyAdvice}
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Generate and assess a quiz to create a stronger AI coaching artifact here.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Coaching Trace</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestActivities.map((activity) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={activity.id}>
+                <p className="font-semibold text-foreground">{activity.text}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{activity.timeLabel}</p>
+              </div>
+            ))}
+            <div className="flex flex-col gap-3 md:flex-row">
+              <Button className="md:flex-1" onClick={() => generateStudyPlan(45)} variant="secondary">
+                Rebuild as 45-minute plan
+              </Button>
+              <Button
+                className="md:flex-1"
+                onClick={() =>
+                  sendAiTutorPrompt({
+                    prompt: 'Recommend my next step',
+                    conceptName: selectedConcept.name,
+                  })
+                }
+                variant="ghost"
+              >
+                Refresh next-step coaching
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

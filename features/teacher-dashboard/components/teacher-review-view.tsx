@@ -11,6 +11,7 @@ import { appRoutes, getTeacherStudentRoute } from '@/lib/app-routes';
 export default function TeacherReviewView() {
   const { teacherState, createAssignmentFromTemplate, sendTeacherNudge, generateTeacherArtifact } = useDemoData();
   const defaultTemplate = teacherState.templates[0];
+  const latestParentSummary = teacherState.contactRequests[0];
 
   return (
     <div className="space-y-8">
@@ -65,6 +66,21 @@ export default function TeacherReviewView() {
                     variant="ghost"
                   >
                     Send student nudge
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      generateTeacherArtifact({
+                        tool: 'remediation-set',
+                        focus: item.title,
+                        className:
+                          teacherState.classes.find((teacherClass) => teacherClass.studentIds.includes(item.studentId))
+                            ?.name ?? 'Current class',
+                      })
+                    }
+                    size="sm"
+                    variant="ghost"
+                  >
+                    Generate remediation set
                   </Button>
                 </div>
               </div>
@@ -133,9 +149,96 @@ export default function TeacherReviewView() {
                     >
                       Generate parent summary
                     </Button>
+                    <Button
+                      onClick={() =>
+                        sendTeacherNudge({
+                          studentId: request.studentId,
+                          audience: 'parent',
+                          message: `We received your request about "${request.topic}" and queued a focused follow-up plan.`,
+                          category: 'Follow-up',
+                        })
+                      }
+                      size="sm"
+                      variant="ghost"
+                    >
+                      Send parent update
+                    </Button>
                   </div>
                 </div>
               ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Intervention Playbook</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Immediate</p>
+              <p className="mt-3 font-semibold text-foreground">Clear the high-priority review queue first</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Pair each high-risk item with one template assignment and one direct student nudge.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Family Loop</p>
+              <p className="mt-3 font-semibold text-foreground">Turn parent requests into documented updates</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Reply in-thread, attach a parent summary, and keep the message trail tied to the learner workspace.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">AI Assist</p>
+              <p className="mt-3 font-semibold text-foreground">Generate the next artifact instead of starting from blank</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use AI-generated remediation sets and summaries to keep response time low during review blocks.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Latest Family Summary Signal</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestParentSummary ? (
+              <>
+                <div className="rounded-3xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">{latestParentSummary.parentName}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{latestParentSummary.topic}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                    Requested {latestParentSummary.requestedAtLabel}
+                  </p>
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={() =>
+                    generateTeacherArtifact({
+                      tool: 'parent-summary',
+                      focus: latestParentSummary.topic,
+                      className:
+                        teacherState.classes.find((teacherClass) =>
+                          teacherClass.studentIds.includes(latestParentSummary.studentId),
+                        )?.name ?? 'Current class',
+                    })
+                  }
+                  variant="secondary"
+                >
+                  Refresh AI family summary
+                </Button>
+                <Button asChild className="w-full" variant="ghost">
+                  <Link href={appRoutes.teacher.messages}>Open message follow-up</Link>
+                </Button>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Parent-generated summaries will appear here once a follow-up request enters the review desk.
+              </div>
             )}
           </CardContent>
         </Card>

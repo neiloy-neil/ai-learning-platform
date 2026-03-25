@@ -39,6 +39,9 @@ Status legend:
 - [x] AI Tutor upgraded with guided workflow actions and coaching outputs
 - [x] Teacher review queue now supports direct intervention actions
 - [x] Progress page now includes coaching history and recent coaching signals
+- [x] Teacher-parent follow-up actions now sync across alerts, review, and messaging
+- [x] AI Tutor now surfaces stronger artifact/coaching output panels
+- [x] Student progress now includes a coaching timeline and priority focus rail
 
 ### Teacher Product
 
@@ -70,6 +73,8 @@ Status legend:
 - [x] Messaging surfaces upgraded with role-aware follow-up context and cross-links
 - [x] Parent alert flow can create teacher follow-up requests in shared demo state
 - [x] Teacher review workflow now exposes parent follow-up requests and direct cross-links
+- [x] Parent follow-up requests now seed/update parent message threads
+- [x] Teacher nudges now flow into linked teacher-parent or teacher-student threads
 
 ### UX and Cleanup
 
