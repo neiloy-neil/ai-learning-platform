@@ -6,6 +6,7 @@ import {
   buildAssessmentResult,
   buildDashboardData,
   buildLearningPath,
+  buildParentChildProfiles,
   buildProgressData,
   completePracticeSession,
   createInitialStudentState,
@@ -28,6 +29,7 @@ import type { Assignment, Notification } from '@/lib/pcdc-types';
 
 const storageKey = 'demoStudentState';
 const teacherStorageKey = 'demoTeacherManagementState';
+const parentSelectionStorageKey = 'demoParentSelectedStudentId';
 
 type DemoTeacherManagementState = {
   classes: DemoTeacherClass[];
@@ -44,6 +46,9 @@ type DemoDataContextType = {
   learningPath: ReturnType<typeof buildLearningPath>;
   goals: DemoGoal[];
   assessments: ReturnType<typeof getAssessments>;
+  parentProfiles: ReturnType<typeof buildParentChildProfiles>;
+  selectedParentStudentId: string;
+  selectParentStudent: (studentId: string) => void;
   getNotifications: (userId?: string) => Notification[];
   markNotificationRead: (notificationId: string) => void;
   archiveNotification: (notificationId: string) => void;
@@ -93,6 +98,7 @@ function reviveTeacherState(raw: string): DemoTeacherManagementState {
 export function DemoDataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DemoStudentState>(createInitialStudentState());
   const [teacherState, setTeacherState] = useState<DemoTeacherManagementState>(createInitialTeacherManagementState());
+  const [selectedParentStudentId, setSelectedParentStudentId] = useState(demoUsers.student.id);
 
   useEffect(() => {
     const storedValue = localStorage.getItem(storageKey);
@@ -104,6 +110,11 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
     if (storedTeacherState) {
       setTeacherState(reviveTeacherState(storedTeacherState));
     }
+
+    const storedParentStudentId = localStorage.getItem(parentSelectionStorageKey);
+    if (storedParentStudentId) {
+      setSelectedParentStudentId(storedParentStudentId);
+    }
   }, []);
 
   useEffect(() => {
@@ -114,11 +125,16 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(teacherStorageKey, JSON.stringify(teacherState));
   }, [teacherState]);
 
+  useEffect(() => {
+    localStorage.setItem(parentSelectionStorageKey, selectedParentStudentId);
+  }, [selectedParentStudentId]);
+
   const value = useMemo<DemoDataContextType>(() => {
     const dashboardData = buildDashboardData(state);
     const progressData = buildProgressData(state.mastery, state.attempts);
     const learningPath = buildLearningPath(state.mastery);
     const assessments = getAssessments(state);
+    const parentProfiles = buildParentChildProfiles(state);
 
     return {
       state,
@@ -128,6 +144,9 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
       learningPath,
       goals: state.goals,
       assessments,
+      parentProfiles,
+      selectedParentStudentId,
+      selectParentStudent: setSelectedParentStudentId,
       getNotifications: (userId) => getNotificationsForUserFromState(state.notifications, userId),
       markNotificationRead: (notificationId) => {
         setState((current) => ({
@@ -296,7 +315,7 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
         }));
       },
     };
-  }, [state, teacherState]);
+  }, [selectedParentStudentId, state, teacherState]);
 
   return <DemoDataContext.Provider value={value}>{children}</DemoDataContext.Provider>;
 }

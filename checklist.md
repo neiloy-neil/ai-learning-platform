@@ -37,7 +37,7 @@ Status legend:
 
 - [x] Parent dashboard aligned with shared demo data
 - [x] Parent alerts backed by shared mock source
-- [ ] Parent child switching
+- [x] Parent child switching
 - [x] Printable/shareable report flow
 
 ## Notifications and Messaging
@@ -62,6 +62,6 @@ Status legend:
 
 ## Next Up
 
-1. Add parent child switching with linked-child demo state support.
-2. Add messaging threads for teacher-student and teacher-parent demo flows.
-3. Add test coverage for demo auth, dashboards, and mastery/recommendation logic.
+1. Add messaging threads for teacher-student and teacher-parent demo flows.
+2. Add test coverage for demo auth, dashboards, and mastery/recommendation logic.
+3. Revisit product identity and route cleanup only if any legacy path still leaks into the demo flow.

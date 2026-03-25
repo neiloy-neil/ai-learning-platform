@@ -117,6 +117,19 @@ export type DemoStudentState = {
   notifications: Notification[];
 };
 
+export type ParentWeeklyActivity = {
+  day: string;
+  minutes: number;
+};
+
+export type DemoParentChildProfile = {
+  student: User;
+  mastery: ConceptMastery[];
+  goals: DemoGoal[];
+  alerts: ParentAlert[];
+  weeklyActivity: ParentWeeklyActivity[];
+};
+
 export type DemoAssessmentResult = {
   assessment: DemoAssessment;
   score: number;
@@ -132,7 +145,7 @@ const progressThreshold = 60;
 export const demoUsers: Record<DemoUserKey, User> = {
   student: { id: 'student-1', name: 'Alex Carter', email: 'alex@example.com', role: UserRole.STUDENT },
   teacher: { id: 'teacher-1', name: 'Maya Thompson', email: 'maya@example.com', role: UserRole.TEACHER },
-  parent: { id: 'parent-1', name: 'Jordan Carter', email: 'jordan@example.com', role: UserRole.PARENT, studentIds: ['student-1'] },
+  parent: { id: 'parent-1', name: 'Jordan Carter', email: 'jordan@example.com', role: UserRole.PARENT, studentIds: ['student-1', 'student-2'] },
 };
 
 export const mockUsers = demoUsers;
@@ -420,6 +433,36 @@ export const mockParentAlerts: ParentAlert[] = [
     message: 'A weekly quiz is due soon and should be completed before Friday.',
     type: 'missed_assessment',
     createdAt: new Date(currentYear, 2, 24, 20, 15),
+  },
+];
+
+const mockSecondStudent: User = {
+  id: 'student-2',
+  name: 'Mia Carter',
+  email: 'mia@example.com',
+  role: UserRole.STUDENT,
+};
+
+const mockSecondStudentMastery: ConceptMastery[] = [
+  { id: 'mastery-6', studentId: mockSecondStudent.id, conceptId: 'linear-equations', masteryScore: 88, lastUpdated: new Date(currentYear, 2, 19) },
+  { id: 'mastery-7', studentId: mockSecondStudent.id, conceptId: 'graphing-inequalities', masteryScore: 72, lastUpdated: new Date(currentYear, 2, 20) },
+  { id: 'mastery-8', studentId: mockSecondStudent.id, conceptId: 'polynomials', masteryScore: 64, lastUpdated: new Date(currentYear, 2, 18) },
+  { id: 'mastery-9', studentId: mockSecondStudent.id, conceptId: 'quadratics', masteryScore: 58, lastUpdated: new Date(currentYear, 2, 18) },
+  { id: 'mastery-10', studentId: mockSecondStudent.id, conceptId: 'calculus-intro', masteryScore: 12, lastUpdated: new Date(currentYear, 2, 15) },
+];
+
+const mockSecondStudentGoals: DemoGoal[] = [
+  { id: 'goal-4', text: 'Complete three practice sessions this week', progress: 67, metric: 'time', status: 'active' },
+  { id: 'goal-5', text: 'Bring quadratics above 60%', progress: 58, metric: 'concepts', status: 'active' },
+];
+
+const mockSecondStudentAlerts: ParentAlert[] = [
+  {
+    id: 'parent-alert-3',
+    studentId: mockSecondStudent.id,
+    message: 'Mia has one overdue review task in quadratics that should be cleared this week.',
+    type: 'missed_assessment',
+    createdAt: new Date(currentYear, 2, 25, 12, 0),
   },
 ];
 
@@ -740,6 +783,39 @@ export function getParentDashboardData(state?: DemoStudentState) {
     strengths: mastery.filter((item) => item.masteryScore >= strongThreshold),
     weaknesses: mastery.filter((item) => item.masteryScore < progressThreshold),
   };
+}
+
+export function buildParentChildProfiles(state?: DemoStudentState): DemoParentChildProfile[] {
+  const source = state ?? createInitialStudentState();
+
+  return [
+    {
+      student: demoUsers.student,
+      mastery: source.mastery,
+      goals: source.goals,
+      alerts: mockParentAlerts.filter((alert) => alert.studentId === demoUsers.student.id),
+      weeklyActivity: [
+        { day: 'Mon', minutes: 30 },
+        { day: 'Tue', minutes: 45 },
+        { day: 'Wed', minutes: 25 },
+        { day: 'Thu', minutes: 50 },
+        { day: 'Fri', minutes: 40 },
+      ],
+    },
+    {
+      student: mockSecondStudent,
+      mastery: mockSecondStudentMastery.map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) })),
+      goals: mockSecondStudentGoals.map((item) => ({ ...item })),
+      alerts: mockSecondStudentAlerts.map((item) => ({ ...item, createdAt: new Date(item.createdAt) })),
+      weeklyActivity: [
+        { day: 'Mon', minutes: 20 },
+        { day: 'Tue', minutes: 35 },
+        { day: 'Wed', minutes: 30 },
+        { day: 'Thu', minutes: 15 },
+        { day: 'Fri', minutes: 25 },
+      ],
+    },
+  ];
 }
 
 export function getTeacherDashboardData() {
