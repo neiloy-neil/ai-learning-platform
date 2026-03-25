@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import PageHeader from '@/components/layout/page-header';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
 import { getTeacherAssignments, getTeacherDashboardData } from '@/lib/mocks';
+import type { Assignment } from '@/lib/pcdc-types';
 
 const statusTone: Record<string, string> = {
   Strong: 'bg-success/20 text-success',
@@ -35,7 +36,7 @@ export default function TeacherDashboardView() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   const { classStats, weakConcepts, students } = getTeacherDashboardData();
-  const assignments = getTeacherAssignments();
+  const assignments: Assignment[] = getTeacherAssignments();
 
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
@@ -128,7 +129,7 @@ export default function TeacherDashboardView() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {assignments.map((assignment) => (
+            {assignments.map((assignment: Assignment) => (
               <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
             ))}
           </div>

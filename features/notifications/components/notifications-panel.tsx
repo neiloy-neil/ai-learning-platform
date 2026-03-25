@@ -7,10 +7,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from '@/lib/cn';
 import { useAuth } from '@/features/auth/components/auth-provider';
 import { getNotificationsForUser } from '@/lib/mocks';
+import type { Notification } from '@/lib/pcdc-types';
 
 export default function NotificationsPanel() {
   const { user } = useAuth();
-  const notifications = useMemo(() => getNotificationsForUser(user?.id), [user?.id]);
+  const notifications: Notification[] = useMemo(() => getNotificationsForUser(user?.id), [user?.id]);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   return (

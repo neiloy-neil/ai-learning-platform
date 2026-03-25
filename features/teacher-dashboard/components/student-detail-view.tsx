@@ -5,10 +5,13 @@ import MasteryOverview from '@/features/student-dashboard/components/mastery-ove
 import RecentActivity from '@/features/student-dashboard/components/recent-activity';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { getTeacherAssignments } from '@/lib/mocks';
+import type { Assignment } from '@/lib/pcdc-types';
 
 export default function StudentDetailView({ studentId }: { studentId: string }) {
   const { dashboardData, progressData, goals } = useDemoData();
-  const assignments = getTeacherAssignments().filter((assignment) => assignment.assignedToStudentId === studentId || assignment.assignedToStudentId === 'student-a');
+  const assignments: Assignment[] = getTeacherAssignments().filter(
+    (assignment: Assignment) => assignment.assignedToStudentId === studentId || assignment.assignedToStudentId === 'student-a',
+  );
 
   return (
     <div className="space-y-8">
@@ -50,7 +53,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
           <CardTitle>Assignments and Interventions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {assignments.map((assignment) => (
+          {assignments.map((assignment: Assignment) => (
             <div className="rounded-2xl border border-border/70 p-4" key={assignment.id}>
               <div className="flex items-center justify-between gap-3">
                 <p className="font-semibold">{assignment.title}</p>

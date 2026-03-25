@@ -305,6 +305,78 @@ export const mockTeacherStudents = [
   { id: 'student-d', name: 'David', avgScore: 81, status: 'Good' as const },
 ];
 
+export const mockTeacherAssignments: Assignment[] = [
+  {
+    id: 'assignment-1',
+    title: 'Quadratics Rescue Set',
+    description: 'Targeted remediation for students below 60% mastery in factorization.',
+    assignedDate: new Date(currentYear, 2, 24),
+    dueDate: new Date(currentYear, 2, 29),
+    status: 'Assigned',
+    assignedToStudentId: 'student-c',
+  },
+  {
+    id: 'assignment-2',
+    title: 'Polynomial Confidence Check',
+    description: 'Short graded checkpoint to verify readiness for the next module.',
+    assignedDate: new Date(currentYear, 2, 22),
+    dueDate: new Date(currentYear, 2, 27),
+    status: 'Submitted',
+    assignedToStudentId: 'student-b',
+  },
+  {
+    id: 'assignment-3',
+    title: 'Functions Readiness Review',
+    description: 'Teacher-reviewed assessment for students approaching the calculus pathway.',
+    assignedDate: new Date(currentYear, 2, 18),
+    dueDate: new Date(currentYear, 2, 23),
+    status: 'Graded',
+    assignedToStudentId: 'student-a',
+    score: 88,
+  },
+];
+
+export const mockNotifications: Notification[] = [
+  {
+    id: 'notification-1',
+    userId: demoUsers.student.id,
+    text: 'Your quadratics recommendation was refreshed after the latest practice session.',
+    read: false,
+    createdAt: new Date(currentYear, 2, 25, 9, 0),
+  },
+  {
+    id: 'notification-2',
+    userId: demoUsers.teacher.id,
+    text: 'Three students are now flagged for targeted intervention in quadratics.',
+    read: false,
+    createdAt: new Date(currentYear, 2, 25, 8, 30),
+  },
+  {
+    id: 'notification-3',
+    userId: demoUsers.parent.id,
+    text: 'Alex completed a recommended practice session and improved one mastery area.',
+    read: true,
+    createdAt: new Date(currentYear, 2, 24, 18, 0),
+  },
+];
+
+export const mockParentAlerts: ParentAlert[] = [
+  {
+    id: 'parent-alert-1',
+    studentId: demoUsers.student.id,
+    message: 'Quadratics mastery is still below readiness for the next milestone.',
+    type: 'grade_drop',
+    createdAt: new Date(currentYear, 2, 25, 7, 30),
+  },
+  {
+    id: 'parent-alert-2',
+    studentId: demoUsers.student.id,
+    message: 'A weekly quiz is due soon and should be completed before Friday.',
+    type: 'missed_assessment',
+    createdAt: new Date(currentYear, 2, 24, 20, 15),
+  },
+];
+
 export function createInitialStudentState(): DemoStudentState {
   return {
     mastery: initialMastery.map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) })),

@@ -5,6 +5,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import WeeklyActivityWidget from './weekly-activity-widget';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { demoUsers, getConceptName, getParentAlerts } from '@/lib/mocks';
+import type { ParentAlert } from '@/lib/pcdc-types';
 
 const weeklyActivity = [
   { day: 'Mon', minutes: 30 },
@@ -18,7 +19,7 @@ export default function ParentDashboardView() {
   const { state, goals } = useDemoData();
   const strengths = state.mastery.filter((item) => item.masteryScore >= 85);
   const weaknesses = state.mastery.filter((item) => item.masteryScore < 60);
-  const alerts = getParentAlerts();
+  const alerts: ParentAlert[] = getParentAlerts();
 
   return (
     <div className="space-y-8">
