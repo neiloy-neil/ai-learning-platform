@@ -14,6 +14,7 @@ import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
+import { getTeacherStudentRoute } from '@/lib/app-routes';
 import { mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
 
 const statusTone: Record<string, string> = {
@@ -319,7 +320,7 @@ export default function TeacherDashboardView() {
                     {filteredStudents.map((student) => (
                       <TableRow key={student.id}>
                         <TableCell className="font-semibold">
-                          <Link href={`/teacher/students/${student.id}`}>{student.name}</Link>
+                          <Link href={getTeacherStudentRoute(student.id)}>{student.name}</Link>
                         </TableCell>
                         <TableCell>
                           <Select value={student.classId} onValueChange={(value) => assignStudentToClass(student.id, value)}>

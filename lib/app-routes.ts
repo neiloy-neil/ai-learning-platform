@@ -32,6 +32,10 @@ export const appRoutes = {
   },
 } as const;
 
+export function getTeacherStudentRoute(studentId: string) {
+  return `${appRoutes.teacher.root}/students/${studentId}`;
+}
+
 export function getDefaultRouteForRole(role: UserRole) {
   switch (role) {
     case UserRole.STUDENT:

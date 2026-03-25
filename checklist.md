@@ -48,7 +48,7 @@ Status legend:
 
 ## UX and Cleanup
 
-- [~] Product identity and route consistency cleanup
+- [x] Product identity and route consistency cleanup
 - [x] Landing page rewritten for learning-product positioning
 - [x] Remove or consolidate remaining legacy layout/components
 - [x] Standardized loading/empty/error states across all major widgets
@@ -62,6 +62,6 @@ Status legend:
 
 ## Next Up
 
-1. Revisit product identity and route cleanup only if any legacy path still leaks into the demo flow.
+1. Decide whether any remaining enhancement ideas should be deferred explicitly for the post-demo production phase.
 2. Continue expanding role-specific demo depth only where it materially improves the client walkthrough.
-3. Decide whether any remaining checklist items should be deferred explicitly for the post-demo production phase.
+3. Keep production backend, auth hardening, and persistence work deferred until after client review.

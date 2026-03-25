@@ -47,6 +47,13 @@ export const metadataMap: Record<string, RouteMetadata> = {
 };
 
 export function getRouteMetadata(pathname: string): RouteMetadata {
+  if (pathname.startsWith('/teacher/students/')) {
+    return {
+      title: 'Student Workspace',
+      subtitle: 'Mastery trends, interventions, and follow-up actions for an individual learner.',
+    };
+  }
+
   return metadataMap[pathname] || { title: 'Dashboard', subtitle: 'Welcome to the platform.' };
 }
 
