@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { appRoutes } from '@/lib/app-routes';
+import { buildAssessmentResult } from '@/lib/mocks';
 
 const statusColors: Record<string, string> = {
   Reviewed: 'bg-success/20 text-success',
@@ -18,7 +19,7 @@ const statusColors: Record<string, string> = {
 
 export default function AssessmentListView() {
   const router = useRouter();
-  const { assessments, generatedQuizzes, generatedQuizAssessments } = useDemoData();
+  const { assessments, generatedQuizzes, generatedQuizAssessments, state } = useDemoData();
 
   return (
     <div className="space-y-8">
@@ -82,9 +83,23 @@ export default function AssessmentListView() {
                 <p>Due {new Date(assessment.dueDate).toLocaleDateString()}</p>
                 {assessment.lastScore !== undefined ? <p>Latest score: {assessment.lastScore}%</p> : null}
               </div>
-              <Button onClick={() => router.push(`${appRoutes.student.practice}?assessmentId=${assessment.id}`)}>
-                {assessment.status === 'In Progress' ? 'Resume' : assessment.status === 'Reviewed' ? 'Review' : 'Start'}
-              </Button>
+              {assessment.status === 'Reviewed' || assessment.status === 'Completed' ? (
+                <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+                  {buildAssessmentResult(assessment, state.attempts).conceptBreakdown.map((item) => (
+                    <p key={`${assessment.id}-${item.conceptId}`}>
+                      {item.conceptName}: {item.correct}/{item.total} correct
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+              <div className="flex flex-col gap-3">
+                <Button onClick={() => router.push(`${appRoutes.student.practice}?assessmentId=${assessment.id}`)}>
+                  {assessment.status === 'In Progress' ? 'Resume' : assessment.status === 'Reviewed' ? 'Review' : 'Start'}
+                </Button>
+                <Button asChild variant="secondary">
+                  <Link href={appRoutes.student.aiTutor}>Ask AI for assessment help</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

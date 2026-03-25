@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 import PageHeader from '@/components/layout/page-header';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
+import { appRoutes } from '@/lib/app-routes';
 
 export default function StudyPlanView() {
   const { latestStudyPlan, generateStudyPlan, dashboardData } = useDemoData();
@@ -40,37 +42,68 @@ export default function StudyPlanView() {
           </CardContent>
         </Card>
 
-        <Card glass>
-          <CardHeader>
-            <CardTitle>{latestStudyPlan?.title ?? 'No plan generated yet'}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {latestStudyPlan ? (
-              <>
-                <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
-                  {latestStudyPlan.rationale}
-                </div>
-                <div className="space-y-4">
-                  {latestStudyPlan.tasks.map((task) => (
-                    <div className="flex flex-col gap-4 rounded-3xl border border-border/70 p-4 md:flex-row md:items-start md:justify-between" key={task.id}>
-                      <div>
-                        <p className="font-semibold text-foreground">{task.title}</p>
-                        <p className="mt-2 text-sm text-muted-foreground">{task.reason}</p>
+        <div className="space-y-8">
+          <Card glass>
+            <CardHeader>
+              <CardTitle>{latestStudyPlan?.title ?? 'No plan generated yet'}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {latestStudyPlan ? (
+                <>
+                  <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+                    {latestStudyPlan.rationale}
+                  </div>
+                  <div className="space-y-4">
+                    {latestStudyPlan.tasks.map((task) => (
+                      <div className="flex flex-col gap-4 rounded-3xl border border-border/70 p-4 md:flex-row md:items-start md:justify-between" key={task.id}>
+                        <div>
+                          <p className="font-semibold text-foreground">{task.title}</p>
+                          <p className="mt-2 text-sm text-muted-foreground">{task.reason}</p>
+                        </div>
+                        <div className="shrink-0 rounded-2xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                          {task.minutes} min
+                        </div>
                       </div>
-                      <div className="shrink-0 rounded-2xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                        {task.minutes} min
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
+                  Generate a plan to see the AI placeholder break the next session into practice, revision, assessment prep, and reflection.
                 </div>
-              </>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
-                Generate a plan to see the AI placeholder break the next session into practice, revision, assessment prep, and reflection.
+              )}
+            </CardContent>
+          </Card>
+
+          <Card glass>
+            <CardHeader>
+              <CardTitle>Calendar Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {dashboardData.todayPlan.map((item, index) => (
+                <div className="flex items-start gap-4 rounded-3xl border border-border/70 p-4" key={item.id}>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-semibold text-primary">
+                    {index + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground">{item.label}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {item.timeLabel} · {item.type}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Button asChild className="md:flex-1" variant="secondary">
+                  <Link href={appRoutes.student.revision}>Open revision queue</Link>
+                </Button>
+                <Button asChild className="md:flex-1" variant="ghost">
+                  <Link href={appRoutes.student.aiTutor}>Ask AI to rebalance plan</Link>
+                </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

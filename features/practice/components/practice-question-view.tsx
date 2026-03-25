@@ -18,7 +18,7 @@ function PracticeQuestionCore() {
   const assessmentId = searchParams.get('assessmentId');
   const conceptId = searchParams.get('conceptId');
   const mode = searchParams.get('mode');
-  const { completeSession } = useDemoData();
+  const { completeSession, dashboardData, latestStudyPlan } = useDemoData();
 
   const session = getDemoPracticeTitle({ assessmentId, conceptId, mode });
   const questions = session.questions;
@@ -110,12 +110,35 @@ function PracticeQuestionCore() {
             )}
           </div>
 
+          <div className="grid gap-4 text-left md:grid-cols-2">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold">AI next-step explanation</p>
+              <p className="mt-2 text-sm text-muted-foreground">{dashboardData.recommendation.reason}</p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold">Plan connection</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {latestStudyPlan
+                  ? latestStudyPlan.tasks[0]?.title ?? 'A study plan is ready for the next session.'
+                  : 'Generate a study plan to turn this result into the next session schedule.'}
+              </p>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button className="flex-1" onClick={() => router.push(appRoutes.student.dashboard)}>
               Back to Dashboard
             </Button>
             <Button className="flex-1" variant="secondary" onClick={() => router.push(appRoutes.student.progress)}>
               View Progress
+            </Button>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="flex-1" variant="secondary">
+              <Link href={appRoutes.student.aiTutor}>Ask AI to review mistakes</Link>
+            </Button>
+            <Button asChild className="flex-1" variant="ghost">
+              <Link href={appRoutes.student.studyPlan}>Open study plan</Link>
             </Button>
           </div>
         </CardContent>

@@ -1,7 +1,9 @@
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
+import { appRoutes } from '@/lib/app-routes';
 import { buildLearningPath } from '@/lib/mocks';
 import type { Concept, ConceptMastery } from '@/lib/pcdc-types';
 
@@ -59,6 +61,16 @@ export default function LearningPathTimeline({ mastery, concepts }: { mastery: C
                           : 'You can enter practice directly from this step.'}
                       </p>
                     )}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {item.href ? (
+                        <Button asChild size="sm" variant="secondary">
+                          <Link href={item.href}>Practice</Link>
+                        </Button>
+                      ) : null}
+                      <Button asChild size="sm" variant="ghost">
+                        <Link href={appRoutes.student.aiTutor}>Ask AI</Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -31,6 +31,9 @@ Status legend:
 - [x] Student AI study-plan generator and dashboard surfacing
 - [x] AI quiz generation and assessment placeholder flow
 - [x] AI quiz and study-plan signals surfaced in progress, assessments, and dashboard scheduling
+- [x] Study-plan page upgraded with calendar-style schedule snapshot
+- [x] Assessment review cards expanded with richer concept breakdown and AI support actions
+- [x] Learning-path and practice flows connected more directly into AI support
 
 ### Teacher Product
 
