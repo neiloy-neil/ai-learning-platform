@@ -26,6 +26,9 @@ export default function RecommendedAction({ recommendation }: RecommendedActionP
           <p className="text-sm leading-6 text-muted-foreground">{recommendation.reason}</p>
           <p className="mt-3 text-xl font-semibold text-foreground">{recommendation.nextConceptName}</p>
         </div>
+        <div className="rounded-2xl border border-border/70 p-4 text-sm text-muted-foreground">
+          This recommendation is weighted by weakest mastery evidence, prerequisite pressure, and the next most valuable study move.
+        </div>
         <div className="flex flex-col gap-3">
           <Button asChild className="w-full">
             <Link href={recommendation.href}>{recommendation.ctaLabel}</Link>

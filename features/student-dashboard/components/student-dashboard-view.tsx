@@ -19,6 +19,7 @@ export default function StudentDashboardView() {
   const nextAssessment = assessments.find((item) => item.status === 'Assigned' || item.status === 'In Progress') ?? assessments[0];
   const latestAiQuiz = generatedQuizzes[0];
   const latestAiAssessment = latestAiQuiz ? generatedQuizAssessments[latestAiQuiz.id] : null;
+  const completedReviewCount = assessments.filter((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed').length;
 
   return (
     <div className="space-y-8">
@@ -72,6 +73,10 @@ export default function StudentDashboardView() {
             <Button asChild className="w-full" variant="ghost">
               <Link href={appRoutes.student.practice}>Generate practice from a topic</Link>
             </Button>
+            <div className="rounded-2xl border border-border/70 p-3 text-sm text-muted-foreground">
+              {completedReviewCount} reviewed assessment
+              {completedReviewCount === 1 ? '' : 's'} and {recentQuizHistory.length} recent quiz signals are active in your planning loop.
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -108,6 +113,14 @@ export default function StudentDashboardView() {
                 Generate a study plan to turn today&apos;s work into a clearer agenda.
               </div>
             )}
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Next planning pressure</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {revisionQueue[0]
+                  ? `${revisionQueue[0].conceptName} is the current weakest point in the queue. Clear it before the next scored assessment.`
+                  : 'No active revision pressure right now. Keep practice momentum steady.'}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -151,6 +164,51 @@ export default function StudentDashboardView() {
             <Button asChild className="w-full" variant="ghost">
               <Link href={appRoutes.student.progress}>Check progress trends</Link>
             </Button>
+            <Button asChild className="w-full" variant="ghost">
+              <Link href={appRoutes.student.studyPlan}>Rebuild today&apos;s plan</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Coaching Timeline Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recentActivity.slice(0, 4).map((item) => (
+              <div className="rounded-2xl border border-border/70 p-4" key={`coach-${item.id}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">{item.text}</p>
+                  <span className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{item.timeLabel}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Planning Signals</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Recommended concept</p>
+              <p className="mt-2 text-sm text-muted-foreground">{recommendation.nextConceptName}</p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">Next checkpoint</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {nextAssessment ? `${nextAssessment.title} is the next formal checkpoint.` : 'No checkpoint scheduled yet.'}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">AI quiz signal</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {latestAiAssessment ? `${latestAiAssessment.score}% on ${latestAiQuiz?.title}.` : 'No AI quiz assessed yet.'}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

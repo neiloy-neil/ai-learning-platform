@@ -11,8 +11,11 @@ import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { appRoutes } from '@/lib/app-routes';
 
 export default function StudyPlanView() {
-  const { latestStudyPlan, generateStudyPlan, dashboardData } = useDemoData();
+  const { latestStudyPlan, generateStudyPlan, dashboardData, assessments, generatedQuizzes, generatedQuizAssessments } = useDemoData();
   const [minutes, setMinutes] = useState('75');
+  const nextAssessment = assessments.find((assessment) => assessment.status === 'Assigned' || assessment.status === 'In Progress');
+  const latestGeneratedQuiz = generatedQuizzes[0];
+  const latestGeneratedQuizAssessment = latestGeneratedQuiz ? generatedQuizAssessments[latestGeneratedQuiz.id] : null;
 
   function handleGeneratePlan() {
     generateStudyPlan(Number(minutes) || 75);
@@ -103,6 +106,60 @@ export default function StudyPlanView() {
               </div>
             </CardContent>
           </Card>
+
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+            <Card glass>
+              <CardHeader>
+                <CardTitle>Planning Inputs</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">Recommendation signal</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{dashboardData.recommendation.reason}</p>
+                </div>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">Upcoming assessment</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {nextAssessment
+                      ? `${nextAssessment.title} is due ${new Date(nextAssessment.dueDate).toLocaleDateString()}.`
+                      : 'No formal assessment is currently queued.'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 p-4">
+                  <p className="font-semibold text-foreground">Latest AI quiz</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {latestGeneratedQuizAssessment
+                      ? `${latestGeneratedQuiz?.title} returned ${latestGeneratedQuizAssessment.score}% and now informs the plan.`
+                      : 'Generate and assess an AI quiz to feed another planning signal here.'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card glass>
+              <CardHeader>
+                <CardTitle>Plan Translation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {latestStudyPlan ? (
+                  latestStudyPlan.tasks.map((task, index) => (
+                    <div className="rounded-2xl border border-border/70 p-4" key={`translation-${task.id}`}>
+                      <p className="font-semibold text-foreground">
+                        Block {index + 1}: {task.title}
+                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {task.reason} This slot is designed as a {task.type} block.
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                    Once a plan is generated, each block will be translated into a clearer student-facing action rail here.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
