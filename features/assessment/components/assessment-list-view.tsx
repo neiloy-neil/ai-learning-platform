@@ -20,6 +20,7 @@ const statusColors: Record<string, string> = {
 export default function AssessmentListView() {
   const router = useRouter();
   const { assessments, generatedQuizzes, generatedQuizAssessments, state, latestStudyPlan } = useDemoData();
+  const reviewedAssessments = assessments.filter((assessment) => assessment.status === 'Reviewed' || assessment.status === 'Completed');
 
   return (
     <div className="space-y-8">
@@ -118,6 +119,92 @@ export default function AssessmentListView() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Assessment Review Desk</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {reviewedAssessments.length > 0 ? (
+              reviewedAssessments.map((assessment) => {
+                const result = buildAssessmentResult(assessment, state.attempts);
+                return (
+                  <div className="rounded-3xl border border-border/70 p-4" key={`review-${assessment.id}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-foreground">{assessment.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {result.correctAnswers}/{result.totalQuestions} correct
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        {assessment.lastScore ?? result.score}%
+                      </span>
+                    </div>
+                    <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                      {result.conceptBreakdown.map((item) => (
+                        <p key={`${assessment.id}-desk-${item.conceptId}`}>
+                          {item.conceptName}: {item.correct}/{item.total} ready
+                        </p>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex flex-col gap-3 md:flex-row">
+                      <Button asChild className="md:flex-1" variant="secondary">
+                        <Link href={appRoutes.student.aiTutor}>Ask AI to explain gaps</Link>
+                      </Button>
+                      <Button asChild className="md:flex-1" variant="ghost">
+                        <Link href={appRoutes.student.studyPlan}>Turn into study plan</Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Reviewed and completed assessments will collect here with concept-level follow-up actions.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card glass>
+          <CardHeader>
+            <CardTitle>Post-Assessment Coaching Rail</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-3xl border border-border/70 p-4">
+              <p className="font-semibold text-foreground">What to do next</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use the reviewed results to explain mistakes, refresh a study plan, and close one weak concept before taking the next scored set.
+              </p>
+            </div>
+            {latestStudyPlan ? (
+              latestStudyPlan.tasks.slice(0, 3).map((task) => (
+                <div className="rounded-3xl border border-border/70 p-4" key={`coaching-task-${task.id}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-foreground">{task.title}</p>
+                    <span className="text-sm font-semibold text-primary">{task.minutes} min</span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{task.reason}</p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                Generate a study plan to turn reviewed assessments into an explicit coaching sequence.
+              </div>
+            )}
+            <div className="flex flex-col gap-3">
+              <Button asChild variant="secondary">
+                <Link href={appRoutes.student.aiTutor}>Open AI Tutor coaching</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href={appRoutes.student.progress}>Open progress signals</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

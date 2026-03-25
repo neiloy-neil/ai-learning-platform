@@ -69,6 +69,9 @@ export default function TeacherDashboardView() {
   const [teacherNote, setTeacherNote] = useState('Student needs one more scaffolded check before independent practice.');
   const assignments = teacherState.assignments;
   const recentNudges = teacherState.nudges.slice(0, 4);
+  const submittedAssignments = assignments.filter((assignment) => assignment.status === 'Submitted').length;
+  const gradedAssignments = assignments.filter((assignment) => assignment.status === 'Graded').length;
+  const highPriorityReviews = teacherState.reviewQueue.filter((item) => item.priority === 'High').length;
 
   const teacherStats = useMemo(() => {
     const sourceStudents =
@@ -164,10 +167,13 @@ export default function TeacherDashboardView() {
     <div className="space-y-8">
       <PageHeader />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <StatCard title="Average Score" value={`${teacherStats.averageScore}%`} />
         <StatCard title="Completion Rate" value={`${teacherStats.completionRate}%`} />
         <StatCard title="Students at Risk" value={teacherStats.studentsAtRisk} />
+        <StatCard title="High Reviews" value={highPriorityReviews} />
+        <StatCard title="Submitted Work" value={submittedAssignments} />
+        <StatCard title="Graded Work" value={gradedAssignments} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
@@ -486,6 +492,54 @@ export default function TeacherDashboardView() {
                 <p className="mt-1 text-sm text-muted-foreground">{artifact.summary}</p>
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Operational Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Review desk</p>
+              <p className="mt-3 font-semibold text-foreground">
+                {teacherState.reviewQueue.length} review items and {teacherState.submissions.length} recent submissions are active.
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Highest pressure is currently in quadratics remediation and parent follow-up.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 p-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Family loop</p>
+              <p className="mt-3 font-semibold text-foreground">
+                {teacherState.contactRequests.length} parent requests and {recentNudges.length} recent nudges are connected.
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use messages and summaries to keep the intervention trail visible across learner and family views.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Fast Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-2">
+            <Button asChild variant="secondary">
+              <Link href={appRoutes.teacher.review}>Open review desk</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href={appRoutes.teacher.assignments}>Open assignment desk</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href={appRoutes.teacher.analytics}>Open analytics</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href={appRoutes.teacher.messages}>Open messages</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

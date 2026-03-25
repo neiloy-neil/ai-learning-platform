@@ -33,6 +33,7 @@ Status legend:
 - [x] AI quiz and study-plan signals surfaced in progress, assessments, and dashboard scheduling
 - [x] Study-plan page upgraded with calendar-style schedule snapshot
 - [x] Assessment review cards expanded with richer concept breakdown and AI support actions
+- [x] Assessment page now includes a review desk and post-assessment coaching rail
 - [x] Learning-path and practice flows connected more directly into AI support
 - [x] Student dashboard upgraded with denser agenda/checkpoint and AI review blocks
 - [x] Post-assessment coaching tied into AI Tutor and study-plan follow-up
@@ -54,6 +55,8 @@ Status legend:
 - [x] Teacher dashboard densified with watchlist, templates, heatmap, submissions, deadlines, and contact requests
 - [x] Teacher AI tools placeholder page and generated artifacts
 - [x] Teacher student-detail workspace upgraded into a denser intervention console
+- [x] Teacher analytics page upgraded into a fuller operational analytics view
+- [x] Teacher assignments page upgraded into a workflow board with AI support context
 
 ### Parent Product
 
