@@ -18,6 +18,7 @@ import {
   mockConcepts,
   type DemoAssessmentResult,
   type DemoGoal,
+  type DemoMessageThread,
   type DemoStudentState,
   type DemoTeacherClass,
   type DemoTeacherNudge,
@@ -36,6 +37,7 @@ type DemoTeacherManagementState = {
   students: DemoTeacherStudent[];
   assignments: Assignment[];
   nudges: DemoTeacherNudge[];
+  threads: DemoMessageThread[];
 };
 
 type DemoDataContextType = {
@@ -61,6 +63,11 @@ type DemoDataContextType = {
     audience: 'student' | 'parent';
     message: string;
     category: 'Encouragement' | 'Intervention' | 'Follow-up';
+  }) => void;
+  sendThreadMessage: (input: {
+    threadId: string;
+    senderRole: 'teacher' | 'student' | 'parent';
+    text: string;
   }) => void;
   completeSession: (input: {
     answers: Array<{ questionId: string; selectedOptionId: string; confidenceRating: number }>;
@@ -274,6 +281,29 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
             },
             ...current.notifications,
           ],
+        }));
+      },
+      sendThreadMessage: (input) => {
+        setTeacherState((current) => ({
+          ...current,
+          threads: current.threads.map((thread) => {
+            if (thread.id !== input.threadId) {
+              return thread;
+            }
+
+            return {
+              ...thread,
+              messages: [
+                ...thread.messages,
+                {
+                  id: `message-${thread.messages.length + 1}-${Date.now()}`,
+                  senderRole: input.senderRole,
+                  text: input.text,
+                  sentAt: new Date().toISOString(),
+                },
+              ],
+            };
+          }),
         }));
       },
       completeSession: (input) => {

@@ -19,9 +19,11 @@ const navItems = {
   ],
   [UserRole.TEACHER]: [
     { href: appRoutes.teacher.dashboard, label: 'Class Dashboard' },
+    { href: appRoutes.teacher.messages, label: 'Messages' },
   ],
   [UserRole.PARENT]: [
     { href: appRoutes.parent.dashboard, label: 'My Child\'s Progress' },
+    { href: appRoutes.parent.messages, label: 'Messages' },
   ],
 };
 

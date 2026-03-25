@@ -99,6 +99,22 @@ export type DemoTeacherNudge = {
   sentAt: string;
 };
 
+export type DemoThreadMessage = {
+  id: string;
+  senderRole: 'teacher' | 'student' | 'parent';
+  text: string;
+  sentAt: string;
+};
+
+export type DemoMessageThread = {
+  id: string;
+  studentId: string;
+  participantRole: 'student' | 'parent';
+  participantName: string;
+  topic: string;
+  messages: DemoThreadMessage[];
+};
+
 export type LearningPathNode = {
   conceptId: string;
   conceptName: string;
@@ -865,6 +881,50 @@ export function createInitialTeacherManagementState() {
         sentAt: new Date(currentYear, 2, 24, 18, 40).toISOString(),
       },
     ] satisfies DemoTeacherNudge[],
+    threads: [
+      {
+        id: 'thread-1',
+        studentId: 'student-c',
+        participantRole: 'student' as const,
+        participantName: 'Charlie',
+        topic: 'Quadratics recovery plan',
+        messages: [
+          {
+            id: 'message-1',
+            senderRole: 'teacher' as const,
+            text: 'Please start with the rescue set tonight. We will review factorization tomorrow.',
+            sentAt: new Date(currentYear, 2, 25, 9, 0).toISOString(),
+          },
+          {
+            id: 'message-2',
+            senderRole: 'student' as const,
+            text: 'I can do the first half tonight and finish the rest in the morning.',
+            sentAt: new Date(currentYear, 2, 25, 9, 20).toISOString(),
+          },
+        ],
+      },
+      {
+        id: 'thread-2',
+        studentId: 'student-b',
+        participantRole: 'parent' as const,
+        participantName: 'Morgan Brown',
+        topic: 'Weekly readiness follow-up',
+        messages: [
+          {
+            id: 'message-3',
+            senderRole: 'teacher' as const,
+            text: 'Bob is close to readiness. A short review block this evening would help.',
+            sentAt: new Date(currentYear, 2, 24, 18, 0).toISOString(),
+          },
+          {
+            id: 'message-4',
+            senderRole: 'parent' as const,
+            text: 'Understood. We will review the assigned work after dinner.',
+            sentAt: new Date(currentYear, 2, 24, 18, 30).toISOString(),
+          },
+        ],
+      },
+    ] satisfies DemoMessageThread[],
   };
 }
 

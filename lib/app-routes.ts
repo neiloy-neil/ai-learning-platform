@@ -17,10 +17,12 @@ export const appRoutes = {
   teacher: {
     root: '/teacher',
     dashboard: '/teacher/dashboard',
+    messages: '/teacher/messages',
   },
   parent: {
     root: '/parent',
     dashboard: '/parent/dashboard',
+    messages: '/parent/messages',
   },
   generic: {
     dashboard: '/dashboard',

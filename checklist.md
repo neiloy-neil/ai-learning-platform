@@ -44,7 +44,7 @@ Status legend:
 
 - [x] Role-aware notifications from shared mock data
 - [x] Mark-as-read / archive interactions
-- [ ] Messaging threads
+- [x] Messaging threads
 
 ## UX and Cleanup
 
@@ -62,6 +62,6 @@ Status legend:
 
 ## Next Up
 
-1. Add messaging threads for teacher-student and teacher-parent demo flows.
-2. Add test coverage for demo auth, dashboards, and mastery/recommendation logic.
-3. Revisit product identity and route cleanup only if any legacy path still leaks into the demo flow.
+1. Add test coverage for demo auth, dashboards, and mastery/recommendation logic.
+2. Revisit product identity and route cleanup only if any legacy path still leaks into the demo flow.
+3. Continue expanding role-specific demo depth only where it materially improves the client walkthrough.

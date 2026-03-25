@@ -32,9 +32,17 @@ export const metadataMap: Record<string, RouteMetadata> = {
     title: 'Teacher Dashboard',
     subtitle: 'Overview of class performance and concept risk areas.',
   },
+  '/teacher/messages': {
+    title: 'Teacher Messages',
+    subtitle: 'Coordinate with students and parents around interventions and follow-up.',
+  },
   '/parent/dashboard': {
     title: 'Parent Dashboard',
     subtitle: 'An overview of your child\'s progress.',
+  },
+  '/parent/messages': {
+    title: 'Parent Messages',
+    subtitle: 'Keep up with teacher updates, reminders, and support requests.',
   },
 };
 
@@ -46,6 +54,7 @@ const segmentLabelMap: Record<string, string> = {
   student: 'Student',
   teacher: 'Teacher',
   parent: 'Parent',
+  messages: 'Messages',
   dashboard: 'Dashboard',
   'learning-path': 'Learning Path',
   goals: 'Goals',
