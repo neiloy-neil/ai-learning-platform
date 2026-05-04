@@ -1,0 +1,46 @@
+{
+  "name": "ai-learning-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean:next": "node scripts/clean-next.mjs",
+    "dev": "npm run clean:next && next dev",
+    "build": "npm run clean:next && next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx,.js",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "1.1.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "0.469.0",
+    "next": "^16.2.1",
+    "next-themes": "0.4.4",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "tailwind-merge": "2.6.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "10.4.20",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.1",
+    "jsdom": "^29.0.1",
+    "postcss": "8.5.3",
+    "prettier": "3.5.3",
+    "prettier-plugin-tailwindcss": "0.6.11",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.8.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.1"
+  }
+}
