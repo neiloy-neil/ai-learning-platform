@@ -10,13 +10,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { makeupSessions } from '@/lib/db/observations-data';
+import { attendanceRecords, homeworkSubmissions } from '@/lib/db/attendance-data';
+import { studentAttempts, notifications } from '@/lib/db/data';
+import { mockAssessments } from '@/lib/mock-data';
 import { students, families, parents } from '@/lib/db/crm-data';
+import { classes } from '@/lib/db/enrolment-data';
 import { cn } from '@/lib/cn';
 
 export default function FamilyDashboardView() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [showBilling, setShowBilling] = useState(false);
   const [showAttendance, setShowAttendance] = useState(false);
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
+  const [showMakeupLessons, setShowMakeupLessons] = useState(false);
 
   // Mock data - in production, this would come from auth context
   const currentParentId = 'parent-1';
@@ -28,6 +35,8 @@ export default function FamilyDashboardView() {
   const activeChild = selectedChild && familyStudents.find(s => s.id === selectedChild)
     ? familyStudents.find(s => s.id === selectedChild)
     : familyStudents[0];
+
+  const activeChildClass = classes.find(c => c.id === activeChild?.currentClassId);
 
   return (
     <div className="space-y-6">
@@ -156,6 +165,9 @@ export default function FamilyDashboardView() {
                 <TrendingUp className="size-5 text-primary" />
                 {activeChild.firstName}'s Progress
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {activeChild.grade} - {activeChildClass?.name}
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -195,6 +207,54 @@ export default function FamilyDashboardView() {
                 </div>
                 <div className="h-2 rounded-full bg-muted">
                   <div className="h-full w-[90%] rounded-full bg-success" />
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Recent Assessments</h4>
+                <div className="space-y-2">
+                    {studentAttempts.filter(attempt => (attempt as any).studentId === activeChild.id && attempt.source === 'assessment').slice(0, 3).map(attempt => (
+                        <div key={attempt.id} className="flex items-center justify-between text-sm">
+                            <span>{mockAssessments.find(a => a.id === (attempt as any).assessmentId)?.title}</span>
+                            <span className="font-semibold">{Math.round((attempt as any).percentage)}%</span>
+                        </div>
+                    ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Attendance Summary</h4>
+                <div className="flex justify-around text-center">
+                    <div>
+                        <p className="text-2xl font-bold">{attendanceRecords.filter(r => r.studentId === activeChild.id && r.status === 'present').length}</p>
+                        <p className="text-xs text-muted-foreground">Present</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold">{attendanceRecords.filter(r => r.studentId === activeChild.id && r.status === 'absent').length}</p>
+                        <p className="text-xs text-muted-foreground">Absent</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold">{attendanceRecords.filter(r => r.studentId === activeChild.id && r.status === 'late').length}</p>
+                        <p className="text-xs text-muted-foreground">Late</p>
+                    </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Homework Status</h4>
+                <div className="flex justify-around text-center">
+                    <div>
+                        <p className="text-2xl font-bold">{homeworkSubmissions.filter(s => s.studentId === activeChild.id && s.status === 'submitted').length}</p>
+                        <p className="text-xs text-muted-foreground">Submitted</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold">{homeworkSubmissions.filter(s => s.studentId === activeChild.id && s.status === 'overdue').length}</p>
+                        <p className="text-xs text-muted-foreground">Overdue</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold">{homeworkSubmissions.filter(s => s.studentId === activeChild.id && s.status === 'graded').length}</p>
+                        <p className="text-xs text-muted-foreground">Graded</p>
+                    </div>
                 </div>
               </div>
             </CardContent>
@@ -315,6 +375,42 @@ export default function FamilyDashboardView() {
                 </div>
               </div>
             </div>
+
+            <div className="mt-4">
+                <Button variant="outline" onClick={() => setShowPaymentHistory(!showPaymentHistory)}>
+                    {showPaymentHistory ? 'Hide' : 'Show'} Payment History
+                </Button>
+                {showPaymentHistory && (
+                    <div className="mt-4 space-y-3">
+                        <div className="flex items-center justify-between rounded-lg border p-3">
+                            <div>
+                                <p className="font-medium">Payment for Invoice #INV-2026-038</p>
+                                <p className="text-sm text-muted-foreground">Paid on May 1, 2026</p>
+                            </div>
+                            <p className="font-semibold">$220.00</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <Button variant="outline" onClick={() => setShowMakeupLessons(!showMakeupLessons)}>
+                    {showMakeupLessons ? 'Hide' : 'Show'} Make-up Lessons
+                </Button>
+                {showMakeupLessons && (
+                    <div className="mt-4 space-y-3">
+                        {makeupSessions.filter(m => m.studentId === activeChild.id).map(session => (
+                            <div key={session.id} className="flex items-center justify-between rounded-lg border p-3">
+                                <div>
+                                    <p className="font-medium">Missed: {session.originalClassName}</p>
+                                    <p className="text-sm text-muted-foreground">on {new Date(session.originalDate).toLocaleDateString()}</p>
+                                </div>
+                                <Button size="sm">Request Make-up</Button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
           </CardContent>
         )}
       </Card>
@@ -400,6 +496,34 @@ export default function FamilyDashboardView() {
               <p className="text-sm text-muted-foreground">{currentFamily?.emergencyContact.relationship}</p>
               <p className="text-sm">{currentFamily?.emergencyContact.phone}</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Messages */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="size-5 text-blue-500" />
+            Messages
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {notifications.filter(n => n.userId === currentParent.id).slice(0, 3).map(notification => (
+              <div key={notification.id} className="flex items-start gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
+                  <Mail className="size-4 text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{notification.text}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(notification.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline">View All Messages</Button>
           </div>
         </CardContent>
       </Card>

@@ -634,6 +634,53 @@ export interface MakeupSession {
 // Phase 7: Billing & Payments
 // =================================================================
 
+export enum AssessmentStatus {
+    DRAFT = 'draft',
+    PUBLISHED = 'published',
+    ARCHIVED = 'archived',
+}
+
+export enum AssessmentAttemptStatus {
+    NOT_STARTED = 'not_started',
+    IN_PROGRESS = 'in_progress',
+    COMPLETED = 'completed',
+    LATE = 'late',
+}
+
+export interface Assessment {
+    id: string;
+    title: string;
+    level: string; // e.g., 'Year 1', 'Year 2'
+    conceptIds: string[];
+    dueDate: Date;
+    assignedTo: string[]; // class IDs or student IDs
+    totalMarks: number;
+    passingMarks: number;
+    status: AssessmentStatus;
+    createdBy: string; // Teacher or admin ID
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface AssessmentAttempt {
+    id: string;
+    assessmentId: string;
+    studentId: string;
+    submittedDate: Date;
+    score: number;
+    percentage: number;
+    status: AssessmentAttemptStatus;
+    conceptResults: {
+        conceptId: string;
+        correct: number;
+        total: number;
+        percentage: number;
+    }[];
+    teacherNotes?: string;
+    startedAt: Date;
+    completedAt?: Date;
+}
+
 export enum InvoiceStatus {
     DRAFT = 'draft',
     SENT = 'sent',

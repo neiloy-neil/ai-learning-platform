@@ -94,24 +94,30 @@ export default function EnquiryForm({ className }: { className?: string }) {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // In production, this would POST to /api/leads
-    console.log('Lead submitted:', {
-      studentName: formData.studentName,
-      studentGrade: formData.studentGrade,
-      parentName: formData.parentName,
-      parentEmail: formData.parentEmail,
-      parentPhone: formData.parentPhone,
-      source: formData.source,
-      parentConcern: formData.parentConcern,
-      pipeline: 'new',
-      status: 'new',
+    const response = await fetch('/api/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        studentName: formData.studentName,
+        studentGrade: formData.studentGrade,
+        parentName: formData.parentName,
+        parentEmail: formData.parentEmail,
+        parentPhone: formData.parentPhone,
+        source: formData.source,
+        parentConcern: formData.parentConcern,
+      }),
     });
 
-    setIsSubmitting(false);
-    setSubmitted(true);
+    if (response.ok) {
+      setIsSubmitting(false);
+      setSubmitted(true);
+    } else {
+      // Handle error
+      setIsSubmitting(false);
+      console.error('Failed to submit enquiry');
+    }
   };
 
   const handleChange = (field: keyof EnquiryFormData, value: string) => {

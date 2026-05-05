@@ -1,23 +1,32 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { users } from '@/lib/db/data';
+import bcrypt from 'bcryptjs';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
     try {
-        const { email, password } = await req.json();
+        const body = await req.json();
+        const { email, password } = body;
 
-        // In a real app, you'd validate the password. Here, we'll just find the user.
-        const users = await db.user.findMany();
-        const user = users.find(u => u.name.toLowerCase() === email.split('@')[0]); // Simple mock lookup
-
-        if (!user) {
-            return new NextResponse("User not found", { status: 404 });
+        if (!email || !password) {
+            return new NextResponse("Missing required fields", { status: 400 });
         }
 
-        // In a real app, you would generate a real JWT.
-        const token = `mock-jwt-for-${user.id}`;
+        const user = users.find(user => user.email === email);
+        if (!user) {
+            return new NextResponse("Invalid credentials", { status: 401 });
+        }
 
-        return NextResponse.json({ user, token });
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return new NextResponse("Invalid credentials", { status: 401 });
+        }
+
+        // Set a session cookie
+        cookies().set('session', user.id, { httpOnly: true, path: '/' });
+
+        return NextResponse.json(user);
 
     } catch (error) {
         console.error("[LOGIN_POST]", error);

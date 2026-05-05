@@ -33,6 +33,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import { adminUsers, adminClasses, systemMetrics, adminReports, bulkEmails } from '@/lib/db/admin-data';
+import { classes } from '@/lib/db/enrolment-data';
+import { attendanceRecords } from '@/lib/db/attendance-data';
+import { makeupSessions } from '@/lib/db/observations-data';
+import { diagnosticBookings, leads, students } from '@/lib/db/crm-data';
+import { studentAttempts } from '@/lib/db/data';
+import { invoices } from '@/lib/db/billing-data';
+import { enrolments } from '@/lib/db/enrolment-data';
+import { mockAssessments } from '@/lib/mock-data';
 import { cn } from '@/lib/cn';
 
 export default function AdminDashboardView() {
@@ -82,6 +90,7 @@ export default function AdminDashboardView() {
         {activeTab === 'classes' && <ClassesTab />}
         {activeTab === 'reports' && <ReportsTab />}
         {activeTab === 'emails' && <EmailsTab />}
+        {activeTab === 'leads' && <LeadsTab />}
       </div>
     </div>
   );
@@ -90,128 +99,119 @@ export default function AdminDashboardView() {
 function OverviewTab() {
   return (
     <>
-      {/* Metrics Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Total Users"
-          value={systemMetrics.totalUsers.toLocaleString()}
-          icon={Users}
-          trend="+12.5%"
-          trendUp={true}
-          color="from-blue-500 to-cyan-500"
-        />
-        <MetricCard
-          title="Active Classes"
-          value={systemMetrics.totalClasses.toString()}
-          icon={BookOpen}
-          trend="+3 new"
-          trendUp={true}
-          color="from-violet-500 to-purple-500"
-        />
-        <MetricCard
-          title="Avg Mastery Score"
-          value={`${systemMetrics.averageMasteryScore}%`}
-          icon={TrendingUp}
-          trend="+5.2%"
-          trendUp={true}
-          color="from-emerald-500 to-green-500"
-        />
-        <MetricCard
-          title="Platform Uptime"
-          value={`${systemMetrics.platformUptime}%`}
-          icon={Server}
-          trend="Excellent"
-          trendUp={true}
-          color="from-amber-500 to-orange-500"
-        />
-      </div>
-
-      {/* System Health */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="size-5 text-cyan-500" />
-              System Health
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <HealthMetric label="API Response Time" value={`${systemMetrics.apiResponseTime}ms`} good={systemMetrics.apiResponseTime < 200} />
-            <HealthMetric label="Storage Used" value={systemMetrics.storageUsed} good={true} />
-            <HealthMetric label="Last Backup" value={systemMetrics.lastBackup.toLocaleString()} good={true} />
-            <HealthMetric label="Active Students" value={systemMetrics.activeStudents.toLocaleString()} good={true} />
-            <HealthMetric label="Active Teachers" value={systemMetrics.activeTeachers.toString()} good={true} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="size-5 text-violet-500" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <Button className="w-full justify-start" variant="secondary">
-              <Plus className="mr-2 size-4" />
-              Add New User
-            </Button>
-            <Button className="w-full justify-start" variant="secondary">
-              <BookOpen className="mr-2 size-4" />
-              Create Class
-            </Button>
-            <Link href="/admin/analytics" className="w-full">
-              <Button className="w-full justify-start" variant="secondary">
-                <LineChart className="mr-2 size-4" />
-                View Analytics
-              </Button>
-            </Link>
-            <Button className="w-full justify-start" variant="secondary">
-              <Download className="mr-2 size-4" />
-              Generate Report
-            </Button>
-            <Button className="w-full justify-start" variant="secondary">
-              <Mail className="mr-2 size-4" />
-              Send Bulk Email
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
+      {/* Today's Overview */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="size-5 text-amber-500" />
-            Recent Activity
-          </CardTitle>
+          <CardTitle>Today's Overview</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              { action: 'New student registered', user: 'Emma Davis', time: '5 minutes ago', type: 'success' },
-              { action: 'Class enrollment updated', user: 'Algebra Fundamentals', time: '1 hour ago', type: 'info' },
-              { action: 'Report generated', user: 'Monthly Performance Report', time: '2 hours ago', type: 'info' },
-              { action: 'Bulk email sent', user: '198 recipients', time: '3 hours ago', type: 'success' },
-              { action: 'System backup completed', user: 'Automated', time: '6 hours ago', type: 'success' },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full",
-                    activity.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
-                  )}>
-                    {activity.type === 'success' ? <CheckCircle className="size-4" /> : <Activity className="size-4" />}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.user}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground">{activity.time}</span>
-              </div>
-            ))}
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Classes Scheduled Today</p>
+            <p className="text-3xl font-bold">{classes.filter(c => c.dayOfWeek === new Date().toLocaleString('en-us', {  weekday: 'long' })).length}</p>
           </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Attendance Rate Today</p>
+            <p className="text-3xl font-bold">{Math.round(attendanceRecords.filter(r => new Date(r.date).toDateString() === new Date().toDateString() && r.status === 'present').length / attendanceRecords.filter(r => new Date(r.date).toDateString() === new Date().toDateString()).length * 100)}%</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Pending Make-up Lessons</p>
+            <p className="text-3xl font-bold">{makeupSessions.filter(m => m.status === 'pending').length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Upcoming Diagnostics</p>
+            <p className="text-3xl font-bold">{diagnosticBookings.filter(b => new Date(b.date) >= new Date()).length}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pending Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pending Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">New Leads</p>
+            <p className="text-3xl font-bold">{leads.filter(l => l.status === 'new').length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Unpaid Invoices</p>
+            <p className="text-3xl font-bold">{invoices.filter(i => i.status === 'sent' || i.status === 'overdue').length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Make-up Lessons to Schedule</p>
+            <p className="text-3xl font-bold">{makeupSessions.filter(m => m.status === 'pending').length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Assessment Reminders</p>
+            <p className="text-3xl font-bold">{mockAssessments.filter(a => new Date(a.dueDate) < new Date()).length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Enrolment Approvals Pending</p>
+            <p className="text-3xl font-bold">{enrolments.filter(e => e.status === 'pending').length}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Key Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Total Active Students</p>
+            <p className="text-3xl font-bold">{students.filter(s => s.status === 'active').length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Classes This Week</p>
+            <p className="text-3xl font-bold">{classes.length}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Weekly Attendance Rate</p>
+            <p className="text-3xl font-bold">{Math.round(attendanceRecords.filter(r => r.status === 'present').length / attendanceRecords.length * 100)}%</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Assessment Completion Rate</p>
+            <p className="text-3xl font-bold">{Math.round(studentAttempts.filter(a => a.source === 'assessment').length / mockAssessments.length * 100)}%</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Outstanding Invoice Total</p>
+            <p className="text-3xl font-bold">${invoices.reduce((acc, i) => acc + i.outstandingAmount, 0)}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">New Enquiries This Week</p>
+            <p className="text-3xl font-bold">{leads.filter(l => new Date(l.createdDate) >= new Date(new Date().setDate(new Date().getDate() - 7))).length}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <Button className="w-full justify-start" variant="secondary">
+            <Plus className="mr-2 size-4" />
+            Add New Lead
+          </Button>
+          <Button className="w-full justify-start" variant="secondary">
+            <Plus className="mr-2 size-4" />
+            Book Diagnostic
+          </Button>
+          <Button className="w-full justify-start" variant="secondary">
+            <BookOpen className="mr-2 size-4" />
+            Create Class
+          </Button>
+          <Button className="w-full justify-start" variant="secondary">
+            <Download className="mr-2 size-4" />
+            Generate Invoice
+          </Button>
+          <Button className="w-full justify-start" variant="secondary">
+            <Mail className="mr-2 size-4" />
+            Send Bulk Email
+          </Button>
         </CardContent>
       </Card>
     </>

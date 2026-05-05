@@ -1,27 +1,21 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { UserRole } from '@/lib/pcdc-types';
+import { users } from '@/lib/db/data';
+import { cookies } from 'next/headers';
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
-        const { searchParams } = new URL(req.url);
-        const role = searchParams.get('role');
-
-        let userId = 'user1'; // Default to student
-        if (role === UserRole.TEACHER) {
-            userId = 'user3';
-        } else if (role === UserRole.PARENT) {
-            userId = 'user4';
+        const session = cookies().get('session');
+        if (!session) {
+            return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const user = await db.user.findUnique({ where: { id: userId } });
-
+        const user = users.find(user => user.id === session.value);
         if (!user) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        return NextResponse.json(user);
+        return NextResponse.json({ user });
 
     } catch (error) {
         console.error("[ME_GET]", error);

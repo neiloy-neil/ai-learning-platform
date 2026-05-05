@@ -51,6 +51,7 @@ export type DemoGoal = {
 
 export type DemoAttempt = {
   id: string;
+  studentId: string;
   questionId: string;
   conceptIds: string[];
   isCorrect: boolean;
@@ -60,6 +61,7 @@ export type DemoAttempt = {
   source: 'practice' | 'assessment';
   mode: PracticeMode;
   assessmentId?: string;
+  percentage?: number;
 };
 
 export type ProgressDatum = {
@@ -368,6 +370,7 @@ const initialMastery: ConceptMastery[] = [
 const initialAttempts: DemoAttempt[] = [
   {
     id: 'attempt-1',
+    studentId: demoUsers.student.id,
     questionId: 'question-1',
     conceptIds: ['linear-equations'],
     isCorrect: true,
@@ -379,6 +382,7 @@ const initialAttempts: DemoAttempt[] = [
   },
   {
     id: 'attempt-2',
+    studentId: demoUsers.student.id,
     questionId: 'question-2',
     conceptIds: ['graphing-inequalities'],
     isCorrect: true,
@@ -390,6 +394,7 @@ const initialAttempts: DemoAttempt[] = [
   },
   {
     id: 'attempt-3',
+    studentId: demoUsers.student.id,
     questionId: 'question-4',
     conceptIds: ['quadratics'],
     isCorrect: false,

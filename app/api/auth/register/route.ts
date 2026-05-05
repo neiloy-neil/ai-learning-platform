@@ -1,27 +1,37 @@
+
 import { NextResponse } from 'next/server';
 import { users } from '@/lib/db/data';
-import { UserRole, type User } from '@/lib/pcdc-types';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
     try {
-        const { name, email } = await req.json();
+        const body = await req.json();
+        const { name, email, password } = body;
 
-        const existingUser = users.find(u => u.email.toLowerCase() === String(email).toLowerCase());
-        if (existingUser) {
-            return new NextResponse("User already exists", { status: 409 });
+        if (!name || !email || !password) {
+            return new NextResponse("Missing required fields", { status: 400 });
         }
 
-        const newUser: User = {
+        const existingUser = users.find(user => user.email === email);
+        if (existingUser) {
+            return new NextResponse("User already exists", { status: 400 });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = {
             id: `user${users.length + 1}`,
             name,
             email,
-            role: UserRole.STUDENT,
+            password: hashedPassword,
+            role: 'student', // default role
         };
+
+        // @ts-ignore
         users.push(newUser);
 
-        const token = `mock-jwt-for-${newUser.id}`;
+        return NextResponse.json(newUser, { status: 201 });
 
-        return NextResponse.json({ user: newUser, token });
     } catch (error) {
         console.error("[REGISTER_POST]", error);
         return new NextResponse("Internal Error", { status: 500 });

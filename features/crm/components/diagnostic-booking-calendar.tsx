@@ -13,12 +13,14 @@ import { Input } from '@/components/ui/input';
 import { diagnosticBookings, timeSlots } from '@/lib/db/crm-data';
 import { DiagnosticBooking } from '@/lib/pcdc-types';
 import { cn } from '@/lib/cn';
+import NewBookingModal from './new-booking-modal';
 
 export default function DiagnosticBookingCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date('2026-05-10'));
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<DiagnosticBooking | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [isNewBookingModalOpen, setIsNewBookingModalOpen] = useState(false);
 
   // Filter bookings
   const filteredBookings = searchQuery

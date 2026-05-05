@@ -1,19 +1,13 @@
-'use client';
-
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getDefaultRouteForRole, appRoutes } from '@/lib/app-routes';
 import type { User } from '@/lib/pcdc-types';
 import { UserRole } from '@/lib/pcdc-types';
-import { demoUsers, type DemoUserKey } from '@/lib/mocks';
-import { getDemoUserKeyFromEmail } from '@/lib/demo-auth';
 
 type AuthContextType = {
   user: User | null;
-  token: string | null;
   login: (email: string, pass: string) => Promise<void>;
-  loginAsDemo: (userKey: DemoUserKey) => void;
   logout: () => void;
   isLoading: boolean;
 };
@@ -22,49 +16,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('authUser');
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser) as User);
-    }
-
-    setIsLoading(false);
+    const fetchUser = async () => {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      }
+      setIsLoading(false);
+    };
+    fetchUser();
   }, []);
 
-  const persistUser = (nextUser: User) => {
-    const authToken = `demo-token-${nextUser.role}`;
-    setUser(nextUser);
-    setToken(authToken);
-    localStorage.setItem('authUser', JSON.stringify(nextUser));
-    localStorage.setItem('authToken', authToken);
-    router.push(getDefaultRouteForRole(nextUser.role));
+  const login = async (email: string, pass: string) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, pass }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUser(data);
+      router.push(getDefaultRouteForRole(data.role));
+    }
   };
 
-  const login = async (email: string, _pass: string) => {
-    persistUser(demoUsers[getDemoUserKeyFromEmail(email)]);
-  };
-
-  const loginAsDemo = (userKey: DemoUserKey) => {
-    persistUser(demoUsers[userKey]);
-  };
-
-  const logout = () => {
+  const logout = async () => {
+    await fetch('/api/auth/logout');
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('authUser');
-    localStorage.removeItem('authToken');
     router.push(appRoutes.auth.login);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, loginAsDemo, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

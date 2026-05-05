@@ -12,10 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/u
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyStatePanel } from '@/components/ui/state-panel';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import AssignmentOverviewCard from '@/features/teacher/components/assignment-overview-card';
 import { appRoutes, getTeacherStudentRoute } from '@/lib/app-routes';
 import { mockTeacherWeakConcepts, type TeacherCohort } from '@/lib/mocks';
+import TeacherAssessmentsView from './teacher-assessments-view';
 
 const statusTone: Record<string, string> = {
   Strong: 'bg-success/20 text-success',
@@ -544,128 +546,156 @@ export default function TeacherDashboardView() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Assignments and Intervention Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
-              <h3 className="font-semibold">Create targeted assignment</h3>
-              <Input
-                placeholder="Assignment title"
-                value={assignmentTitle}
-                onChange={(event) => setAssignmentTitle(event.target.value)}
-              />
-              <Input
-                placeholder="Assignment description"
-                value={assignmentDescription}
-                onChange={(event) => setAssignmentDescription(event.target.value)}
-              />
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Select value={assignmentStudentId} onValueChange={setAssignmentStudentId}>
-                  <SelectTrigger>
-                    {teacherState.students.find((student) => student.id === assignmentStudentId)?.name ?? 'Assign student'}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teacherState.students.map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input type="date" value={assignmentDueDate} onChange={(event) => setAssignmentDueDate(event.target.value)} />
-              </div>
-              <Button onClick={handleCreateAssignment} variant="secondary">
-                Assign intervention
-              </Button>
-            </div>
-
-            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
-              <h3 className="font-semibold">Send targeted nudge</h3>
-              <Select value={nudgeStudentId} onValueChange={setNudgeStudentId}>
-                <SelectTrigger>
-                  {teacherState.students.find((student) => student.id === nudgeStudentId)?.name ?? 'Select student'}
-                </SelectTrigger>
-                <SelectContent>
-                  {teacherState.students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input value={nudgeMessage} onChange={(event) => setNudgeMessage(event.target.value)} />
-              <div className="flex flex-col gap-3 md:flex-row">
-                <Button className="md:flex-1" onClick={() => handleSendNudge('student')} variant="secondary">
-                  Nudge student
-                </Button>
-                <Button className="md:flex-1" onClick={() => handleSendNudge('parent')} variant="ghost">
-                  Notify parent
-                </Button>
-              </div>
-              <div className="space-y-2">
-                {recentNudges.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No recent nudges yet.</p>
-                ) : (
-                  recentNudges.map((nudge) => (
-                    <div className="rounded-2xl border border-border/70 p-3" key={nudge.id}>
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold">
-                          {teacherState.students.find((student) => student.id === nudge.studentId)?.name ?? 'Student'}
-                        </p>
-                        <span className="text-xs text-muted-foreground">
-                          {nudge.category} to {nudge.audience}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-muted-foreground">{nudge.message}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-3 rounded-3xl border border-border/70 p-4">
-              <h3 className="font-semibold">Teacher notes panel</h3>
-              <Input value={teacherNote} onChange={(event) => setTeacherNote(event.target.value)} />
-              <Button
-                onClick={() => {
-                  addTeacherNote(nudgeStudentId, teacherNote);
-                  setTeacherNote('Flagged for a stronger exit check before the next assignment.');
-                }}
-                variant="secondary"
-              >
-                Save note
-              </Button>
-              <div className="space-y-2">
-                {teacherState.notes.slice(0, 4).map((note) => (
-                  <div className="rounded-2xl border border-border/70 p-3" key={note.id}>
-                    <p className="text-sm font-semibold">
-                      {teacherState.students.find((student) => student.id === note.studentId)?.name ?? 'Student'}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">{note.text}</p>
+      <Tabs defaultValue="assignments">
+        <TabsList>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+          <TabsTrigger value="assessments">Assessments</TabsTrigger>
+          <TabsTrigger value="readiness">Class Readiness</TabsTrigger>
+          <TabsTrigger value="observations">Student Observations</TabsTrigger>
+          <TabsTrigger value="resources">Teaching Resources</TabsTrigger>
+          </TabsList>
+          <TabsContent value="assignments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Assignments and Intervention Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+                  <h3 className="font-semibold">Create targeted assignment</h3>
+                  <Input
+                    placeholder="Assignment title"
+                    value={assignmentTitle}
+                    onChange={(event) => setAssignmentTitle(event.target.value)}
+                  />
+                  <Input
+                    placeholder="Assignment description"
+                    value={assignmentDescription}
+                    onChange={(event) => setAssignmentDescription(event.target.value)}
+                  />
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <Select value={assignmentStudentId} onValueChange={setAssignmentStudentId}>
+                      <SelectTrigger>
+                        {teacherState.students.find((student) => student.id === assignmentStudentId)?.name ??
+                          'Assign student'}
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teacherState.students.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="date"
+                      value={assignmentDueDate}
+                      onChange={(event) => setAssignmentDueDate(event.target.value)}
+                    />
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                  <Button onClick={handleCreateAssignment} variant="secondary">
+                    Assign intervention
+                  </Button>
+                </div>
 
-          {assignments.length === 0 ? (
-            <EmptyStatePanel
-              className="border-0 bg-transparent shadow-none"
-              title="No assignments yet"
-              description="Assignments and intervention sets will appear here once a teacher creates or targets work."
-            />
-          ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {assignments.map((assignment) => (
-                <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+                  <h3 className="font-semibold">Send targeted nudge</h3>
+                  <Select value={nudgeStudentId} onValueChange={setNudgeStudentId}>
+                    <SelectTrigger>
+                      {teacherState.students.find((student) => student.id === nudgeStudentId)?.name ?? 'Select student'}
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teacherState.students.map((student) => (
+                        <SelectItem key={student.id} value={student.id}>
+                          {student.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input value={nudgeMessage} onChange={(event) => setNudgeMessage(event.target.value)} />
+                  <div className="flex flex-col gap-3 md:flex-row">
+                    <Button className="md:flex-1" onClick={() => handleSendNudge('student')} variant="secondary">
+                      Nudge student
+                    </Button>
+                    <Button className="md:flex-1" onClick={() => handleSendNudge('parent')} variant="ghost">
+                      Notify parent
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {recentNudges.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No recent nudges yet.</p>
+                    ) : (
+                      recentNudges.map((nudge) => (
+                        <div className="rounded-2xl border border-border/70 p-3" key={nudge.id}>
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold">
+                              {teacherState.students.find((student) => student.id === nudge.studentId)?.name ??
+                                'Student'}
+                            </p>
+                            <span className="text-xs text-muted-foreground">
+                              {nudge.category} to {nudge.audience}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">{nudge.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-3xl border border-border/70 p-4">
+                  <h3 className="font-semibold">Teacher notes panel</h3>
+                  <Input value={teacherNote} onChange={(event) => setTeacherNote(event.target.value)} />
+                  <Button
+                    onClick={() => {
+                      addTeacherNote(nudgeStudentId, teacherNote);
+                      setTeacherNote('Flagged for a stronger exit check before the next assignment.');
+                    }}
+                    variant="secondary"
+                  >
+                    Save note
+                  </Button>
+                  <div className="space-y-2">
+                    {teacherState.notes.slice(0, 4).map((note) => (
+                      <div className="rounded-2xl border border-border/70 p-3" key={note.id}>
+                        <p className="text-sm font-semibold">
+                          {teacherState.students.find((student) => student.id === note.studentId)?.name ?? 'Student'}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">{note.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {assignments.length === 0 ? (
+                <EmptyStatePanel
+                  className="border-0 bg-transparent shadow-none"
+                  title="No assignments yet"
+                  description="Assignments and intervention sets will appear here once a teacher creates or targets work."
+                />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {assignments.map((assignment) => (
+                    <AssignmentOverviewCard assignment={assignment} key={assignment.id} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          </TabsContent>
+          <TabsContent value="assessments">
+          <TeacherAssessmentsView />
+          </TabsContent>
+          <TabsContent value="readiness">
+          <ClassReadinessReportView />
+          </TabsContent>
+          <TabsContent value="observations">
+          <StudentObservationsView />
+          </TabsContent>
+          <TabsContent value="resources">
+          <TeachingResourcesView />
+          </TabsContent>      </Tabs>
     </div>
   );
 }

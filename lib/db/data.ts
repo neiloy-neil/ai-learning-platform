@@ -5,8 +5,11 @@ import type {
   Question,
   StudentResponse,
   User,
+  DemoAttempt,
 } from '@/lib/pcdc-types';
 import { QuestionDifficulty, UserRole } from '@/lib/pcdc-types';
+
+const currentYear = new Date().getFullYear();
 
 export const users: User[] = [
   { id: 'user1', name: 'Alice', email: 'alice@example.com', role: UserRole.STUDENT },
@@ -85,30 +88,43 @@ export const questions: Question[] = [
   },
 ];
 
-export const studentAttempts: StudentResponse[] = [
+export const studentAttempts: DemoAttempt[] = [
   {
-    id: 'attempt1',
+    id: 'attempt-1',
     studentId: 'user1',
-    questionId: 'q1',
+    questionId: 'question-1',
+    conceptIds: ['linear-equations'],
     isCorrect: true,
-    attemptTimestamp: new Date('2026-03-20T10:00:00Z'),
     confidenceRating: 4,
+    selectedOptionId: 'b',
+    submittedAt: new Date(currentYear, 2, 20, 10, 0).toISOString(),
+    source: 'practice',
+    mode: 'topic',
   },
   {
-    id: 'attempt2',
+    id: 'attempt-2',
     studentId: 'user1',
-    questionId: 'q2',
+    questionId: 'question-2',
+    conceptIds: ['graphing-inequalities'],
     isCorrect: true,
-    attemptTimestamp: new Date('2026-03-20T10:05:00Z'),
-    confidenceRating: 5,
+    confidenceRating: 4,
+    selectedOptionId: 'a',
+    submittedAt: new Date(currentYear, 2, 21, 9, 40).toISOString(),
+    source: 'practice',
+    mode: 'revision',
   },
   {
-    id: 'attempt3',
+    id: 'attempt-3',
     studentId: 'user1',
-    questionId: 'q3',
+    questionId: 'question-4',
+    conceptIds: ['quadratics'],
     isCorrect: false,
-    attemptTimestamp: new Date('2026-03-21T14:00:00Z'),
     confidenceRating: 2,
+    selectedOptionId: 'd',
+    submittedAt: new Date(currentYear, 2, 23, 16, 30).toISOString(),
+    source: 'assessment',
+    mode: 'assessment-review',
+    assessmentId: 'assess-2',
   },
 ];
 
@@ -166,4 +182,81 @@ export const parentAlerts = [
   { id: 'alert3', studentId: 'user1', message: "Alice's grade in Algebra has dropped.", type: 'grade_drop', createdAt: new Date('2026-03-23T16:00:00Z') },
 ];
 
-export const conceptMastery: ConceptMastery[] = [];
+export const conceptMastery: ConceptMastery[] = [
+    { id: 'mastery-1', studentId: 'user1', conceptId: 'linear-equations', masteryScore: 92, lastUpdated: new Date(currentYear, 2, 20) },
+    { id: 'mastery-2', studentId: 'user1', conceptId: 'graphing-inequalities', masteryScore: 78, lastUpdated: new Date(currentYear, 2, 19) },
+    { id: 'mastery-3', studentId: 'user1', conceptId: 'polynomials', masteryScore: 66, lastUpdated: new Date(currentYear, 2, 18) },
+    { id: 'mastery-4', studentId: 'user1', conceptId: 'quadratics', masteryScore: 42, lastUpdated: new Date(currentYear, 2, 16) },
+    { id: 'mastery-5', studentId: 'user1', conceptId: 'calculus-intro', masteryScore: 18, lastUpdated: new Date(currentYear, 2, 14) },
+];
+
+export const auditLogs: any[] = [];
+
+function getQuestionWeight(difficulty: Question['difficulty']) {
+  switch (difficulty) {
+    case QuestionDifficulty.EASY:
+      return 1;
+    case QuestionDifficulty.MEDIUM:
+      return 1.15;
+    case QuestionDifficulty.HARD:
+      return 1.3;
+    default:
+      return 1;
+  }
+}
+
+function getPrerequisitePenalty(conceptId: string, masteryMap: Map<string, number>) {
+  const prerequisites = conceptDependencies.filter((dependency) => dependency.sourceConceptId === conceptId);
+  if (prerequisites.length === 0) {
+    return 1;
+  }
+
+  const hasWeakPrerequisite = prerequisites.some((dependency) => (masteryMap.get(dependency.prerequisiteConceptId) ?? 0) < 60);
+  return hasWeakPrerequisite ? 0.92 : 1;
+}
+
+export function recalculateMastery(attempts: DemoAttempt[]): ConceptMastery[] {
+  const mastery = conceptMastery.map((item) => ({ ...item, lastUpdated: new Date(item.lastUpdated) }));
+  const masteryMap = new Map(mastery.map((item) => [item.conceptId, item.masteryScore]));
+
+  for (const concept of concepts) {
+    const conceptAttempts = attempts.filter((attempt) => attempt.conceptIds.includes(concept.id));
+    if (conceptAttempts.length === 0) {
+      continue;
+    }
+
+    const weightedScore = conceptAttempts.reduce((sum, attempt) => {
+      const question = questions.find((candidate) => candidate.id === attempt.questionId);
+      const questionWeight = getQuestionWeight(question?.difficulty ?? QuestionDifficulty.EASY);
+      const confidenceAdjustment = attempt.confidenceRating >= 4 ? 1.05 : attempt.confidenceRating <= 2 ? 0.92 : 1;
+      const recencyHours = Math.max(1, (Date.now() - new Date(attempt.submittedAt).getTime()) / (1000 * 60 * 60));
+      const recencyWeight = recencyHours < 48 ? 1.15 : recencyHours < 120 ? 1.05 : 0.95;
+      const baseScore = attempt.isCorrect ? 100 : 25;
+      return sum + baseScore * questionWeight * confidenceAdjustment * recencyWeight;
+    }, 0);
+
+    const averageScore = weightedScore / conceptAttempts.length;
+    const consistencyBonus = conceptAttempts.slice(-3).every((attempt) => attempt.isCorrect) ? 6 : 0;
+    const prerequisitePenalty = getPrerequisitePenalty(concept.id, masteryMap);
+    const baseMastery = conceptMastery.find((item) => item.conceptId === concept.id)?.masteryScore ?? 40;
+    const masteryScore = Math.max(5, Math.min(100, Math.round(((baseMastery * 0.4) + (averageScore * 0.6) + consistencyBonus) * prerequisitePenalty)));
+
+    masteryMap.set(concept.id, masteryScore);
+
+    const current = mastery.find((item) => item.conceptId === concept.id);
+    if (current) {
+      current.masteryScore = masteryScore;
+      current.lastUpdated = new Date();
+    }
+  }
+
+  return mastery;
+}
+
+export function updateProgress(newAttempts: DemoAttempt[]) {
+    studentAttempts.push(...newAttempts);
+    const newMastery = recalculateMastery(studentAttempts);
+    // Clear and replace the existing conceptMastery array
+    conceptMastery.length = 0;
+    conceptMastery.push(...newMastery);
+}

@@ -1,6 +1,7 @@
 
 // lib/mastery-engine.ts
-import { StudentResponse } from "./pcdc-types";
+import { DiagnosticResult } from './pcdc-types';
+import { classes } from './db/enrolment-data';
 
 const RECENCY_ATTEMPTS = 5;
 const CONSISTENCY_ATTEMPTS = 3;
@@ -36,4 +37,21 @@ export function calculateMasteryScore(attempts: any[]) {
     
     // Ensure score is between 0 and 1, then scale to 100
     return Math.round(Math.max(0, Math.min(1, masteryScore)) * 100);
+}
+(result: DiagnosticResult) {
+    const majorGaps = result.conceptScores.filter(cs => cs.status === 'needs_support').map(cs => cs.conceptName);
+
+    let recommendedLevel = result.grade;
+    if (result.overallScore < 50 && majorGaps.length > 2) {
+        const currentGrade = parseInt(result.grade.split(' ')[1]);
+        recommendedLevel = `Grade ${currentGrade - 1}`;
+    }
+
+    const recommendedClasses = classes.filter(c => c.level === recommendedLevel && c.status === 'active');
+
+    return {
+        majorGaps,
+        recommendedLevel,
+        recommendedClasses,
+    };
 }

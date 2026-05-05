@@ -1,12 +1,21 @@
 
 import { NextResponse } from 'next/server';
-import { notifications } from '@/lib/db/data';
+import { notifications, users } from '@/lib/db/data';
+import { cookies } from 'next/headers';
 
 export async function GET(req: Request) {
     try {
-        // In a real app, you'd fetch notifications for the logged-in user.
-        // For this mock, we'll return all notifications for user1.
-        const userNotifications = notifications.filter(n => n.userId === 'user1');
+        const session = cookies().get('session');
+        if (!session) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
+        const user = users.find(user => user.id === session.value);
+        if (!user) {
+            return new NextResponse("Unauthorized", { status: 401 });
+        }
+
+        const userNotifications = notifications.filter(n => n.userId === user.id);
         return NextResponse.json(userNotifications);
     } catch (error) {
         console.error("[NOTIFICATIONS_GET]", error);

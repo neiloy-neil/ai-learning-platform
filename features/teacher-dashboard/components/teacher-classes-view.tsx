@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
 import PageHeader from '@/components/layout/page-header';
@@ -8,8 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDemoData } from '@/features/demo/components/demo-data-provider';
 import { appRoutes, getTeacherStudentRoute } from '@/lib/app-routes';
 
+import TakeAttendanceModal from './take-attendance-modal';
+
 export default function TeacherClassesView() {
   const { teacherState } = useDemoData();
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<any>(null);
+
+  const handleTakeAttendance = (teacherClass: any) => {
+    setSelectedClass(teacherClass);
+    setIsAttendanceModalOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -53,6 +63,8 @@ export default function TeacherClassesView() {
                     <Button asChild className="md:flex-1" size="sm" variant="ghost">
                       <Link href={appRoutes.teacher.analytics}>Open class analytics</Link>
                     </Button>
+                    <Button className="md:flex-1" size="sm" onClick={() => handleTakeAttendance(teacherClass)}>Take Attendance</Button>
+                    <Button className="md:flex-1" size="sm">Assign Homework</Button>
                   </div>
                 </div>
               );
@@ -103,6 +115,13 @@ export default function TeacherClassesView() {
           </div>
         </CardContent>
       </Card>
+
+      {isAttendanceModalOpen && (
+        <TakeAttendanceModal
+          students={teacherState.students.filter(student => student.classId === selectedClass.id)}
+          onClose={() => setIsAttendanceModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

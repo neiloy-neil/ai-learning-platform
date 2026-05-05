@@ -104,7 +104,7 @@ export default function AssessmentListView() {
                 </>
               ) : null}
               <div className="flex flex-col gap-3">
-                <Button onClick={() => router.push(`${appRoutes.student.practice}?assessmentId=${assessment.id}`)}>
+                <Button onClick={() => router.push(`${appRoutes.student.assessments}/${assessment.id}`)}>
                   {assessment.status === 'In Progress' ? 'Resume' : assessment.status === 'Reviewed' ? 'Review' : 'Start'}
                 </Button>
                 <Button asChild variant="secondary">
